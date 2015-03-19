@@ -1,0 +1,92 @@
+{namespace com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild}
+
+/**
+ * @param jobs
+ */
+{template .dialogContent}
+    {call aui.form.form}
+        {param content}
+	    <select class="select" id="job" name="job" style="max-width:150px;">
+	        {for $i in range(length($jobs))}
+            	<option value="{$i}">{$jobs[$i]['jobName']}</option>
+            {/for}
+	    </select>
+        {/param}
+    {/call}
+{/template}
+
+/**
+ * @param count
+ * @param branchName
+ * @param parameters
+ */
+{template .setupParams}
+    {call aui.form.form}
+        {param content}
+        	<div class="job-params">
+            {for $i in range($count)}
+            	{call .anotherParam}
+	            	{param count: $i /}
+	            	{param title: $parameters[$i][0] /}
+	            	{param value: $parameters[$i][1] /}
+	            	{param branchName: $branchName /}
+            	{/call}
+      		{/for}
+      		</div>
+        {/param}
+        {param action: ''/}
+    {/call}
+{/template}
+
+/**
+ * @param count
+ * @param title
+ * @param value
+ * @param branchName
+ */
+{template .anotherParam}
+  
+    <div id="web-post-hook-{$count}" class="field-group web-post-hook">
+        
+	        {if $value.length > 1}
+		        {call aui.form.label}
+		             {param forField : 'build-param-value-' + $count /}
+		             {param content : $title /}
+		        {/call}
+		        <select class="select" id="build-param-value-{$count}">
+		        	{foreach $selectValue in $value}
+		            	<option value="{$selectValue}">{$selectValue}</option>
+		            {/foreach}
+		        </select>
+			{elseif $value == 'true' or $value == 'false'}
+				<div class="checkbox">
+					<input class="checkbox" type="checkbox" id="build-param-value-{$count}" name="build-param-value-{$count}" 
+						{$value == 'true' ? 'checked="checked"' : ''}>
+					<label for="build-param-value-2">{$title}</label>
+				</div>
+			{else}
+		        {call aui.form.label}
+		             {param forField : 'build-param-value-' + $count /}
+		             {param content : $title /}
+		        {/call}
+		        <input class="text" 
+		               id="build-param-value-{$count}"
+		               type="text" 
+		               name="build-param-value-{$count}"
+		               value="{$value == '$BRANCH' ? $branchName : $value}"
+		               {($value == '$BRANCH') ? 'disabled' : ''}>
+			{/if}
+    </div>
+  
+{/template}
+
+/**
+ * Start build button
+ */
+{template .getButton}
+	{call widget.aui.form.button}
+	    {param id: 'triggerButton' /}
+	    {param label: 'Start Build' /}
+	    {param autofocus: true /}
+	{/call}
+{/template}

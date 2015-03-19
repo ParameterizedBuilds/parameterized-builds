@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+  <plugin-info>
+    <description>${project.description}</description>
+    <version>${project.version}</version>
+    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    <param name="plugin-icon">images/icon.png</param>
+    <param name="plugin-logo">images/icon.png</param>
+  </plugin-info>
+  
+  <!-- add our i18n resource -->
+  <resource type="i18n" name="i18n" location="parameterized-builds"/>
+  
+  <!-- add our components resources -->
+  <component-import key="soyTemplateRenderer" interface="com.atlassian.soy.renderer.SoyTemplateRenderer"/>
+  <component-import key="i18nService" interface="com.atlassian.stash.i18n.I18nService"/>
+  <component key="SettingsService" class="com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService"/>
+  <component key="PullRequestHook" class="com.kylenicholls.stash.parameterizedbuilds.PullRequestHook"/>
+  <component key="Jenkins" class="com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins"/>
+  
+  <!-- add our web resources -->
+  <web-resource key="parameterized-builds-resources" name="Parameterized Builds Web Resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <resource type="download" name="parameterized-builds.js" location="/js/parameterized-builds.js"/>
+    <resource type="download" name="images/" location="/images"/>
+    <context>parameterized-builds</context>
+  </web-resource>
+  
+  <!-- Hook config css resource -->
+  <web-resource key="postReceiveHook-css">
+    <transformation extension="less">
+      <transformer key="less-transformer"/>
+    </transformation>
+    <resource type="download" name="hooks.css" location="/less/hooks.less"/>
+    <context>stash.page.repository.settings.hooks</context>
+  </web-resource>
+  
+  <!-- Pullrequest trigger button resource -->
+  <web-resource key="pullrequest-trigger-jenkins-resource">
+    <resource type="download" name="pullrequest-trigger-jenkins.js" location="/js/jenkins/pullrequest-trigger-jenkins.js"/>
+    <dependency>${project.groupId}.${project.artifactId}:trigger-jenkins</dependency>
+    <context>stash.page.pullRequest.view</context>
+  </web-resource>
+  
+  <!-- Layout trigger button resource -->
+  <web-resource key="branchlayout-trigger-jenkins-resource" name="Jenkins branch build layout resource">
+    <resource name="branchlayout-trigger-jenkins.js" type="download" location="/js/jenkins/branchlayout-trigger-jenkins.js"/>
+    <dependency>${project.groupId}.${project.artifactId}:trigger-jenkins</dependency>
+  </web-resource>
+  
+  <!-- List button resource -->
+  <web-resource key="branchlist-trigger-jenkins-resource" name="Jenkins branch build list resource">
+    <resource name="branchlist-trigger-jenkins.js" type="download" location="/js/jenkins/branchlist-trigger-jenkins.js"/>
+    <dependency>${project.groupId}.${project.artifactId}:trigger-jenkins</dependency>
+  </web-resource>
+  
+  <!-- Jenkins JS build feature -->
+  <web-resource name="Jenkins Branch Build Feature" i18n-name-key="trigger-jenkins.name" key="trigger-jenkins">
+    <transformation extension="soy">
+      <transformer key="soyTransformer"/>
+    </transformation>
+    <resource name="trigger-jenkins.js" type="download" location="/js/jenkins/feature/trigger-jenkins.js"/>
+    <resource name="trigger-jenkins.soy.js" type="download" location="/js/jenkins/feature/trigger-jenkins.soy"/>
+    <directory location="/js/jenkins/feature/"/>
+    <dependency>com.atlassian.stash.stash-web-plugin:global</dependency>
+    <dependency>com.atlassian.stash.stash-web-plugin:notifications-center</dependency>
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+  </web-resource>
+  
+  <!-- Hook -->
+  <repository-hook name="Parameterized Build Hook" i18n-name-key="parameterized-builds.name" key="parameterized-build-hook" class="com.kylenicholls.stash.parameterizedbuilds.ParameterizedBuildHook">
+    <description key="parameterized-builds.description">Adds a build hook with customizable parameters for Jenkins</description>
+    <icon>images/icon.png</icon>
+    <config-form name="Parameterized Build Hook Config" key="parameterized-build-hook-config">
+      <view>com.kylenicholls.stash.parameterizedbuilds.hook.view</view>
+      <directory location="/static/"/>
+    </config-form>
+  </repository-hook>
+  
+  <!-- Rest resource -->
+  <rest key="jenkins-rest" path="/parameterized-builds" version="1.0">
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <init-param>
+      <param-name>extension.filter.excludes</param-name>
+      <param-value>.*</param-value>
+    </init-param>
+    <package>com.kylenicholls.stash.parameterizedbuilds.rest</package>
+  </rest>
+  
+  <!-- web items -->
+  <web-item key="pullrequest-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="50" section="stash.pull-request.toolbar.actions">
+    <conditions type="AND">
+      <condition class="com.atlassian.stash.web.conditions.PullRequestInState">
+        <param name="state">OPEN</param>
+      </condition>
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.ManualButtonCondition"/>
+    </conditions>
+    <label key="jenkins-build-trigger.buttonText"/>
+    <tooltip>Build branch in Jenkins</tooltip>
+    <styleClass>pullrequest-trigger-jenkins</styleClass>
+    <dependency>${project.groupId}-${project.artifactId}:pullrequest-trigger-jenkins-resource</dependency>
+  </web-item>
+  <client-web-item key="branchlayout-trigger-jenkins" name="Trigger Jenkins Builds From Branch Layout" section="stash.branch.layout.actions.dropdown" weight="1000">
+    <label key="jenkins-build-trigger.buttonText"/>
+    <tooltip>Build branch in Jenkins</tooltip>
+    <styleClass>branchlayout-trigger-jenkins</styleClass>
+    <dependency>${project.groupId}.${project.artifactId}:branchlayout-trigger-jenkins-resource</dependency>
+    <client-condition>function(ctx) { return ctx.atRevisionRef.type.id === 'branch'}</client-condition>
+    <resource name="view" type="soy" location="${project.groupId}.${project.artifactId}:trigger-jenkins/com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.dialogContent"/>
+    <conditions type="AND">
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.ManualButtonCondition"/>
+    </conditions>
+  </client-web-item>
+  <client-web-item key="branchlist-trigger-jenkins" name="Trigger Jenkins Builds From Branch List" section="stash.branch.list.actions.dropdown" weight="1000">
+    <label key="jenkins-build-trigger.buttonText"/>
+    <tooltip>Build branch in Jenkins</tooltip>
+    <styleClass>branchlist-trigger-jenkins</styleClass>
+    <dependency>${project.groupId}.${project.artifactId}:branchlist-trigger-jenkins-resource</dependency>
+    <conditions type="AND">
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.ManualButtonCondition"/>
+    </conditions>
+  </client-web-item>
+  
+  <stash-resource key="jenkins-admin-soy" name="Jenkins Admin Soy">
+    <directory location="/templates/" />
+    <dependency>com.atlassian.stash.stash-web-plugin:global</dependency>
+    <dependency>com.atlassian.stash.stash-web-plugin:server-soy-templates</dependency>
+  </stash-resource>
+  <web-item name="Jenkins Admin Settings" key="jenkins-admin-tab" section="atl.admin/admin-plugins-section" weight="30">
+    <label>Jenkins Settings</label>
+    <link linkId="reminder-config-link">/plugins/servlet/jenkins</link>
+  </web-item>
+  <web-item name="Jenkins User Settings" key="jenkins-user-tab" section="stash.user.account.nav" weight="200">
+    <label>Jenkins Settings</label>
+    <link>/plugins/servlet/account/users/${accountUser.name}/jenkins</link>
+    <tooltip>Jenkins Settings</tooltip>
+  </web-item>
+  <servlet name="CI Servlet" i18n-name-key="ci-servlet.name" key="ci-servlet" class="com.kylenicholls.stash.parameterizedbuilds.ciserver.CIServlet">
+    <description key="ci-servlet.description">The CI Servlet Plugin</description>
+    <url-pattern>*/jenkins</url-pattern>
+  </servlet>
+</atlassian-plugin>
