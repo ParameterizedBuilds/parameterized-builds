@@ -92,19 +92,15 @@ public class CIServlet extends HttpServlet{
     	if (pathInfo.contains("/account/users/")) {
 			String userSlug = authenticationContext.getCurrentUser().getSlug();
 			String token = req.getParameter("jenkinsToken");
-			if (token.isEmpty()){
-	    		Server server = jenkins.getSettings();
-	    		String baseUrl = server != null ? server.getBaseUrl() : null;
-				render(res, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", authenticationContext.getCurrentUser(), 
-						"token", token, "baseUrl", baseUrl, "errors", "Token is required"));
-				return;
-			}
     		jenkins.setUserSettings(userSlug, token);
     	} else {
     		String jenkinsUrl = req.getParameter("jenkinsUrl");
     		String jenkinsUser = req.getParameter("jenkinsUser");
     		String jenkinsToken = req.getParameter("jenkinsToken");
-    		if (jenkinsUrl.isEmpty() || jenkinsUser.isEmpty() || jenkinsToken.isEmpty()) {
+    		String clear = req.getParameter("clear-settings");
+    		if (clear != null && clear.equals("on")){
+    			jenkins.setSettings("", "", "");
+    		} else if (jenkinsUrl.isEmpty() || jenkinsUser.isEmpty() || jenkinsToken.isEmpty()) {
             	render(res, "jenkins.admin.settings", ImmutableMap.<String, Object>of("server", new Server(jenkinsUrl, jenkinsUser, jenkinsToken), "errors", "All fields required"));
             	return;
     		} else {

@@ -23,9 +23,6 @@
 			{call .anotherParam}
 				{param token: $token /}
 			{/call}
-			{if $errors}
-				<div class="field-group"><div class="error">Token is required</div></div>
-			{/if}
 			{if $baseUrl}
 				<div class="field-group">
 					 <a class="aui-button" onClick="window.open( '{$baseUrl}/user/{$user.slug}/configure', '_blank' )">Get Jenkins API Token</a>
