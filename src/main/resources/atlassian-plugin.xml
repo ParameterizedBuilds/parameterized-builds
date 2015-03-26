@@ -100,13 +100,13 @@
     </conditions>
     <label key="jenkins-build-trigger.buttonText"/>
     <tooltip>Build branch in Jenkins</tooltip>
-    <styleClass>pullrequest-trigger-jenkins</styleClass>
+    <styleClass>parameterized-build-pullrequest</styleClass>
     <dependency>${project.groupId}-${project.artifactId}:pullrequest-trigger-jenkins-resource</dependency>
   </web-item>
   <client-web-item key="branchlayout-trigger-jenkins" name="Trigger Jenkins Builds From Branch Layout" section="stash.branch.layout.actions.dropdown" weight="1000">
     <label key="jenkins-build-trigger.buttonText"/>
     <tooltip>Build branch in Jenkins</tooltip>
-    <styleClass>branchlayout-trigger-jenkins</styleClass>
+    <styleClass>parameterized-build-layout</styleClass>
     <dependency>${project.groupId}.${project.artifactId}:branchlayout-trigger-jenkins-resource</dependency>
     <client-condition>function(ctx) { return ctx.atRevisionRef.type.id === 'branch'}</client-condition>
     <resource name="view" type="soy" location="${project.groupId}.${project.artifactId}:trigger-jenkins/com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.dialogContent"/>
@@ -118,7 +118,7 @@
   <client-web-item key="branchlist-trigger-jenkins" name="Trigger Jenkins Builds From Branch List" section="stash.branch.list.actions.dropdown" weight="1000">
     <label key="jenkins-build-trigger.buttonText"/>
     <tooltip>Build branch in Jenkins</tooltip>
-    <styleClass>branchlist-trigger-jenkins</styleClass>
+    <styleClass>parameterized-build-branchlist</styleClass>
     <dependency>${project.groupId}.${project.artifactId}:branchlist-trigger-jenkins-resource</dependency>
     <conditions type="AND">
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>

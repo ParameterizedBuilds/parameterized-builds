@@ -95,7 +95,7 @@ define('trigger/trigger-jenkins', [
         SetupJobForm(selects, selectedValue);
         
         dialog.$el.find('form').on('submit', function(e) { e.preventDefault(); });
-        dialog.$el.find('#triggerButton').on('click', function() {
+        dialog.$el.find('#start-build').on('click', function() {
             _.defer(function() {
             	var $jobParameters = dialog.$el.find('.web-post-hook');
             	var jobSelect = document.getElementById("job");

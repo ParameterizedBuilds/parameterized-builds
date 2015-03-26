@@ -1,4 +1,4 @@
-define('jenkins/branchlist-trigger-jenkins', [
+define('jenkins/parameterized-build-branchlist', [
     'jquery',
     'trigger/trigger-jenkins',
     'exports'
@@ -8,12 +8,12 @@ define('jenkins/branchlist-trigger-jenkins', [
     exports
 ) {
     exports.onReady = function () {
-    	branchBuild.bindToDropdownLink('.branchlist-trigger-jenkins', '.branch-list-action-dropdown', function (element) {
+    	branchBuild.bindToDropdownLink('.parameterized-build-branchlist', '.branch-list-action-dropdown', function (element) {
             return $(element).closest('[data-display-id]').attr('data-display-id');
         });
     };
 });
 
 AJS.$(document).ready(function () {
-    require('jenkins/branchlist-trigger-jenkins').onReady();
+    require('jenkins/parameterized-build-branchlist').onReady();
 });

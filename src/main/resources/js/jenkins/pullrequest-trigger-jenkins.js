@@ -1,4 +1,4 @@
-define('jenkins/pullrequest-trigger-jenkins', [
+define('jenkins/parameterized-build-pullrequest', [
   'aui',
   'jquery',
   'widget/notifications-center',
@@ -93,7 +93,7 @@ define('jenkins/pullrequest-trigger-jenkins', [
         SetupJobForm(selects, selectedValue);
         
         dialog.$el.find('form').on('submit', function(e) { e.preventDefault(); });
-        dialog.$el.find('#triggerButton').on('click', function() {
+        dialog.$el.find('#start-build').on('click', function() {
             _.defer(function() {
             	var $jobParameters = dialog.$el.find('.web-post-hook');
             	var jobSelect = document.getElementById("job");
@@ -115,7 +115,7 @@ define('jenkins/pullrequest-trigger-jenkins', [
         }).focus().select();
     }
 	
-	$(".pullrequest-trigger-jenkins").click(function() {
+	$(".parameterized-build-pullrequest").click(function() {
 		var prJSON = require('model/page-state').getPullRequest().toJSON();
 		branchName = prJSON.fromRef.id;
 		branchName = branchName.replace("refs/heads/","");
@@ -151,5 +151,5 @@ define('jenkins/pullrequest-trigger-jenkins', [
 });
 
 AJS.$(document).ready(function() {
-    require('jenkins/pullrequest-trigger-jenkins');
+    require('jenkins/parameterized-build-pullrequest');
 });

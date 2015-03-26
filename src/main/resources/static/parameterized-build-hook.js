@@ -104,10 +104,17 @@
         $(document).on('click', '.branch-created', function(e) {
             e.preventDefault();
             var classes = $(this).find('span').attr('class');
+            var id = $(this).parent().parent().get(0).id.replace("job-", "");
             if (classes.indexOf("aui-lozenge-success") > -1) {
             	updateTrigger($(this).parent().parent(), "add;", false);
+				var trigger = $(this).parent().parent().find('#triggers-' + id);
+				var existing = trigger.val();
+            	if (existing.indexOf("push;") == -1 && existing.indexOf("delete;") == -1) {
+					$(this).parent().parent().find('#branchRegex-' + id).parent().addClass('hide-branches');
+            	}
             } else {
             	updateTrigger($(this).parent().parent(), "add;", true);
+				$(this).parent().parent().find('#branchRegex-' + id).parent().removeClass('hide-branches');
             }
             $(this).find('span').toggleClass("aui-lozenge-success");
         });
@@ -115,10 +122,19 @@
         $(document).on('click', '.push-event', function(e) {
             e.preventDefault();
             var classes = $(this).find('span').attr('class');
+            var id = $(this).parent().parent().get(0).id.replace("job-", "");
             if (classes.indexOf("aui-lozenge-success") > -1) {
             	updateTrigger($(this).parent().parent(), "push;", false);
+				$(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
+				var trigger = $(this).parent().parent().find('#triggers-' + id);
+				var existing = trigger.val();
+            	if (existing.indexOf("add;") == -1 && existing.indexOf("delete;") == -1) {
+					$(this).parent().parent().find('#branchRegex-' + id).parent().addClass('hide-branches');
+            	}
             } else {
             	updateTrigger($(this).parent().parent(), "push;", true);
+				$(this).parent().parent().find('#branchRegex-' + id).parent().removeClass('hide-branches');
+				$(this).parent().parent().find('#pathRegex-' + id).parent().removeClass('hide-paths');
             }
             $(this).find('span').toggleClass("aui-lozenge-success");
         });
@@ -148,10 +164,17 @@
         $(document).on('click', '.branch-deleted', function(e) {
             e.preventDefault();
             var classes = $(this).find('span').attr('class');
+            var id = $(this).parent().parent().get(0).id.replace("job-", "");
             if (classes.indexOf("aui-lozenge-success") > -1) {
             	updateTrigger($(this).parent().parent(), "delete;", false);
+				var trigger = $(this).parent().parent().find('#triggers-' + id);
+				var existing = trigger.val();
+            	if (existing.indexOf("push;") == -1 && existing.indexOf("add;") == -1) {
+					$(this).parent().parent().find('#branchRegex-' + id).parent().addClass('hide-branches');
+            	}
             } else {
             	updateTrigger($(this).parent().parent(), "delete;", true);
+				$(this).parent().parent().find('#branchRegex-' + id).parent().removeClass('hide-branches');
             }
             $(this).find('span').toggleClass("aui-lozenge-success");
         });

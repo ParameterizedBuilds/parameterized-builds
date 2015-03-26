@@ -52,8 +52,7 @@ public class PullRequestHook {
 	public void onPullRequestRescoped(PullRequestRescopedEvent event)
 			throws IOException {
 		final PullRequest pullRequest = event.getPullRequest();
-		if (!event.getPreviousFromHash().equals(
-				pullRequest.getFromRef().getLatestCommit())) {
+		if (!event.getPreviousFromHash().equals(pullRequest.getFromRef().getLatestChangeset())) {
 			triggerFromPR(pullRequest);
 		}
 	}

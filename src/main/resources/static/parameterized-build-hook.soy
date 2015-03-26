@@ -93,7 +93,7 @@
 	        {param id: 'token-' + $count /}
 	        {param value: $token /}
 	        {param labelContent: 'Token' /}
-	        {param descriptionText: 'Trigger builds remotely (e.g., from scripts) or leave blank to use Jenkins master API token' /}
+	        {param descriptionText: 'Trigger builds remotely (e.g., from scripts) or leave blank to use user API token' /}
         	{param errorTexts: $errors ? $errors['token-' + $count] : null /}
         	{param extraClasses: $collapsed ? 'hidden' : '' /}
 	    {/call}
@@ -108,6 +108,15 @@
 			{param fieldWidth: 'full-width' /}
         	{param extraClasses: $collapsed ? 'hidden' : '' /}
 	    {/call}
+	    {let $branchClasses}
+		    {if $collapsed and not (strContains($triggers, 'add;') or strContains($triggers, 'delete;') or strContains($triggers, 'push;'))}
+		    	hidden hide-branches
+		    {elseif $collapsed and (strContains($triggers, 'add;') or strContains($triggers, 'delete;') or strContains($triggers, 'push;'))}
+		    	hidden
+		    {elseif not $collapsed and not (strContains($triggers, 'add;') or strContains($triggers, 'delete;') or strContains($triggers, 'push;'))}
+		    	hide-branches
+		    {/if}
+	    {/let}
 		{call aui.form.textField}
 	        {param id: 'branchRegex-' + $count /}
 	        {param value: $branchRegex /}
@@ -115,8 +124,17 @@
 	        {param extraClass: 'long-field' /}
 			{param fieldWidth: 'full-width' /}
         	{param descriptionText: 'Trigger builds for matched branches (example: "release.*|hotfix.*|production")' /}
-        	{param extraClasses: $collapsed ? 'hidden' : '' /}
+        	{param extraClasses: $branchClasses /}
 	    {/call}
+	    {let $pathClasses}
+		    {if $collapsed and not (strContains($triggers, 'push;'))}
+		    	hidden hide-paths
+		    {elseif $collapsed and (strContains($triggers, 'push;'))}
+		    	hidden
+		    {elseif not $collapsed and not (strContains($triggers, 'push;'))}
+		    	hide-paths
+		    {/if}
+	    {/let}
 		{call aui.form.textField}
 	        {param id: 'pathRegex-' + $count /}
 	        {param value: $pathRegex /}
@@ -124,7 +142,7 @@
 	        {param extraClass: 'long-field' /}
 			{param fieldWidth: 'full-width' /}
         	{param descriptionText: 'Trigger builds if matched files are modified (example: "directory/.*.txt|foobar/.*")' /}
-        	{param extraClasses: $collapsed ? 'hidden' : '' /}
+        	{param extraClasses: $pathClasses /}
 	    {/call}
 		<hr>
     </div>
