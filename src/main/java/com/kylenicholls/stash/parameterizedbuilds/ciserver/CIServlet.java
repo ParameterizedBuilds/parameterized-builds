@@ -43,20 +43,25 @@ public class CIServlet extends HttpServlet{
     	String pathInfo = req.getPathInfo();
     	if (authenticationContext.isAuthenticated()) {
     		Server server = jenkins.getSettings();
-    		String baseUrl = server != null ? server.getBaseUrl() : "";
+    		String baseUrl = server != null ? server.getBaseUrl() : null;
     		if (pathInfo.contains("/account/users/")) {
     			StashUser stashUser = authenticationContext.getCurrentUser();
         		String jenkinsToken = jenkins.getUserSettings(stashUser.getSlug());
+        		if (baseUrl == null) {
+        			render(resp, "jenkins.user.settings", 
+        					ImmutableMap.<String, Object>of("user", stashUser, "token", "", "baseUrl", "", "errors", "A Stash administrator must configure the base settings for Jenkins first. These settings can be found on the admin page of Stash."));
+        			return;
+        		}
         		if (jenkinsToken == null) {
-            		render(resp, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", stashUser, "token", "", "baseUrl", baseUrl));
+            		render(resp, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", stashUser, "token", "", "baseUrl", baseUrl, "errors", ""));
         		} else {
-            		render(resp, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", stashUser, "token", jenkinsToken, "baseUrl", baseUrl));
+            		render(resp, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", stashUser, "token", jenkinsToken, "baseUrl", baseUrl, "errors", ""));
         		}
     		} else {
         		if (server == null) {
-            		render(resp, "jenkins.admin.settings", ImmutableMap.<String, Object>of("server", ""));
+            		render(resp, "jenkins.admin.settings", ImmutableMap.<String, Object>of("server", "", "errors", ""));
         		} else {
-            		render(resp, "jenkins.admin.settings", ImmutableMap.<String, Object>of("server", server));
+            		render(resp, "jenkins.admin.settings", ImmutableMap.<String, Object>of("server", server, "errors", ""));
         		}
     		}
     		
@@ -86,9 +91,25 @@ public class CIServlet extends HttpServlet{
     	String pathInfo = req.getPathInfo();
     	if (pathInfo.contains("/account/users/")) {
 			String userSlug = authenticationContext.getCurrentUser().getSlug();
-    		jenkins.setUserSettings(userSlug, req.getParameter("jenkinsToken"));
+			String token = req.getParameter("jenkinsToken");
+			if (token.isEmpty()){
+	    		Server server = jenkins.getSettings();
+	    		String baseUrl = server != null ? server.getBaseUrl() : null;
+				render(res, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", authenticationContext.getCurrentUser(), 
+						"token", token, "baseUrl", baseUrl, "errors", "Token is required"));
+				return;
+			}
+    		jenkins.setUserSettings(userSlug, token);
     	} else {
-    		jenkins.setSettings(req.getParameter("jenkinsUrl"), req.getParameter("jenkinsUser"), req.getParameter("jenkinsToken"));
+    		String jenkinsUrl = req.getParameter("jenkinsUrl");
+    		String jenkinsUser = req.getParameter("jenkinsUser");
+    		String jenkinsToken = req.getParameter("jenkinsToken");
+    		if (jenkinsUrl.isEmpty() || jenkinsUser.isEmpty() || jenkinsToken.isEmpty()) {
+            	render(res, "jenkins.admin.settings", ImmutableMap.<String, Object>of("server", new Server(jenkinsUrl, jenkinsUser, jenkinsToken), "errors", "All fields required"));
+            	return;
+    		} else {
+    			jenkins.setSettings(jenkinsUrl, jenkinsUser, jenkinsToken);
+    		}
     	}
         doGet(req, res);
     }

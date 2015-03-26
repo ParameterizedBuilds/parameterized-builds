@@ -2,6 +2,7 @@
 
 /**
  * @param server
+ * @param errors
  */
 {template .settings}
 <html>
@@ -16,6 +17,9 @@
 		{call .anotherParam}
 			{param server: $server /}
 		{/call}
+		{if $errors}
+			<div class="field-group"><div class="error">All fields required</div></div>
+		{/if}
 	    {call aui.form.submit}
 	      {param id: 'submit' /}
 	      {param text: 'Save' /}

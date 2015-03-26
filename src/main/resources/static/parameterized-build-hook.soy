@@ -6,6 +6,9 @@
  */
 {template .view}
 	<div class="parameterized-builds">
+		{if $errors and $errors['jenkins-admin-error']}
+				<div class="field-group"><div class="error">{$errors['jenkins-admin-error']}</div></div>
+		{/if}
 		{let $configKeys: $config ? keys($config) : [] /}	
 		{let $visibleInputsCount: $configKeys.length > 0 ? ($configKeys.length / 6) : 1 /}
 		{for $i in range($visibleInputsCount)}

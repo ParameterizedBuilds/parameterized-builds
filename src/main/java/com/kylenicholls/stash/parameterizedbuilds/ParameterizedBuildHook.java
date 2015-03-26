@@ -12,6 +12,7 @@ import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.atlassian.stash.hook.repository.RepositoryHookContext;
 import com.atlassian.stash.repository.RefChange;
 import com.atlassian.stash.repository.Repository;
@@ -112,6 +113,12 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 	@Override
 	public void validate(Settings settings, SettingsValidationErrors errors,
 			Repository repository) {
+
+		Server server = jenkins.getSettings();
+		if (server == null || server.getBaseUrl().isEmpty()) {
+			errors.addFieldError("jenkins-admin-error", "Jenkins is not setup in Stash");
+			return;
+		}
 		List<Job> jobList = settingsService.getJobs(settings.asMap());
 		
 		for (int i = 0; i < jobList.size(); i++) {
