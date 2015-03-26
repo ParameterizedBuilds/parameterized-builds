@@ -21,7 +21,7 @@ import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
-public class ConditionalBuildHookTest {
+public class ParameterizedBuildHookTest {
 	private RefChange refChange;
 	private ParameterizedBuildHook buildHook;
 	private SettingsService settingsService;

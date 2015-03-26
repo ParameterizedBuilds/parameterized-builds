@@ -1,13 +1,15 @@
-define('jenkins/parameterized-build-pullrequest', [
-  'aui',
-  'jquery',
-  'widget/notifications-center',
-  'model/page-state'
+define('trigger/build-dialog', [
+    'aui',
+    'jquery',
+    'widget/notifications-center',
+    'exports',
+    'model/page-state'
 ], function(
-   _aui,
-   $,
-   notificationsCenter,
-   pageState
+    _aui,
+    $,
+    notificationsCenter,
+    exports,
+    pageState
 ) {
 	var branchName;
 	var jobs;
@@ -64,7 +66,7 @@ define('jenkins/parameterized-build-pullrequest', [
 		var $container = $('.job-params');
 		$container.remove();
 		var parameterArray = getParameterArray(jobId);
-		var html = com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.setupParams({
+		var html = com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.createParams({
             'count' : parameterArray.length,
             'branchName' : branchName,
             'parameters' : parameterArray
@@ -81,10 +83,10 @@ define('jenkins/parameterized-build-pullrequest', [
     	
         var dialog = _aui.dialog2(aui.dialog.dialog2({
             titleText: AJS.I18n.getText('Build with Parameters'),
-            content: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.dialogContent({
+            content: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildDialog({
                 jobs: jobIdArray
             }),
-            footerActionContent: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.getButton(),
+            footerActionContent: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildButton(),
             removeOnHide: true
         })).show();
         
@@ -115,41 +117,50 @@ define('jenkins/parameterized-build-pullrequest', [
         }).focus().select();
     }
 	
-	$(".parameterized-build-pullrequest").click(function() {
-		var prJSON = require('model/page-state').getPullRequest().toJSON();
-		branchName = prJSON.fromRef.id;
-		branchName = branchName.replace("refs/heads/","");
-		
-		var resourceUrl = getResourceUrl("getJobs");
-    	
-		jobs = getJobs(resourceUrl);
-    	var jobArray = [];
-    	for (var i in jobs){
-    		jobArray.push(jobs[i]);
- 	    }
-    	
-    	if (jobArray.length == 1){
-    		parameters = getParameterArray("0");
-        	if (parameters.length == 0){
-        		var buildUrl = getResourceUrl("triggerBuild?id=0");
-        		triggerBuild(buildUrl);
-        	} else if (parameters.length == 1 && parameters[0][1] == "$BRANCH") {
-        		var buildUrl = getResourceUrl("triggerBuild?id=0");
-        		triggerBuild(buildUrl + "&" + parameters[0][0] + "=" + branchName);
-        	} else {
-        		var buildUrl = getResourceUrl("triggerBuild");
-        		showManualBuildDialog(buildUrl, jobArray);
-        	}
-    	} else {
-    		var buildUrl = getResourceUrl("triggerBuild");
-        	showManualBuildDialog(buildUrl, jobArray);
-    	}
-    	
-		return false;
-	});
+	function bindToDropdownLink(linkSelector, dropDownSelector, getBranchNameFunction) {
+        //selecting on the document as the drop down is absolutely positioned and may not have a parent other than the document
+        $(document).on('aui-dropdown2-show', dropDownSelector, function () {
+        	var $dropdownMenu = $(this);
+        	var $buildTriggerButton = $(linkSelector);
+            branchName = getBranchNameFunction($dropdownMenu);
 
-});
+            var triggerBuildSetup = function() {
+            	var resourceUrl = getResourceUrl("getJobs");
+            	
+            	jobs = getJobs(resourceUrl);
+            	var jobArray = [];
+            	for (var i in jobs){
+            		jobArray.push(jobs[i]);
+         	    }
+            	
+            	if (jobArray.length == 1){
+            		parameters = getParameterArray("0");
+                	if (parameters.length == 0){
+                		var buildUrl = getResourceUrl("triggerBuild?id=0");
+                		triggerBuild(buildUrl);
+                	} else if (parameters.length == 1 && parameters[0][1] == "$BRANCH") {
+                		var buildUrl = getResourceUrl("triggerBuild?id=0");
+                		triggerBuild(buildUrl + "&" + parameters[0][0] + "=" + branchName);
+                	} else {
+                		var buildUrl = getResourceUrl("triggerBuild");
+                		showManualBuildDialog(buildUrl, jobArray);
+                	}
+            	} else {
+            		var buildUrl = getResourceUrl("triggerBuild");
+                	showManualBuildDialog(buildUrl, jobArray);
+            	}
 
-AJS.$(document).ready(function() {
-    require('jenkins/parameterized-build-pullrequest');
+            	$dropdownMenu.hide();
+            	return false
+            };
+            
+            $buildTriggerButton.on('click', triggerBuildSetup);
+            $dropdownMenu.on('aui-dropdown2-hide', function() {
+            	$buildTriggerButton.off('click', triggerBuildSetup);
+            });
+            return false;
+        });
+    };
+	
+    exports.bindToDropdownLink = bindToDropdownLink;
 });

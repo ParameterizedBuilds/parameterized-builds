@@ -3,7 +3,7 @@
 /**
  * @param jobs
  */
-{template .dialogContent}
+{template .buildDialog}
     {call aui.form.form}
         {param content}
 	    <select class="select" id="job" name="job" style="max-width:150px;">
@@ -20,12 +20,12 @@
  * @param branchName
  * @param parameters
  */
-{template .setupParams}
+{template .createParams}
     {call aui.form.form}
         {param content}
         	<div class="job-params">
             {for $i in range($count)}
-            	{call .anotherParam}
+            	{call .addParam}
 	            	{param count: $i /}
 	            	{param title: $parameters[$i][0] /}
 	            	{param value: $parameters[$i][1] /}
@@ -44,7 +44,7 @@
  * @param value
  * @param branchName
  */
-{template .anotherParam}
+{template .addParam}
   
     <div id="web-post-hook-{$count}" class="field-group web-post-hook">
         
@@ -83,7 +83,7 @@
 /**
  * Start build button
  */
-{template .getButton}
+{template .buildButton}
 	{call widget.aui.form.button}
 	    {param id: 'start-build' /}
 	    {param label: 'Start Build' /}

@@ -1,6 +1,6 @@
 define('jenkins/parameterized-build-branchlist', [
     'jquery',
-    'trigger/trigger-jenkins',
+    'trigger/build-dialog',
     'exports'
 ], function(
     $,

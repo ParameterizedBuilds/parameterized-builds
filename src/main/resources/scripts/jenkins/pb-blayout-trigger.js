@@ -1,6 +1,6 @@
 define('jenkins/parameterized-build-layout', [
     'model/page-state',
-    'trigger/trigger-jenkins',
+    'trigger/build-dialog',
     'exports'
 ], function(
     pageState,
