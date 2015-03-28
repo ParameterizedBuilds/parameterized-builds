@@ -42,7 +42,14 @@ define('jenkins/parameterized-build-pullrequest', [
 			myjson = data;
 			var buildStatus = myjson.status;
     		var buildMessage = myjson.message;
-    		if (buildStatus !== "201"){
+    		if (buildStatus == "prompt"){
+    			var settingsPath = AJS.contextPath() + "/plugins/servlet/account/jenkins"
+				AJS.messages.hint("#notifications-center", {
+					body: '<p>Optional: <a href="' + settingsPath + '" target="_blank">You can now link your Jenkins account to your Stash account.</a></p>',
+					fadeout: true,
+					delay: 5000
+				});
+    		} else if (buildStatus !== "201"){
     			notificationsCenter.showNotification(AJS.I18n.getText(buildMessage));
     		}
 		  }
@@ -98,7 +105,7 @@ define('jenkins/parameterized-build-pullrequest', [
             	var $jobParameters = dialog.$el.find('.web-post-hook');
             	var jobSelect = document.getElementById("job");
                 var id = selects.options[selects.selectedIndex].value;
-            	buildUrl += "?id=" + jobs[id].id;
+            	buildUrl += "/" + jobs[id].id + "?";
             	$jobParameters.each(function(index, jobParam) {
             		var $curJobParam = $(jobParam);
             		var key = $curJobParam.find('label').text();
@@ -107,9 +114,9 @@ define('jenkins/parameterized-build-pullrequest', [
             		if (type.indexOf("checkbox") > -1) {
             			value = dialog.$el.find('#build-param-value-' + index)[0].checked;
             		}
-            		buildUrl += "&" + key + "=" + value;
+            		buildUrl += key + "=" + value + "&";
             	});
-            	triggerBuild(buildUrl);
+            	triggerBuild(buildUrl.slice(0,-1));
                 dialog.hide();
             });
         }).focus().select();
@@ -131,11 +138,11 @@ define('jenkins/parameterized-build-pullrequest', [
     	if (jobArray.length == 1){
     		parameters = getParameterArray("0");
         	if (parameters.length == 0){
-        		var buildUrl = getResourceUrl("triggerBuild?id=0");
+				var buildUrl = getResourceUrl("triggerBuild/0");
         		triggerBuild(buildUrl);
         	} else if (parameters.length == 1 && parameters[0][1] == "$BRANCH") {
-        		var buildUrl = getResourceUrl("triggerBuild?id=0");
-        		triggerBuild(buildUrl + "&" + parameters[0][0] + "=" + branchName);
+				var buildUrl = getResourceUrl("triggerBuild/0");
+				triggerBuild(buildUrl + "?" + parameters[0][0] + "=" + branchName);
         	} else {
         		var buildUrl = getResourceUrl("triggerBuild");
         		showManualBuildDialog(buildUrl, jobArray);

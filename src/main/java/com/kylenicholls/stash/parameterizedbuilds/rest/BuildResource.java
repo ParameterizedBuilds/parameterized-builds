@@ -11,6 +11,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -54,8 +55,8 @@ public class BuildResource extends RestResource {
 	}
 
 	@POST
-	@Path(value = "triggerBuild")
-	public Response triggerBuild(@Context final Repository repository, @Context UriInfo uriInfo) {
+	@Path(value = "triggerBuild/{id}")
+	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id, @Context UriInfo uriInfo) {
 		if (authenticationContext.isAuthenticated()){
 			String[] getResults = new String[2];
 			Map<String, String> data = new HashMap<String, String>();
@@ -64,7 +65,7 @@ public class BuildResource extends RestResource {
 				return Response.status(404).build();
 			}
 			List<Job> settingsList = settingsService.getJobs(settings.asMap());
-			Job jobToBuild = resolveJobConfigFromUriMap(uriInfo.getQueryParameters(), settingsList);
+			Job jobToBuild = resolveJobConfigFromUriMap(Integer.parseInt(id), settingsList);
 			
 			if (jobToBuild == null){
 				getResults[0] = "error";
@@ -107,9 +108,9 @@ public class BuildResource extends RestResource {
 		return null;
 	}
 	
-	protected Job resolveJobConfigFromUriMap(MultivaluedMap<String, String> queryParameters, List<Job> settingsList) {
+	protected Job resolveJobConfigFromUriMap(int id, List<Job> settingsList) {
 		for (Job job : settingsList){
-			if (Integer.parseInt(queryParameters.get("id").get(0)) == job.getJobId()){
+			if (job.getJobId() == id){
 				return job;
 			}
 		}

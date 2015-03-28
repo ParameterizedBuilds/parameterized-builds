@@ -137,7 +137,7 @@
   </web-item>
   <web-item name="Jenkins User Settings" key="jenkins-user-tab" section="stash.user.account.nav" weight="200">
     <label>Jenkins Settings</label>
-    <link>/plugins/servlet/account/users/${accountUser.name}/jenkins</link>
+    <link>/plugins/servlet/account/jenkins</link>
     <tooltip>Jenkins Settings</tooltip>
   </web-item>
   <servlet name="CI Servlet" i18n-name-key="ci-servlet.name" key="ci-servlet" class="com.kylenicholls.stash.parameterizedbuilds.ciserver.CIServlet">

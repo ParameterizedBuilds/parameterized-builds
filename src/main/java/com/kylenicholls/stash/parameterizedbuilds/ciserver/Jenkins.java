@@ -75,7 +75,6 @@ public class Jenkins {
 		
 		String jobName = job.getJobName();
 		
-		System.out.println("queryParams:" + queryParams);
 		String ciServer = server.getBaseUrl();
 		
 	    if (userToken == null && job.getToken() != null && !job.getToken().isEmpty()){
@@ -83,7 +82,6 @@ public class Jenkins {
 	    	else {queryParams += "&token=" + job.getToken();}
 	    }
 
-		System.out.println("queryParams2:" + queryParams);
 	    if (queryParams.trim().isEmpty()){
 			buildUrl = ciServer + "/job/" + jobName + "/build";
 		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2 ){
@@ -97,7 +95,6 @@ public class Jenkins {
 			prompt = true;
 			userToken = server.getUser() + ":" + server.getToken();
 		}
-		System.out.println("buildUrl:" + buildUrl);
 		return httpPost(buildUrl, userToken, prompt);
 	}
 	

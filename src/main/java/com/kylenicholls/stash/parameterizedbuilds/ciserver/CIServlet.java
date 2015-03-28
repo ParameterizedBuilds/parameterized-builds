@@ -44,7 +44,7 @@ public class CIServlet extends HttpServlet{
     	if (authenticationContext.isAuthenticated()) {
     		Server server = jenkins.getSettings();
     		String baseUrl = server != null ? server.getBaseUrl() : null;
-    		if (pathInfo.contains("/account/users/")) {
+    		if (pathInfo.contains("/account/")) {
     			StashUser stashUser = authenticationContext.getCurrentUser();
         		String jenkinsToken = jenkins.getUserSettings(stashUser.getSlug());
         		if (baseUrl == null) {
@@ -89,7 +89,7 @@ public class CIServlet extends HttpServlet{
 	@Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
     	String pathInfo = req.getPathInfo();
-    	if (pathInfo.contains("/account/users/")) {
+    	if (pathInfo.contains("/account/")) {
 			String userSlug = authenticationContext.getCurrentUser().getSlug();
 			String token = req.getParameter("jenkinsToken");
     		jenkins.setUserSettings(userSlug, token);
