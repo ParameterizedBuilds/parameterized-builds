@@ -1,27 +1,16 @@
 package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
-
 
 public class Jenkins {
 	
@@ -77,67 +66,42 @@ public class Jenkins {
 		}
 	}
 
-	public String[] triggerJob(String jobName, String queryParams, String token){
+	public String[] triggerJob(Job job, String queryParams, String userToken){
 		String buildUrl = "";
 		Server server = getSettings();
 		if (server == null) {
-			System.out.println("server not setup");
 			return new String[]{"error", "Jenkins settings are not setup"};
 		}
-
+		
+		String jobName = job.getJobName();
+		
+		System.out.println("queryParams:" + queryParams);
 		String ciServer = server.getBaseUrl();
-		if (queryParams.trim().isEmpty()){
+		
+	    if (userToken == null && job.getToken() != null && !job.getToken().isEmpty()){
+	    	if (queryParams.trim().isEmpty()){queryParams = "token=" + job.getToken();}
+	    	else {queryParams += "&token=" + job.getToken();}
+	    }
+
+		System.out.println("queryParams2:" + queryParams);
+	    if (queryParams.trim().isEmpty()){
 			buildUrl = ciServer + "/job/" + jobName + "/build";
 		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2 ){
 			buildUrl = ciServer + "/job/" + jobName + "/build?" + queryParams;
 		} else {
 			buildUrl = ciServer + "/job/" + jobName + "/buildWithParameters?" + queryParams;
 		}
-		if (token == null){
-			token = server.getUser() + ":" + server.getToken();
+	    
+		boolean prompt = false;
+		if (userToken == null){
+			prompt = true;
+			userToken = server.getUser() + ":" + server.getToken();
 		}
-		return httpPost(buildUrl, token);
+		System.out.println("buildUrl:" + buildUrl);
+		return httpPost(buildUrl, userToken, prompt);
 	}
 	
-	public Map<String, String> getJenkinsXml(String jobUrl, String token) throws ParserConfigurationException, SAXException, IOException {
-		Map<String, String> parameters = new LinkedHashMap<String, String>();
-		
-		InputStream xml = null;
-		try {
-			URL url = new URL(jobUrl);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			if (token != null && !token.equals("")) {
-				byte[] authEncBytes = Base64.encodeBase64(token.getBytes());
-				String authStringEnc = new String(authEncBytes);
-				connection.setRequestProperty("Authorization", "Basic "
-						+ authStringEnc);
-			}
-			connection.setRequestProperty("Accept", "application/xml");
-			connection.setReadTimeout(30000);
-			connection.setInstanceFollowRedirects(true);
-			HttpURLConnection.setFollowRedirects(true);
-			xml = connection.getInputStream();
-		} catch (Exception e){
-			
-		}
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(xml);
-		NodeList paramDef = doc.getDocumentElement().getElementsByTagName("hudson.model.StringParameterDefinition");
-
-		for (int i = 0; i < paramDef.getLength(); i++) {
-			Element parameter = (Element) paramDef.item(i);
-			String key = parameter.getElementsByTagName("name").item(0).getTextContent();
-			String value = parameter.getElementsByTagName("defaultValue").item(0).getTextContent();
-			System.out.println(key + "=" + value);
-		}
-		//Node nNode = paramDef.item(0).;
-		System.out.println(paramDef.getLength());
-		return parameters;
-	}
-	
-	public String[] httpPost(String buildUrl, String token) {
+	public String[] httpPost(String buildUrl, String token, boolean prompt) {
 		String[] results = new String[2];
 		int status = 0;
 		// Trigger build using build URL from hook setting
@@ -161,6 +125,7 @@ public class Jenkins {
 			status = connection.getResponseCode();
 			results[0] = Integer.toString(status);
 			if (status == 201) {
+				if (prompt){results[0] = "prompt";}
 				results[1] = "201: Build triggered";
 				return results;
 			} else if (status == 401) {

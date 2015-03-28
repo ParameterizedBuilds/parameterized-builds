@@ -70,14 +70,14 @@ public class PullRequestHook {
 			final String token = jenkins.getUserToken(userSlug);
 			if (triggers.contains(Trigger.PULLREQUEST)) {
 				if (pathRegex.trim().isEmpty()){
-					jenkins.triggerJob(job.getJobName(), queryParams, token);
+					jenkins.triggerJob(job, queryParams, token);
 				} else {
 	    			pullRequestService.streamChanges(new PullRequestChangesRequest.Builder(pullRequest).build(), new AbstractChangeCallback() {
 	    	            public boolean onChange(Change change) throws IOException {
 	    	            	String changedFile = change.getPath().toString();
 	    	        		// for each flagged path, check if the changed file matches that path
 	    	        		if (changedFile.matches(pathRegex)){
-	    	        			jenkins.triggerJob(job.getJobName(), queryParams, token);
+	    	        			jenkins.triggerJob(job, queryParams, token);
 	    	        			return false;
 	    	        		}
 	    	                return true;

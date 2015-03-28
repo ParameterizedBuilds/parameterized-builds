@@ -28,7 +28,7 @@
   </web-resource>
   
   <!-- Hook config css resource -->
-  <web-resource key="postReceiveHook-css">
+  <web-resource key="parameterized-builds-hook-css">
     <transformation extension="less">
       <transformer key="less-transformer"/>
     </transformation>

@@ -70,10 +70,9 @@ public class BuildResource extends RestResource {
 				getResults[0] = "error";
 				getResults[1] = "Settings not found for this job";
 			} else {
-				String apiToken = jenkins.getUserToken(authenticationContext.getCurrentUser().getSlug());
-				String jobToken = apiToken == null ? jobToBuild.getToken() : null;
-				String updatedParams = resolveQueryParamsFromMap(uriInfo.getQueryParameters(), jobToken);
-				getResults = jenkins.triggerJob(jobToBuild.getJobName(), updatedParams, apiToken);
+				String userToken = jenkins.getUserToken(authenticationContext.getCurrentUser().getSlug());
+				String updatedParams = resolveQueryParamsFromMap(uriInfo.getQueryParameters());
+				getResults = jenkins.triggerJob(jobToBuild, updatedParams, userToken);
 			}
 			
 			data.put("status", getResults[0]);
@@ -117,16 +116,13 @@ public class BuildResource extends RestResource {
 		return null;
 	}
 	
-	protected String resolveQueryParamsFromMap(MultivaluedMap<String, String> queryParameters, String token) {
+	protected String resolveQueryParamsFromMap(MultivaluedMap<String, String> queryParameters) {
 		String queryParams = "";
 		Iterator<Entry<String, List<String>>> it = queryParameters.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry<String, List<String>> pair = (Map.Entry<String, List<String>>)it.next();
 			queryParams += pair.getKey() + "=" + pair.getValue().get(0) + (it.hasNext() ? "&" : "");
 	        it.remove();
-	    }
-	    if (token != null){
-	    	queryParams += "&token=" + token;
 	    }
 		return queryParams;
 	}
