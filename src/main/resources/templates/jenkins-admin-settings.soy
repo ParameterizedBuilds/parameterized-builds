@@ -46,12 +46,14 @@
         {param value: $server.user /}
         {param labelContent: 'User'  /}
         {param isRequired: true /}
+        {param autocomplete: 'off' /}
     {/call}
 	{call aui.form.passwordField}
         {param id: 'jenkinsToken' /}
         {param value: $server.token /}
         {param labelContent: 'Token'  /}
         {param isRequired: true /}
+        {param autocomplete: 'off' /}
     {/call}
     {call widget.aui.form.checkbox}
     	{param id:'clear-settings' /}
