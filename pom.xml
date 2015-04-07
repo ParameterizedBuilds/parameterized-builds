@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kylenicholls.stash</groupId>
     <artifactId>parameterized-builds</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 	<organization>
 		<name>Kyle Nicholls</name>
 		<url>http://namesastronomy.no-ip.org/</url>

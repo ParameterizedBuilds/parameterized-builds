@@ -95,7 +95,7 @@ public class Jenkins {
 			prompt = true;
 			userToken = server.getUser() + ":" + server.getToken();
 		}
-		return httpPost(buildUrl, userToken, prompt);
+		return httpPost(buildUrl.replace(" ", "%20"), userToken, prompt);
 	}
 	
 	public String[] httpPost(String buildUrl, String token, boolean prompt) {
@@ -122,22 +122,13 @@ public class Jenkins {
 			status = connection.getResponseCode();
 			results[0] = Integer.toString(status);
 			if (status == 201) {
-				if (prompt){results[0] = "prompt";}
+				//if (prompt){results[0] = "prompt";}
 				results[1] = "201: Build triggered";
 				return results;
-			} else if (status == 401) {
-				results[1] = "401: You do not have the required permissions";
+			} else {
+				results[1] = status + ": " + connection.getResponseMessage();
 				return results;
-			} else if (status == 403) {
-				results[1] = "403: Invalid build token";
-				return results;
-			} else if (status == 404) {
-				results[1] = "404: Jenkins job does not exist";
-				return results;
-			} else if (status == 500) {
-				results[1] = "500: Build request invalid; a build parameter may be incorrect";
-				return results;
-			}
+			} 
 
 			// log.debug("HTTP response:\n" + body.toString());
 		} catch (MalformedURLException e) {
