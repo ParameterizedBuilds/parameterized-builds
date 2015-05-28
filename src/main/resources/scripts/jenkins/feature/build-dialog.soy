@@ -5,6 +5,7 @@
  */
 {template .buildDialog}
     {call aui.form.form}
+    	{param action: '' /}
         {param content}
 	    <select class="select" id="job" name="job" style="max-width:150px;">
 	        {for $i in range(length($jobs))}

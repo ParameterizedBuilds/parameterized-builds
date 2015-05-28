@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kylenicholls.stash</groupId>
     <artifactId>parameterized-builds</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 	<organization>
 		<name>Kyle Nicholls</name>
 		<url>http://namesastronomy.no-ip.org/</url>
@@ -166,8 +166,8 @@
         </plugins>
     </build>
     <properties>
-        <stash.version>3.6.0</stash.version>
-        <stash.data.version>3.6.0</stash.data.version>
+        <stash.version>3.8.0</stash.version>
+        <stash.data.version>3.8.0</stash.data.version>
         <amps.version>5.0.3</amps.version>
         <plugin.testrunner.version>1.2.0</plugin.testrunner.version>
     </properties>
