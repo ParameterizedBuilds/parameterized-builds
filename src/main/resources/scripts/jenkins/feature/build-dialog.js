@@ -156,8 +156,6 @@ define('trigger/build-dialog', [
             		var buildUrl = getResourceUrl("triggerBuild");
                 	showManualBuildDialog(buildUrl, jobArray);
             	}
-
-            	$dropdownMenu.hide();
             	return false
             };
             

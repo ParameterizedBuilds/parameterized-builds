@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kylenicholls.stash</groupId>
     <artifactId>parameterized-builds</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 	<organization>
 		<name>Kyle Nicholls</name>
-		<url>http://namesastronomy.no-ip.org/</url>
+		<url></url>
 	</organization>
     <name>Parameterized Builds for Jenkins</name>
     <description>Adds a build hook with customizable parameters for Jenkins</description>
