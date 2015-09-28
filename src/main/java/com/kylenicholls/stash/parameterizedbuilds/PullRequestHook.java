@@ -8,18 +8,18 @@ import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.atlassian.event.api.EventListener;
-import com.atlassian.stash.content.AbstractChangeCallback;
-import com.atlassian.stash.content.Change;
-import com.atlassian.stash.content.ChangeContext;
-import com.atlassian.stash.content.ChangeSummary;
-import com.atlassian.stash.event.pull.PullRequestOpenedEvent;
-import com.atlassian.stash.event.pull.PullRequestReopenedEvent;
-import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
-import com.atlassian.stash.pull.PullRequest;
-import com.atlassian.stash.pull.PullRequestChangesRequest;
-import com.atlassian.stash.pull.PullRequestService;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
+import com.atlassian.bitbucket.content.AbstractChangeCallback;
+import com.atlassian.bitbucket.content.Change;
+import com.atlassian.bitbucket.content.ChangeContext;
+import com.atlassian.bitbucket.content.ChangeSummary;
+import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestReopenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
+import com.atlassian.bitbucket.pull.PullRequestService;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
 
 public class PullRequestHook {
 	private final SettingsService settingsService;
@@ -52,7 +52,7 @@ public class PullRequestHook {
 	public void onPullRequestRescoped(PullRequestRescopedEvent event)
 			throws IOException {
 		final PullRequest pullRequest = event.getPullRequest();
-		if (!event.getPreviousFromHash().equals(pullRequest.getFromRef().getLatestChangeset())) {
+		if (!event.getPreviousFromHash().equals(pullRequest.getFromRef().getLatestCommit())) {
 			triggerFromPR(pullRequest);
 		}
 	}

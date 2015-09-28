@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 
 public class HookIsEnabledCondition implements Condition {

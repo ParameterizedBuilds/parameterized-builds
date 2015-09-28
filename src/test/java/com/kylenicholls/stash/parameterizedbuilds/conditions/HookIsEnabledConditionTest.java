@@ -11,8 +11,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.hook.repository.RepositoryHook;
-import com.atlassian.stash.repository.Repository;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.repository.Repository;
 import com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 

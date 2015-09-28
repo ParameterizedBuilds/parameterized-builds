@@ -7,9 +7,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.atlassian.soy.renderer.SoyException;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
-import com.atlassian.stash.nav.NavBuilder;
-import com.atlassian.stash.user.StashAuthenticationContext;
-import com.atlassian.stash.user.StashUser;
+import com.atlassian.bitbucket.nav.NavBuilder;
+import com.atlassian.bitbucket.auth.AuthenticationContext;
+import com.atlassian.bitbucket.user.ApplicationUser;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
@@ -23,12 +23,12 @@ public class CIServlet extends HttpServlet{
 	public static final String USER_PREFIX = "jenkinsUser-";
 	public static final String TOKEN_PREFIX = "jenkinsToken-";
     private final SoyTemplateRenderer soyTemplateRenderer;
-	private final StashAuthenticationContext authenticationContext;
+	private final AuthenticationContext authenticationContext;
 	private final NavBuilder navBuilder;
 	private final Jenkins jenkins;
     
     public CIServlet(SoyTemplateRenderer soyTemplateRenderer,
-    		StashAuthenticationContext authenticationContext, 
+    		AuthenticationContext authenticationContext, 
     		NavBuilder navBuilder,
     		Jenkins jenkins) {
         this.soyTemplateRenderer = soyTemplateRenderer;
@@ -45,17 +45,17 @@ public class CIServlet extends HttpServlet{
     		Server server = jenkins.getSettings();
     		String baseUrl = server != null ? server.getBaseUrl() : null;
     		if (pathInfo.contains("/account/")) {
-    			StashUser stashUser = authenticationContext.getCurrentUser();
-        		String jenkinsToken = jenkins.getUserSettings(stashUser.getSlug());
+    			ApplicationUser appUser = authenticationContext.getCurrentUser();
+        		String jenkinsToken = jenkins.getUserSettings(appUser.getSlug());
         		if (baseUrl == null) {
         			render(resp, "jenkins.user.settings", 
-        					ImmutableMap.<String, Object>of("user", stashUser, "token", "", "baseUrl", "", "errors", "A Stash administrator must configure the base settings for Jenkins first. These settings can be found on the admin page of Stash."));
+        					ImmutableMap.<String, Object>of("user", appUser, "token", "", "baseUrl", "", "errors", "A Bitbucket administrator must configure the base settings for Jenkins first. These settings can be found on the admin page of Bitbucket."));
         			return;
         		}
         		if (jenkinsToken == null) {
-            		render(resp, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", stashUser, "token", "", "baseUrl", baseUrl, "errors", ""));
+            		render(resp, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", appUser, "token", "", "baseUrl", baseUrl, "errors", ""));
         		} else {
-            		render(resp, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", stashUser, "token", jenkinsToken, "baseUrl", baseUrl, "errors", ""));
+            		render(resp, "jenkins.user.settings", ImmutableMap.<String, Object>of("user", appUser, "token", jenkinsToken, "baseUrl", baseUrl, "errors", ""));
         		}
     		} else {
         		if (server == null) {

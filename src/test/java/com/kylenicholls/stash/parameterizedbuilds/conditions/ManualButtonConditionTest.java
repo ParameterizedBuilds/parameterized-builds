@@ -10,7 +10,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.repository.Repository;
+import com.atlassian.bitbucket.repository.Repository;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 
 public class ManualButtonConditionTest {

@@ -20,13 +20,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
-import com.atlassian.stash.i18n.I18nService;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.rest.util.ResourcePatterns;
-import com.atlassian.stash.rest.util.RestResource;
-import com.atlassian.stash.rest.util.RestUtils;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.user.StashAuthenticationContext;
+import com.atlassian.bitbucket.i18n.I18nService;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.rest.util.ResourcePatterns;
+import com.atlassian.bitbucket.rest.RestResource;
+import com.atlassian.bitbucket.rest.util.RestUtils;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.sun.jersey.spi.resource.Singleton;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -42,12 +42,12 @@ public class BuildResource extends RestResource {
 
 	private SettingsService settingsService;
 	private Jenkins jenkins;
-	private final StashAuthenticationContext authenticationContext;
+	private final AuthenticationContext authenticationContext;
 
 	public BuildResource(I18nService i18nService,
 			SettingsService settingsService, 
 			Jenkins jenkins,
-			StashAuthenticationContext authenticationContext) {
+			AuthenticationContext authenticationContext) {
 		super(i18nService);
 		this.settingsService = settingsService;
 		this.jenkins = jenkins;

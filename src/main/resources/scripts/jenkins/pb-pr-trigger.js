@@ -45,7 +45,7 @@ define('jenkins/parameterized-build-pullrequest', [
     		if (buildStatus == "prompt"){
     			var settingsPath = AJS.contextPath() + "/plugins/servlet/account/jenkins"
 				AJS.messages.hint("#notifications-center", {
-					body: '<p>Optional: <a href="' + settingsPath + '" target="_blank">You can now link your Jenkins account to your Stash account.</a></p>',
+					body: '<p>Optional: <a href="' + settingsPath + '" target="_blank">You can now link your Jenkins account to your Bitbucket account.</a></p>',
 					fadeout: true,
 					delay: 5000
 				});
