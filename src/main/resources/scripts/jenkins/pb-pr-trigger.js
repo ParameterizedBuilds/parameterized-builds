@@ -1,13 +1,15 @@
 define('jenkins/parameterized-build-pullrequest', [
   'aui',
   'jquery',
-  'widget/notifications-center',
-  'model/page-state'
+  'bitbucket/internal/model/page-state',
+  'bitbucket/internal/util/ajax',
+  'aui/flag'
 ], function(
    _aui,
    $,
-   notificationsCenter,
-   pageState
+   pageState,
+   ajax,
+   flag
 ) {
 	var branchName;
 	var jobs;
@@ -32,27 +34,27 @@ define('jenkins/parameterized-build-pullrequest', [
 	}
 	
 	function triggerBuild(buildUrl){
-		notificationsCenter.showNotification(AJS.I18n.getText("Build starting..."));
-		$.ajax({
+		var successFlag = flag({
+            type: 'success',
+            body: 'Build started',
+            close: 'auto'
+        });
+		ajax.rest({
 		  type: "POST",
 		  url: buildUrl,
 		  dataType: 'json',
-		  async: true,
-		  success: function (data){
-			myjson = data;
-			var buildStatus = myjson.status;
-    		var buildMessage = myjson.message;
-    		if (buildStatus == "prompt"){
-    			var settingsPath = AJS.contextPath() + "/plugins/servlet/account/jenkins"
-				AJS.messages.hint("#notifications-center", {
-					body: '<p>Optional: <a href="' + settingsPath + '" target="_blank">You can now link your Jenkins account to your Bitbucket account.</a></p>',
-					fadeout: true,
-					delay: 5000
-				});
-    		} else if (buildStatus !== "201"){
-    			notificationsCenter.showNotification(AJS.I18n.getText(buildMessage));
+		  async: true
+		}).success(function (data) {
+			var buildStatus = data.status;
+    		var buildMessage = data.message;
+    		if (buildStatus !== "201"){
+    			successFlag.close();
+    			flag({
+                    type: 'warning',
+                    body: buildMessage,
+                    close: 'auto'
+                });
     		}
-		  }
 		});
 	};
 	
@@ -123,7 +125,7 @@ define('jenkins/parameterized-build-pullrequest', [
     }
 	
 	$(".parameterized-build-pullrequest").click(function() {
-		var prJSON = require('model/page-state').getPullRequest().toJSON();
+		var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
 		branchName = prJSON.fromRef.id;
 		branchName = branchName.replace("refs/heads/","");
 		

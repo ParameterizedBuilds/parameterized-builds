@@ -1,15 +1,17 @@
 define('trigger/build-dialog', [
     'aui',
     'jquery',
-    'widget/notifications-center',
     'exports',
-    'model/page-state'
+    'bitbucket/internal/model/page-state',
+    'bitbucket/internal/util/ajax',
+    'aui/flag'
 ], function(
     _aui,
     $,
-    notificationsCenter,
     exports,
-    pageState
+    pageState,
+    ajax,
+    flag
 ) {
 	var branchName;
 	var jobs;
@@ -34,27 +36,27 @@ define('trigger/build-dialog', [
 	}
 	
 	function triggerBuild(buildUrl){
-		notificationsCenter.showNotification(AJS.I18n.getText("Build starting..."));
-		$.ajax({
+		var successFlag = flag({
+            type: 'success',
+            body: 'Build started',
+            close: 'auto'
+        });
+		ajax.rest({
 		  type: "POST",
 		  url: buildUrl,
 		  dataType: 'json',
-		  async: true,
-		  success: function (data){
-			myjson = data;
-			var buildStatus = myjson.status;
-    		var buildMessage = myjson.message;
-    		if (buildStatus == "prompt"){
-    			var settingsPath = AJS.contextPath() + "/plugins/servlet/account/jenkins"
-				AJS.messages.hint("#notifications-center", {
-					body: '<p>Optional: <a href="' + settingsPath + '" target="_blank">You can now link your Jenkins account to your Bitbucket account.</a></p>',
-					fadeout: true,
-					delay: 5000
-				});
-    		} else if (buildStatus !== "201"){
-    			notificationsCenter.showNotification(AJS.I18n.getText(buildMessage));
+		  async: true
+		}).success(function (data) {
+			var buildStatus = data.status;
+    		var buildMessage = data.message;
+    		if (buildStatus !== "201"){
+    			successFlag.close();
+    			flag({
+                    type: 'warning',
+                    body: buildMessage,
+                    close: 'auto'
+                });
     		}
-		  }
 		});
 	};
 	
