@@ -1,5 +1,5 @@
 define('jenkins/parameterized-build-layout', [
-    'model/page-state',
+    'bitbucket/internal/model/page-state',
     'trigger/build-dialog',
     'exports'
 ], function(

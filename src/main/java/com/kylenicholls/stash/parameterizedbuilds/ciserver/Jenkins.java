@@ -122,7 +122,6 @@ public class Jenkins {
 			status = connection.getResponseCode();
 			results[0] = Integer.toString(status);
 			if (status == 201) {
-				//if (prompt){results[0] = "prompt";}
 				results[1] = "201: Build triggered";
 				return results;
 			} else {

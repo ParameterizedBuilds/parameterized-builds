@@ -1,24 +1,24 @@
 package com.kylenicholls.stash.parameterizedbuilds;
 
-import com.atlassian.stash.commit.CommitService;
-import com.atlassian.stash.content.AbstractChangeCallback;
-import com.atlassian.stash.content.Change;
-import com.atlassian.stash.content.ChangeContext;
-import com.atlassian.stash.content.ChangeSummary;
-import com.atlassian.stash.content.ChangesRequest;
-import com.atlassian.stash.hook.repository.*;
-import com.atlassian.stash.repository.*;
+import com.atlassian.bitbucket.commit.CommitService;
+import com.atlassian.bitbucket.content.AbstractChangeCallback;
+import com.atlassian.bitbucket.content.Change;
+import com.atlassian.bitbucket.content.ChangeContext;
+import com.atlassian.bitbucket.content.ChangeSummary;
+import com.atlassian.bitbucket.content.ChangesRequest;
+import com.atlassian.bitbucket.hook.repository.*;
+import com.atlassian.bitbucket.repository.*;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
-import com.atlassian.stash.hook.repository.RepositoryHookContext;
-import com.atlassian.stash.repository.RefChange;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.RepositorySettingsValidator;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.setting.SettingsValidationErrors;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
+import com.atlassian.bitbucket.repository.RefChange;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +50,7 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 		Repository repository = context.getRepository();
 		
 		for (RefChange refChange : refChanges) {
-			String branch = refChange.getRefId().replace(REFS_HEADS, "");
+			String branch = refChange.getRef().getId().replace(REFS_HEADS, "");
 			
 			for (Job job : settingsService.getJobs(context.getSettings().asMap())){
 				pathMatched = false;
@@ -116,7 +116,7 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 
 		Server server = jenkins.getSettings();
 		if (server == null || server.getBaseUrl().isEmpty()) {
-			errors.addFieldError("jenkins-admin-error", "Jenkins is not setup in Stash");
+			errors.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
 			return;
 		}
 		List<Job> jobList = settingsService.getJobs(settings.asMap());
