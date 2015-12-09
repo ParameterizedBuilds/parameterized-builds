@@ -94,7 +94,7 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 						});
 				return pathMatched;
 			}
-		} else if (refChange.getType() == RefChangeType.ADD && (triggers.contains(Trigger.PUSH) || triggers.contains(Trigger.ADD))) {
+		} else if (refChange.getType() == RefChangeType.ADD && triggers.contains(Trigger.ADD)) {
 			if (branchCheck.isEmpty() || branch.toLowerCase().matches(branchCheck.toLowerCase())) {
 				return true;
 			}

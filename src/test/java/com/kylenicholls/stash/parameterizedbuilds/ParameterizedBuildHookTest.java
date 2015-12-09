@@ -87,7 +87,17 @@ public class ParameterizedBuildHookTest {
 		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
 		assertFalse(results);
 	}
-
+	
+	@Test
+	public void testBranchAddedAndTriggerIsPostreceive() {
+		pathRegex = "";
+		branchRegex = "";
+		List<Trigger> triggers = Arrays.asList(Trigger.PUSH);
+		when(refChange.getType()).thenReturn(RefChangeType.ADD);
+		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
+		assertFalse(results);
+	}
+	
 	@Test
 	public void testBranchUpdatedAndTriggerIsManual() {
 		pathRegex = "";
