@@ -4,11 +4,13 @@ public class Server {
 	private String baseUrl;
     private String user;
     private String token;
+    private boolean altUrl;
 
-	public Server(String baseUrl, String user, String token) {
+	public Server(String baseUrl, String user, String token, boolean altUrl) {
     	this.baseUrl = baseUrl;
     	this.user = user;
     	this.token = token;
+    	this.altUrl = altUrl;
     }
 	
     public String getBaseUrl() {
@@ -33,5 +35,13 @@ public class Server {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public boolean getAltUrl() {
+		return altUrl;
+	}
+
+	public void setAltUrl(boolean altUrl) {
+		this.altUrl = altUrl;
 	}
 }
