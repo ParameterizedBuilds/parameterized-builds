@@ -21,11 +21,10 @@ public class Jenkins {
 		this.pluginSettings = factory.createSettingsForKey(PLUGIN_KEY);
 	}
 	
-	public void setSettings(String url, String user, String token){
-		if (url != null && !url.isEmpty() 
-				&& user != null && !user.isEmpty() 
-				&& token != null && !token.isEmpty()) {
-			pluginSettings.put(".jenkinsSettings", url + ";" + user + ";" + token);       
+	public void setSettings(String url, String user, String token, boolean altUrl){
+		if (url != null && !url.isEmpty()) {
+			String altUrlString = altUrl ? "true" : "false";
+			pluginSettings.put(".jenkinsSettings", url + ";" + user + ";" + token + ";" + altUrlString);       
 		} else {
 			pluginSettings.remove(".jenkinsSettings");
 		}
@@ -44,7 +43,8 @@ public class Jenkins {
 		Object settingObj = pluginSettings.get(".jenkinsSettings");
 		if (settingObj != null) {
 			String[] serverProps = settingObj.toString().split(";");
-			return new Server(serverProps[0], serverProps[1], serverProps[2]);
+			boolean altUrl = serverProps.length > 3 && serverProps[3].equals("true") ? true : false;
+			return new Server(serverProps[0], serverProps[1], serverProps[2], altUrl);
 		} else {
 			return null;
 		}
@@ -76,6 +76,7 @@ public class Jenkins {
 		String jobName = job.getJobName();
 		
 		String ciServer = server.getBaseUrl();
+		boolean altUrl = server.getAltUrl();
 		
 	    if (userToken == null && job.getToken() != null && !job.getToken().isEmpty()){
 	    	if (queryParams.trim().isEmpty()){queryParams = "token=" + job.getToken();}
@@ -85,16 +86,27 @@ public class Jenkins {
 	    if (queryParams.trim().isEmpty()){
 			buildUrl = ciServer + "/job/" + jobName + "/build";
 		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2 ){
-			buildUrl = ciServer + "/job/" + jobName + "/build?" + queryParams;
+			if (altUrl && (userToken == null || !userToken.equals(""))){
+				buildUrl = ciServer + "/buildByToken/build?job=" + jobName + "&" + queryParams;
+			} else {
+				buildUrl = ciServer + "/job/" + jobName + "/build?" + queryParams;
+			}
 		} else {
-			buildUrl = ciServer + "/job/" + jobName + "/buildWithParameters?" + queryParams;
+			if (altUrl && (userToken == null || userToken.equals(""))){
+				buildUrl = ciServer + "/buildByToken/buildWithParameters?job=" + jobName + "&" + queryParams;
+			} else {
+				buildUrl = ciServer + "/job/" + jobName + "/buildWithParameters?" + queryParams;
+			}
 		}
 	    
 		boolean prompt = false;
 		if (userToken == null){
 			prompt = true;
-			userToken = server.getUser() + ":" + server.getToken();
+			if (server.getUser() != null && !server.getUser().equals("")){
+				userToken = server.getUser() + ":" + server.getToken();
+			}
 		}
+		
 		return httpPost(buildUrl.replace(" ", "%20"), userToken, prompt);
 	}
 	
@@ -113,7 +125,7 @@ public class Jenkins {
 						+ authStringEnc);
 			}
 
-			connection.setReadTimeout(5000);
+			connection.setReadTimeout(30000);
 			connection.setInstanceFollowRedirects(true);
 			HttpURLConnection.setFollowRedirects(true);
 

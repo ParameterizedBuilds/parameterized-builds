@@ -97,14 +97,15 @@ public class CIServlet extends HttpServlet{
     		String jenkinsUrl = req.getParameter("jenkinsUrl");
     		String jenkinsUser = req.getParameter("jenkinsUser");
     		String jenkinsToken = req.getParameter("jenkinsToken");
+    		boolean jenkinsAltUrl = req.getParameter("jenkinsAltUrl") != null && req.getParameter("jenkinsAltUrl").equals("on") ? true : false;
     		String clear = req.getParameter("clear-settings");
     		if (clear != null && clear.equals("on")){
-    			jenkins.setSettings("", "", "");
-    		} else if (jenkinsUrl.isEmpty() || jenkinsUser.isEmpty() || jenkinsToken.isEmpty()) {
-            	render(res, "jenkins.admin.settings", ImmutableMap.<String, Object>of("server", new Server(jenkinsUrl, jenkinsUser, jenkinsToken), "errors", "All fields required"));
+    			jenkins.setSettings("", "", "", false);
+    		} else if (jenkinsUrl.isEmpty()) {
+            	render(res, "jenkins.admin.settings", ImmutableMap.<String, Object>of("server", new Server(jenkinsUrl, jenkinsUser, jenkinsToken, jenkinsAltUrl), "errors", "Base URL required"));
             	return;
     		} else {
-    			jenkins.setSettings(jenkinsUrl, jenkinsUser, jenkinsToken);
+    			jenkins.setSettings(jenkinsUrl, jenkinsUser, jenkinsToken, jenkinsAltUrl);
     		}
     	}
         doGet(req, res);

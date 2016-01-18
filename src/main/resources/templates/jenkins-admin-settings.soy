@@ -18,7 +18,7 @@
 			{param server: $server /}
 		{/call}
 		{if $errors}
-			<div class="field-group"><div class="error">All fields required</div></div>
+			<div class="field-group"><div class="error">{$errors}</div></div>
 		{/if}
 	    {call aui.form.submit}
 	      {param id: 'submit' /}
@@ -44,16 +44,21 @@
     {call aui.form.textField}
         {param id: 'jenkinsUser' /}
         {param value: $server.user /}
-        {param labelContent: 'User'  /}
-        {param isRequired: true /}
+        {param labelContent: 'Default User'  /}
+        {param isRequired: false /}
         {param autocomplete: 'off' /}
     {/call}
 	{call aui.form.passwordField}
         {param id: 'jenkinsToken' /}
         {param value: $server.token /}
-        {param labelContent: 'Token'  /}
-        {param isRequired: true /}
+        {param labelContent: 'Default Token'  /}
+        {param isRequired: false /}
         {param autocomplete: 'off' /}
+    {/call}
+    {call widget.aui.form.checkbox}
+    	{param id:'jenkinsAltUrl' /}
+		{param checked: $server.altUrl /}
+    	{param labelContent: 'Build Token Root Plugin (uses an alternate url for triggering builds)' /}
     {/call}
     {call widget.aui.form.checkbox}
     	{param id:'clear-settings' /}
