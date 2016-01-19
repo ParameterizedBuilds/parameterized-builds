@@ -77,10 +77,11 @@ public class PullRequestHook {
 		final Repository repository = pullRequest.getFromRef().getRepository();
 		String branch = pullRequest.getFromRef().getDisplayId();
 		String commit = pullRequest.getFromRef().getLatestCommit();
+		String prDest = pullRequest.getToRef().getDisplayId();
 		Settings settings = settingsService.getSettings(repository);
 		if (settings == null){return;}
 		for (final Job job : settingsService.getJobs(settings.asMap())){
-			final String queryParams = job.getQueryString(branch, commit);
+			final String queryParams = job.getQueryString(branch, commit, prDest);
 			List<Trigger> triggers = job.getTriggers();
 			final String pathRegex = job.getPathRegex();
 			String userSlug = pullRequest.getAuthor().getUser().getSlug();

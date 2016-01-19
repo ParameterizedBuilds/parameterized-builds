@@ -55,7 +55,7 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 			
 			for (Job job : settingsService.getJobs(context.getSettings().asMap())){
 				pathMatched = false;
-				String query = job.getQueryString(branch, commit);
+				String query = job.getQueryString(branch, commit, "");
 				
 				if (buildBranchCheck(repository, refChange, branch, job.getBranchRegex(), job.getPathRegex(), job.getTriggers())) {
 					jenkins.triggerJob(job, query, null);
