@@ -12,6 +12,8 @@ import com.atlassian.stash.content.AbstractChangeCallback;
 import com.atlassian.stash.content.Change;
 import com.atlassian.stash.content.ChangeContext;
 import com.atlassian.stash.content.ChangeSummary;
+import com.atlassian.stash.event.pull.PullRequestDeclinedEvent;
+import com.atlassian.stash.event.pull.PullRequestMergedEvent;
 import com.atlassian.stash.event.pull.PullRequestOpenedEvent;
 import com.atlassian.stash.event.pull.PullRequestReopenedEvent;
 import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
@@ -38,14 +40,14 @@ public class PullRequestHook {
 	public void onPullRequestOpened(PullRequestOpenedEvent event)
 			throws IOException {
 		PullRequest pullRequest = event.getPullRequest();
-		triggerFromPR(pullRequest);
+		triggerFromPR(pullRequest, Trigger.PULLREQUEST);
 	}
 
 	@EventListener
 	public void onPullRequestReOpened(PullRequestReopenedEvent event)
 			throws IOException {
 		PullRequest pullRequest = event.getPullRequest();
-		triggerFromPR(pullRequest);
+		triggerFromPR(pullRequest, Trigger.PULLREQUEST);
 	}
 
 	@EventListener
@@ -53,22 +55,38 @@ public class PullRequestHook {
 			throws IOException {
 		final PullRequest pullRequest = event.getPullRequest();
 		if (!event.getPreviousFromHash().equals(pullRequest.getFromRef().getLatestChangeset())) {
-			triggerFromPR(pullRequest);
+			triggerFromPR(pullRequest, Trigger.PULLREQUEST);
 		}
 	}
-
-	public void triggerFromPR(PullRequest pullRequest) throws IOException {
+	
+	@EventListener
+	public void onPullRequestMerged(PullRequestMergedEvent event)
+			throws IOException {
+		PullRequest pullRequest = event.getPullRequest();
+		triggerFromPR(pullRequest, Trigger.PRMERGED);
+	}
+	
+	@EventListener
+	public void onPullRequestDeclined(PullRequestDeclinedEvent event)
+			throws IOException {
+		final PullRequest pullRequest = event.getPullRequest();
+		triggerFromPR(pullRequest, Trigger.PRDECLINED);
+	}
+	
+	public void triggerFromPR(PullRequest pullRequest, Trigger trigger) throws IOException {
 		final Repository repository = pullRequest.getFromRef().getRepository();
 		String branch = pullRequest.getFromRef().getDisplayId();
+		String commit = pullRequest.getFromRef().getLatestCommit();
+		String prDest = pullRequest.getToRef().getDisplayId();
 		Settings settings = settingsService.getSettings(repository);
 		if (settings == null){return;}
 		for (final Job job : settingsService.getJobs(settings.asMap())){
-			final String queryParams = job.getQueryString(branch);
+			final String queryParams = job.getQueryString(branch, commit, prDest);
 			List<Trigger> triggers = job.getTriggers();
 			final String pathRegex = job.getPathRegex();
 			String userSlug = pullRequest.getAuthor().getUser().getSlug();
 			final String token = jenkins.getUserToken(userSlug);
-			if (triggers.contains(Trigger.PULLREQUEST)) {
+			if (triggers.contains(trigger)) {
 				if (pathRegex.trim().isEmpty()){
 					jenkins.triggerJob(job, queryParams, token);
 				} else {

@@ -80,10 +80,13 @@
 	    	<label for="trigger-buttons-{$count}">Triggers<span class="aui-icon icon-required"></span></label>
 		    <a class="branch-created" href="#" title="Triggers when new branches are created"><span class="aui-lozenge {strContains($triggers, 'add;') ? 'aui-lozenge-success' : ''}">Branch Created</span></a>&nbsp;
 		    <a class="push-event" href="#" title="Triggers on push events"><span class="aui-lozenge {strContains($triggers, 'push;') ? 'aui-lozenge-success' : ''}">Push Event</span></a>&nbsp;
-		    <a class="pull-request-event" href="#" title="Triggers when a pull request is opened, re-opend, or rescoped"><span class="aui-lozenge {strContains($triggers, 'pullrequest;') ? 'aui-lozenge-success' : ''}">Pull Request</span></a>&nbsp;
 		    <a class="manual" href="#" title="Adds a build button to the branch actions menu"><span class="aui-lozenge {strContains($triggers, 'manual;') ? 'aui-lozenge-success' : ''}">Manual</span></a>&nbsp;
 		    <a class="branch-deleted" href="#" title="Triggers when a branch is deleted"><span class="aui-lozenge {strContains($triggers, 'delete;') ? 'aui-lozenge-success' : ''}">Branch Deleted</span></a>
-	    	{if $errors and $errors['triggers-' + $count]}<div class="error">{$errors['triggers-' + $count]}</div>{/if}
+	    	<br>
+	    	<a class="pr-opened" href="#" title="Triggers when a pull request is opened, re-opend, or rescoped"><span class="aui-lozenge {strContains($triggers, 'pullrequest;') ? 'aui-lozenge-success' : ''}">PR Opened</span></a>&nbsp;
+	    	<a class="pr-merged" href="#" title="Triggers when a pull request is merged"><span class="aui-lozenge {strContains($triggers, 'prmerged;') ? 'aui-lozenge-success' : ''}">PR Merged</span></a>&nbsp;
+	    	<a class="pr-declined" href="#" title="Triggers when a pull request is declined"><span class="aui-lozenge {strContains($triggers, 'prdeclined;') ? 'aui-lozenge-success' : ''}">PR Declined</span></a>
+		    {if $errors and $errors['triggers-' + $count]}<div class="error">{$errors['triggers-' + $count]}</div>{/if}
 	    </div>
 	    {call aui.form.textField}
 	        {param id: 'triggers-' + $count /}
@@ -105,7 +108,7 @@
 	        {param value: $buildParameters /}
 	        {param labelContent: 'Build Parameters'  /}
         	{param descriptionText: 'Key=Value pairs separated by new line. 
-        		For choice parameters separate values with a semicolon. Available Stash variables: $BRANCH'/}
+        		For choice parameters separate values with a semicolon. Available Stash variables: $BRANCH, $COMMIT, $PRDESTINATION (only used for the PR triggers)'/}
 			{param rows: 3 /}
 	        {param extraClass: 'long-field' /}
 			{param fieldWidth: 'full-width' /}
@@ -126,15 +129,16 @@
 	        {param labelContent: 'Branches'  /}
 	        {param extraClass: 'long-field' /}
 			{param fieldWidth: 'full-width' /}
-        	{param descriptionText: 'Trigger builds for matched branches (example: "release.*|hotfix.*|production")' /}
+        	{param descriptionText: 'Trigger builds for matched branches (example: "release.*|hotfix.*|production"). 
+        	Supported triggers: BRANCH CREATED, PUSH EVENT, BRANCH DELETED' /}
         	{param extraClasses: $branchClasses /}
 	    {/call}
 	    {let $pathClasses}
-		    {if $collapsed and not (strContains($triggers, 'push;'))}
+		    {if $collapsed and not (strContains($triggers, 'push;') or strContains($triggers, 'pullrequest;') or strContains($triggers, 'prmerged;') or strContains($triggers, 'prdeclined;'))}
 		    	hidden hide-paths
-		    {elseif $collapsed and (strContains($triggers, 'push;'))}
+		    {elseif $collapsed and (strContains($triggers, 'push;') or strContains($triggers, 'pullrequest;') or strContains($triggers, 'prmerged;') or strContains($triggers, 'prdeclined;'))}
 		    	hidden
-		    {elseif not $collapsed and not (strContains($triggers, 'push;'))}
+		    {elseif not $collapsed and not (strContains($triggers, 'push;') or strContains($triggers, 'pullrequest;') or strContains($triggers, 'prmerged;') or strContains($triggers, 'prdeclined;'))}
 		    	hide-paths
 		    {/if}
 	    {/let}
@@ -144,7 +148,8 @@
 	        {param labelContent: 'Monitored Paths'  /}
 	        {param extraClass: 'long-field' /}
 			{param fieldWidth: 'full-width' /}
-        	{param descriptionText: 'Trigger builds if matched files are modified (example: "directory/.*.txt|foobar/.*")' /}
+        	{param descriptionText: 'Trigger builds if matched files are modified (example: "directory/.*.txt|foobar/.*"). 
+        	Supported triggers: PUSH EVENT, PR OPENED, PR MERGED, PR DECLINED' /}
         	{param extraClasses: $pathClasses /}
 	    {/call}
 		<hr>

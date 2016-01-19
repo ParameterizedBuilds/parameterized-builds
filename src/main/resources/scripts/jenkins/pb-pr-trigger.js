@@ -10,6 +10,7 @@ define('jenkins/parameterized-build-pullrequest', [
    pageState
 ) {
 	var branchName;
+	var commit;
 	var jobs;
 	
 	function getResourceUrl(resourceType){
@@ -73,7 +74,6 @@ define('jenkins/parameterized-build-pullrequest', [
 		var parameterArray = getParameterArray(jobId);
 		var html = com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.createParams({
             'count' : parameterArray.length,
-            'branchName' : branchName,
             'parameters' : parameterArray
         });
         $(html).insertAfter(element);
@@ -124,14 +124,18 @@ define('jenkins/parameterized-build-pullrequest', [
 	
 	$(".parameterized-build-pullrequest").click(function() {
 		var prJSON = require('model/page-state').getPullRequest().toJSON();
-		branchName = prJSON.fromRef.id;
-		branchName = branchName.replace("refs/heads/","");
+		branchName = prJSON.fromRef.displayId;
+		commit = prJSON.fromRef.latestChangeset;
 		
 		var resourceUrl = getResourceUrl("getJobs");
     	
 		jobs = getJobs(resourceUrl);
     	var jobArray = [];
     	for (var i in jobs){
+    		for (var param in jobs[i].parameters){
+    			jobs[i].parameters[param] = jobs[i].parameters[param].replace("$BRANCH", branchName);
+    			jobs[i].parameters[param] = jobs[i].parameters[param].replace("$COMMIT", commit);
+    		}
     		jobArray.push(jobs[i]);
  	    }
     	
@@ -140,9 +144,6 @@ define('jenkins/parameterized-build-pullrequest', [
         	if (parameters.length == 0){
 				var buildUrl = getResourceUrl("triggerBuild/0");
         		triggerBuild(buildUrl);
-        	} else if (parameters.length == 1 && parameters[0][1] == "$BRANCH") {
-				var buildUrl = getResourceUrl("triggerBuild/0");
-				triggerBuild(buildUrl + "?" + parameters[0][0] + "=" + branchName);
         	} else {
         		var buildUrl = getResourceUrl("triggerBuild");
         		showManualBuildDialog(buildUrl, jobArray);
