@@ -136,7 +136,7 @@ public class Job {
        }
     }
 
-	public String getQueryString(String branch) {
+	public String getQueryString(String branch, String commit) {
 		String queryParams = "";
 		Iterator<Entry<String, String>> it = buildParameters.entrySet().iterator();
 	    while (it.hasNext()) {
@@ -145,6 +145,7 @@ public class Job {
 	        it.remove();
 	    }
 		if (!branch.isEmpty()){queryParams = queryParams.replace("$BRANCH", branch);}
+		if (!commit.isEmpty()){queryParams = queryParams.replace("$COMMIT", commit);}
 		return queryParams;
 	}
 	

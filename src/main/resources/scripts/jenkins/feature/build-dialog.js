@@ -14,6 +14,7 @@ define('trigger/build-dialog', [
     flag
 ) {
 	var branchName;
+	var commit;
 	var jobs;
 	
 	function getResourceUrl(resourceType){
@@ -77,7 +78,6 @@ define('trigger/build-dialog', [
 		var parameterArray = getParameterArray(jobId);
 		var html = com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.createParams({
             'count' : parameterArray.length,
-            'branchName' : branchName,
             'parameters' : parameterArray
         });
         $(html).insertAfter(element);
@@ -131,7 +131,9 @@ define('trigger/build-dialog', [
         $(document).on('aui-dropdown2-show', dropDownSelector, function () {
         	var $dropdownMenu = $(this);
         	var $buildTriggerButton = $(linkSelector);
-            branchName = getBranchNameFunction($dropdownMenu);
+            var branchInfo = getBranchNameFunction($dropdownMenu);
+            branchName = branchInfo[0];
+            commit = branchInfo[1];
 
             var triggerBuildSetup = function() {
             	var resourceUrl = getResourceUrl("getJobs");
@@ -139,6 +141,10 @@ define('trigger/build-dialog', [
             	jobs = getJobs(resourceUrl);
             	var jobArray = [];
             	for (var i in jobs){
+            		for (var param in jobs[i].parameters){
+            			jobs[i].parameters[param] = jobs[i].parameters[param].replace("$BRANCH", branchName);
+            			jobs[i].parameters[param] = jobs[i].parameters[param].replace("$COMMIT", commit);
+            		}
             		jobArray.push(jobs[i]);
          	    }
             	
@@ -147,9 +153,6 @@ define('trigger/build-dialog', [
                 	if (parameters.length == 0){
                 		var buildUrl = getResourceUrl("triggerBuild/0");
                 		triggerBuild(buildUrl);
-                	} else if (parameters.length == 1 && parameters[0][1] == "$BRANCH") {
-                		var buildUrl = getResourceUrl("triggerBuild/0");
-                		triggerBuild(buildUrl + "?" + parameters[0][0] + "=" + branchName);
                 	} else {
                 		var buildUrl = getResourceUrl("triggerBuild");
                 		showManualBuildDialog(buildUrl, jobArray);

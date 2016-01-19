@@ -18,7 +18,6 @@
 
 /**
  * @param count
- * @param branchName
  * @param parameters
  */
 {template .createParams}
@@ -30,7 +29,6 @@
 	            	{param count: $i /}
 	            	{param title: $parameters[$i][0] /}
 	            	{param value: $parameters[$i][1] /}
-	            	{param branchName: $branchName /}
             	{/call}
       		{/for}
       		</div>
@@ -43,7 +41,6 @@
  * @param count
  * @param title
  * @param value
- * @param branchName
  */
 {template .addParam}
   
@@ -74,8 +71,7 @@
 		               id="build-param-value-{$count}"
 		               type="text" 
 		               name="build-param-value-{$count}"
-		               value="{$value == '$BRANCH' ? $branchName : $value}"
-		               {($value == '$BRANCH') ? 'disabled' : ''}>
+		               value="{$value}">
 			{/if}
     </div>
   
