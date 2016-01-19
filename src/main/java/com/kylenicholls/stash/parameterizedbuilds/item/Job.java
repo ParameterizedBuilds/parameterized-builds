@@ -149,6 +149,6 @@ public class Job {
 	}
 	
 	public enum Trigger {
-		ADD, PUSH, PULLREQUEST, MANUAL, DELETE, NULL;
+		ADD, PUSH, PULLREQUEST, MANUAL, DELETE, PRMERGED, NULL;
 	}
 }
