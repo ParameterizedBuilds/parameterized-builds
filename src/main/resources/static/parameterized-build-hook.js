@@ -178,7 +178,7 @@
             	updateTrigger($(this).parent().parent(), "pullrequest;", false);
 				var trigger = $(this).parent().parent().find('#triggers-' + id);
 				var existing = trigger.val();
-            	if (existing.indexOf("push;") == -1 && existing.indexOf("prmerged;") == -1) {
+            	if (existing.indexOf("push;") == -1 && existing.indexOf("prmerged;") == -1 && existing.indexOf("prdeclined;") == -1) {
     				$(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
             	}
             } else {
@@ -196,11 +196,29 @@
             	updateTrigger($(this).parent().parent(), "prmerged;", false);
 				var trigger = $(this).parent().parent().find('#triggers-' + id);
 				var existing = trigger.val();
-            	if (existing.indexOf("push;") == -1 && existing.indexOf("pullrequest;") == -1) {
+            	if (existing.indexOf("push;") == -1 && existing.indexOf("pullrequest;") == -1 && existing.indexOf("prdeclined;") == -1) {
     				$(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
             	}
             } else {
             	updateTrigger($(this).parent().parent(), "prmerged;", true);
+				$(this).parent().parent().find('#pathRegex-' + id).parent().removeClass('hide-paths');
+            }
+            $(this).find('span').toggleClass("aui-lozenge-success");
+        });
+
+        $(document).on('click', '.pr-declined', function(e) {
+            e.preventDefault();
+            var classes = $(this).find('span').attr('class');
+            var id = $(this).parent().parent().get(0).id.replace("job-", "");
+            if (classes.indexOf("aui-lozenge-success") > -1) {
+            	updateTrigger($(this).parent().parent(), "prdeclined;", false);
+				var trigger = $(this).parent().parent().find('#triggers-' + id);
+				var existing = trigger.val();
+            	if (existing.indexOf("push;") == -1 && existing.indexOf("pullrequest;") == -1 && existing.indexOf("prmerged;") == -1) {
+    				$(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
+            	}
+            } else {
+            	updateTrigger($(this).parent().parent(), "prdeclined;", true);
 				$(this).parent().parent().find('#pathRegex-' + id).parent().removeClass('hide-paths');
             }
             $(this).find('span').toggleClass("aui-lozenge-success");

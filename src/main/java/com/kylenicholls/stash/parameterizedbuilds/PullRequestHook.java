@@ -12,6 +12,7 @@ import com.atlassian.bitbucket.content.AbstractChangeCallback;
 import com.atlassian.bitbucket.content.Change;
 import com.atlassian.bitbucket.content.ChangeContext;
 import com.atlassian.bitbucket.content.ChangeSummary;
+import com.atlassian.bitbucket.event.pull.PullRequestDeclinedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestMergedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestReopenedEvent;
@@ -64,7 +65,14 @@ public class PullRequestHook {
 		PullRequest pullRequest = event.getPullRequest();
 		triggerFromPR(pullRequest, Trigger.PRMERGED);
 	}
-	
+
+	@EventListener
+	public void onPullRequestDeclined(PullRequestDeclinedEvent event)
+			throws IOException {
+		final PullRequest pullRequest = event.getPullRequest();
+		triggerFromPR(pullRequest, Trigger.PRDECLINED);
+	}
+
 	public void triggerFromPR(PullRequest pullRequest, Trigger trigger) throws IOException {
 		final Repository repository = pullRequest.getFromRef().getRepository();
 		String branch = pullRequest.getFromRef().getDisplayId();
