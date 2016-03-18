@@ -281,6 +281,8 @@ public class Jenkins {
 
 			connection.setReadTimeout(45000);
 			connection.setInstanceFollowRedirects(true);
+			connection.setDoOutput(true);
+			connection.setFixedLengthStreamingMode(0);
 			HttpURLConnection.setFollowRedirects(true);
 
 			connection.connect();
