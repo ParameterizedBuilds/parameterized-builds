@@ -16,6 +16,7 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 public class SettingsService {
 	private static final String KEY = "com.kylenicholls.stash.parameterized-builds:parameterized-build-hook";
 	public static final String JOB_PREFIX = "jobName-";
+	public static final String ISTAG_PREFIX = "isTag-";
 	public static final String TRIGGER_PREFIX = "triggers-";
 	public static final String TOKEN_PREFIX = "token-";
 	public static final String PARAM_PREFIX = "buildParameters-";
@@ -72,10 +73,15 @@ public class SettingsService {
 		List<Job> jobsList = new ArrayList<Job>();
 		for (String key : parameterMap.keySet()) {
 			if (key.startsWith(JOB_PREFIX)) {
-				
+				boolean isTag = false;
+				Object isTagObj = parameterMap.get(key.replace(JOB_PREFIX, ISTAG_PREFIX));
+				if (isTagObj != null){
+					isTag = Boolean.parseBoolean(isTagObj.toString());
+				}
 				Job job = new Job
 						.JobBuilder(jobsList.size())
 						.jobName(parameterMap.get(key).toString())
+						.isTag(isTag)
 						.triggers(parameterMap.get(key.replace(JOB_PREFIX, TRIGGER_PREFIX)).toString().split(";"))
 						.buildParameters(parameterMap.get(key.replace(JOB_PREFIX, PARAM_PREFIX)).toString())
 						.token(parameterMap.get(key.replace(JOB_PREFIX, TOKEN_PREFIX)).toString())

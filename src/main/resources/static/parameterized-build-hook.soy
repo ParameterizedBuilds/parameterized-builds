@@ -10,12 +10,13 @@
 				<div class="field-group"><div class="error">{$errors['jenkins-admin-error']}</div></div>
 		{/if}
 		{let $configKeys: $config ? keys($config) : [] /}	
-		{let $visibleInputsCount: $configKeys.length > 0 ? ($configKeys.length / 6) : 1 /}
+		{let $visibleInputsCount: $configKeys.length > 0 ? ($configKeys.length / 7) : 1 /}
 		{for $i in range($visibleInputsCount)}
 			{call .addJob}
 				{param canDelete: $visibleInputsCount > 1 /}
 				{param count: $i /}
 				{param jobName: $config and $config['jobName-' + $i] ? $config['jobName-' + $i] : null /}
+				{param isTag: $config and $config['isTag-' + $i] ? $config['isTag-' + $i] : false /}
 				{param triggers: $config and $config['triggers-' + $i] ? $config['triggers-' + $i] : null /}
 				{param token: $config and $config['token-' + $i] ? $config['token-' + $i] : null /}
 				{param buildParameters: $config and $config['buildParameters-' + $i] ? $config['buildParameters-' + $i] : null /}
@@ -39,6 +40,7 @@
  * @param canDelete
  * @param count
  * @param jobName
+ * @param isTag
  * @param triggers
  * @param token
  * @param buildParameters
@@ -76,12 +78,25 @@
         	{param isRequired: true /}
         	{param extraClasses: $collapsed ? 'hidden' : '' /}
 	    {/call}
+		{call aui.form.selectField}
+			{param id: 'isTag-' + $count /}
+			{param labelContent: 'Ref Type' /}
+			{param value: $isTag /}
+			{param options: [[
+					'text': 'branch',
+					'value': 'false'
+ 				],[
+					'text': 'tag',
+					'value': 'true'
+				]] /}
+			{param extraClasses: $collapsed ? 'hidden' : '' /}
+		{/call}
 	    <div class="field-group {$collapsed ? 'hidden' : ''}">
 	    	<label for="trigger-buttons-{$count}">Triggers<span class="aui-icon icon-required"></span></label>
-		    <a class="branch-created" href="#" title="Triggers when new branches are created"><span class="aui-lozenge {strContains($triggers, 'add;') ? 'aui-lozenge-success' : ''}">Branch Created</span></a>&nbsp;
-		    <a class="push-event" href="#" title="Triggers on push events"><span class="aui-lozenge {strContains($triggers, 'push;') ? 'aui-lozenge-success' : ''}">Push Event</span></a>&nbsp;
+		    <a class="branch-created" href="#" title="Triggers when new branches or tags are created"><span class="aui-lozenge {strContains($triggers, 'add;') ? 'aui-lozenge-success' : ''}">Ref Created</span></a>&nbsp;
+		    <a class="push-event" href="#" title="Triggers on branch push events"><span class="aui-lozenge {strContains($triggers, 'push;') ? 'aui-lozenge-success' : ''}">Push Event</span></a>&nbsp;
 		    <a class="manual" href="#" title="Adds a build button to the branch actions menu"><span class="aui-lozenge {strContains($triggers, 'manual;') ? 'aui-lozenge-success' : ''}">Manual</span></a>&nbsp;
-		    <a class="branch-deleted" href="#" title="Triggers when a branch is deleted"><span class="aui-lozenge {strContains($triggers, 'delete;') ? 'aui-lozenge-success' : ''}">Branch Deleted</span></a>
+		    <a class="branch-deleted" href="#" title="Triggers when a branch or tag is deleted"><span class="aui-lozenge {strContains($triggers, 'delete;') ? 'aui-lozenge-success' : ''}">Ref Deleted</span></a>
 		    <br>
 	    	<a class="pr-opened" href="#" title="Triggers when a pull request is opened, re-opend, or rescoped"><span class="aui-lozenge {strContains($triggers, 'pullrequest;') ? 'aui-lozenge-success' : ''}">PR Opened</span></a>&nbsp;
 	    	<a class="pr-merged" href="#" title="Triggers when a pull request is merged"><span class="aui-lozenge {strContains($triggers, 'prmerged;') ? 'aui-lozenge-success' : ''}">PR Merged</span></a>&nbsp;
@@ -126,10 +141,10 @@
 		{call aui.form.textField}
 	        {param id: 'branchRegex-' + $count /}
 	        {param value: $branchRegex /}
-	        {param labelContent: 'Branches'  /}
+	        {param labelContent: 'Ref Filter'  /}
 	        {param extraClass: 'long-field' /}
 			{param fieldWidth: 'full-width' /}
-        	{param descriptionText: 'Trigger builds for matched branches (example: "release.*|hotfix.*|production"). 
+        	{param descriptionText: 'Trigger builds for matched branches or tags (example: "release.*|hotfix.*|production"). 
         	Supported triggers: BRANCH CREATED, PUSH EVENT, BRANCH DELETED' /}
         	{param extraClasses: $branchClasses /}
 	    {/call}

@@ -28,6 +28,7 @@
             var html = com.kylenicholls.stash.parameterizedbuilds.hook.addJob({
                 'count' : existingJobs,
                 'jobName' : '',
+                'isTag' : false,
                 'trigger' : '',
                 'token' : '',
                 'branch' : '',
@@ -74,26 +75,30 @@
                 		$(currentField).find('label').attr('for', 'jobName-' + index);
                 		$(currentField).find('input').attr('id', 'jobName-' + index).attr('name', 'jobName-' + index);
                 	}
-                	if (index2 === 1) {
-                		$(currentField).find('label').attr('for', 'trigger-buttons-' + index);
+            		if (index2 === 1) {
+                		$(currentField).find('label').attr('for', 'isTag-' + index);
+                		$(currentField).find('select').attr('id', 'isTag-' + index).attr('name', 'isTag-' + index);
                 	}
                 	if (index2 === 2) {
+                		$(currentField).find('label').attr('for', 'trigger-buttons-' + index);
+                	}
+                	if (index2 === 3) {
                 		$(currentField).find('label').attr('for', 'triggers-' + index);
                 		$(currentField).find('input').attr('id', 'triggers-' + index).attr('name', 'triggers-' + index);
                 	}
-            		if (index2 === 3) {
+            		if (index2 === 4) {
                 		$(currentField).find('label').attr('for', 'token-' + index);
                 		$(currentField).find('input').attr('id', 'token-' + index).attr('name', 'token-' + index);
                 	}
-                	if (index2 === 4) {
+                	if (index2 === 5) {
                 		$(currentField).find('label').attr('for', 'buildParameters-' + index);
                 		$(currentField).find('textarea').attr('id', 'buildParameters-' + index).attr('name', 'buildParameters-' + index);
                 	}
-                	if (index2 === 5) {
+                	if (index2 === 6) {
                 		$(currentField).find('label').attr('for', 'branchRegex-' + index);
                 		$(currentField).find('input').attr('id', 'branchRegex-' + index).attr('name', 'branchRegex-' + index);
                 	}
-                	if (index2 === 6) {
+                	if (index2 === 7) {
                 		$(currentField).find('label').attr('for', 'pathRegex-' + index);
                 		$(currentField).find('input').attr('id', 'pathRegex-' + index).attr('name', 'pathRegex-' + index);
                 	}

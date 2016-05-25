@@ -10,15 +10,17 @@ import java.util.Map.Entry;
 public class Job {
     private int jobId;
     private String jobName;
+    private boolean isTag;
     private List<Trigger> triggers;
     private String token;
     private Map<String, String> buildParameters;
     private String branchRegex;
     private String pathRegex;
 
-    public Job(int jobId, String jobName, List<Trigger> triggers, String token, Map<String, String> buildParameters, String branchRegex, String pathRegex) {
+    public Job(int jobId, String jobName, boolean isTag, List<Trigger> triggers, String token, Map<String, String> buildParameters, String branchRegex, String pathRegex) {
     	this.jobId = jobId;
     	this.jobName = jobName;
+    	this.isTag = isTag;
     	this.triggers = triggers;
     	this.token = token;
     	this.buildParameters = buildParameters;
@@ -32,6 +34,10 @@ public class Job {
 
 	public String getJobName() {
 		return jobName;
+	}
+
+	public boolean getIsTag() {
+		return isTag;
 	}
 
 	public List<Trigger> getTriggers() {
@@ -58,6 +64,7 @@ public class Job {
     {
        private int nestedJobId;
        private String nestedJobName;
+       private boolean nestedIsTag;
        private List<Trigger> nestedTriggers;
        private String nestedToken;
        private Map<String, String> nestedBuildParameters;
@@ -79,6 +86,12 @@ public class Job {
        public JobBuilder jobName(String jobName)
        {
     	   this.nestedJobName = jobName;
+    	   return this;
+       }
+
+       public JobBuilder isTag(boolean isTag)
+       {
+    	   this.nestedIsTag = isTag;
     	   return this;
        }
 
@@ -132,7 +145,7 @@ public class Job {
 
        public Job createJob()
        {
-    	   return new Job(nestedJobId, nestedJobName, nestedTriggers, nestedToken, nestedBuildParameters, nestedBranchRegex, nestedPathRegex);
+    	   return new Job(nestedJobId, nestedJobName, nestedIsTag, nestedTriggers, nestedToken, nestedBuildParameters, nestedBranchRegex, nestedPathRegex);
        }
     }
 

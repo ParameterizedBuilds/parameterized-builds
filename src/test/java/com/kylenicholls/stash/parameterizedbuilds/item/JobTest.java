@@ -21,9 +21,10 @@ public class JobTest {
 	}
 	
 	@Test
-	public void testCreateNewJob() {
+	public void testCreateNewBranchJob() {
 		int jobId = 0;
 		String jobName = "test_job";
+		boolean isTag = false;
 		List<Trigger> triggers = new ArrayList<Trigger>();
 		triggers.add(Trigger.ADD);
 		triggers.add(Trigger.MANUAL);
@@ -36,6 +37,7 @@ public class JobTest {
 		Job job = new Job
 				.JobBuilder(jobId)
 				.jobName(jobName)
+				.isTag(isTag)
 				.triggers(new String[]{"add", "manual"})
 				.buildParameters("param1=value1\r\nparam2=value2")
 				.branchRegex(branch)
@@ -44,9 +46,24 @@ public class JobTest {
 		
 		assertEquals(jobId, job.getJobId());
 		assertEquals(jobName, job.getJobName());
+		assertEquals(isTag, job.getIsTag());
 		assertEquals(triggers, job.getTriggers());
 		assertEquals(parameters, job.getBuildParameters());
 		assertEquals(branch, job.getBranchRegex());
 		assertEquals(path, job.getPathRegex());
+	}
+	
+	@Test
+	public void testCreateNewTagJob() {
+		int jobId = 0;
+		boolean isTag = true;
+		
+		Job job = new Job
+				.JobBuilder(jobId)
+				.isTag(isTag)
+				.createJob();
+		
+		assertEquals(jobId, job.getJobId());
+		assertEquals(isTag, job.getIsTag());
 	}
 }

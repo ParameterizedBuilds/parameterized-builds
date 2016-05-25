@@ -9,21 +9,31 @@ import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.any;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.commit.CommitService;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
+import com.atlassian.bitbucket.repository.MinimalRef;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
+import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class ParameterizedBuildHookTest {
+	private RepositoryHookContext context;
+	private Settings settings;
 	private RefChange refChange;
+	private MinimalRef minimalRef;
 	private ParameterizedBuildHook buildHook;
 	private SettingsService settingsService;
 	private CommitService commitService;
@@ -46,7 +56,10 @@ public class ParameterizedBuildHookTest {
 	
 	@Before
 	public void setup() throws Exception {
+		context = mock(RepositoryHookContext.class);
+		settings = mock(Settings.class);
 		refChange = mock(RefChange.class);
+		minimalRef = mock(MinimalRef.class);
 		settingsService = mock(SettingsService.class);
 		commitService = mock(CommitService.class);
 		jenkins = mock(Jenkins.class);
@@ -195,5 +208,109 @@ public class ParameterizedBuildHookTest {
 		branchRegex = "anewbranch|foobar";
 		results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
 		assertTrue(results);
+	}
+	
+	@Test
+	public void testJobTriggeredWhenTagAndTriggerTag() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(context.getRepository()).thenReturn(repository);
+		when(refChange.getRef()).thenReturn(minimalRef);
+		when(refChange.getToHash()).thenReturn("hash");
+		when(minimalRef.getId()).thenReturn("refs/tags/tagname");
+		when(refChange.getType()).thenReturn(RefChangeType.ADD);
+		when(context.getSettings()).thenReturn(settings);
+		List<Job> jobs = new ArrayList<Job>();
+		Job job = new Job
+				.JobBuilder(1)
+				.jobName("name")
+				.isTag(true)
+				.triggers(new String[]{"add", "manual"})
+				.buildParameters("param1=value1\r\nparam2=value2")
+				.branchRegex("")
+				.pathRegex("")
+				.createJob();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(1)).triggerJob(job, "param1=value1&param2=value2", null);
+	}
+	
+	@Test
+	public void testJobNotTriggeredWhenTagAndNotTriggerTag() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(context.getRepository()).thenReturn(repository);
+		when(refChange.getRef()).thenReturn(minimalRef);
+		when(refChange.getToHash()).thenReturn("hash");
+		when(minimalRef.getId()).thenReturn("refs/tags/tagname");
+		when(refChange.getType()).thenReturn(RefChangeType.ADD);
+		when(context.getSettings()).thenReturn(settings);
+		List<Job> jobs = new ArrayList<Job>();
+		Job job = new Job
+				.JobBuilder(1)
+				.jobName("name")
+				.isTag(false)
+				.triggers(new String[]{"add", "manual"})
+				.buildParameters("param1=value1\r\nparam2=value2")
+				.branchRegex("")
+				.pathRegex("")
+				.createJob();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(0)).triggerJob(job, "param1=value1&param2=value2", null);
+	}
+	
+	@Test
+	public void testJobTriggeredWhenBranchAndTriggerBranch() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(context.getRepository()).thenReturn(repository);
+		when(refChange.getRef()).thenReturn(minimalRef);
+		when(refChange.getToHash()).thenReturn("hash");
+		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
+		when(refChange.getType()).thenReturn(RefChangeType.ADD);
+		when(context.getSettings()).thenReturn(settings);
+		List<Job> jobs = new ArrayList<Job>();
+		Job job = new Job
+				.JobBuilder(1)
+				.jobName("name")
+				.isTag(false)
+				.triggers(new String[]{"add", "manual"})
+				.buildParameters("param1=value1\r\nparam2=value2")
+				.branchRegex("")
+				.pathRegex("")
+				.createJob();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(1)).triggerJob(job, "param1=value1&param2=value2", null);
+	}
+	
+	@Test
+	public void testJobNotTriggeredWhenBranchAndNotTriggerBranch() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(context.getRepository()).thenReturn(repository);
+		when(refChange.getRef()).thenReturn(minimalRef);
+		when(refChange.getToHash()).thenReturn("hash");
+		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
+		when(refChange.getType()).thenReturn(RefChangeType.ADD);
+		when(context.getSettings()).thenReturn(settings);
+		List<Job> jobs = new ArrayList<Job>();
+		Job job = new Job
+				.JobBuilder(1)
+				.jobName("name")
+				.isTag(true)
+				.triggers(new String[]{"add", "manual"})
+				.buildParameters("param1=value1\r\nparam2=value2")
+				.branchRegex("")
+				.pathRegex("")
+				.createJob();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(0)).triggerJob(job, "param1=value1&param2=value2", null);
 	}
 }

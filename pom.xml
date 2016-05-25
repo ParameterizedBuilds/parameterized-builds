@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kylenicholls.stash</groupId>
     <artifactId>parameterized-builds</artifactId>
-    <version>2.3.0</version>
+    <version>2.4.0</version>
     
 	<organization>
 		<name>Kyle Nicholls</name>
@@ -170,8 +170,8 @@
         </plugins>
     </build>
     <properties>
-        <bitbucket.server.version>4.0.0</bitbucket.server.version>
-        <bitbucket.data.version>4.0.0</bitbucket.data.version>
+        <bitbucket.server.version>4.6.1</bitbucket.server.version>
+        <bitbucket.data.version>4.6.1</bitbucket.data.version>
         <amps.version>6.1.0</amps.version>
         <plugin.testrunner.version>1.2.0</plugin.testrunner.version>
     </properties>

@@ -33,6 +33,7 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 
 	private boolean pathMatched = false;
 	private static final String REFS_HEADS = "refs/heads/";
+	private static final String REFS_TAGS = "refs/tags/";
 	
 	private final SettingsService settingsService;
 	private final CommitService commitService;
@@ -62,14 +63,20 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 		
 		for (RefChange refChange : refChanges) {
 			String branch = refChange.getRef().getId().replace(REFS_HEADS, "");
+			boolean isTag = false;
+			if (refChange.getRef().getId().startsWith(REFS_TAGS)){
+				branch = refChange.getRef().getId().replace(REFS_TAGS, "");
+				isTag = true;
+			}
 			String commit = refChange.getToHash();
 			
 			for (Job job : settingsService.getJobs(context.getSettings().asMap())){
 				pathMatched = false;
 				String query = job.getQueryString(branch, commit, "");
-				
-				if (buildBranchCheck(repository, refChange, branch, job.getBranchRegex(), job.getPathRegex(), job.getTriggers())) {
+				if (job.getIsTag() == isTag){
+					if (buildBranchCheck(repository, refChange, branch, job.getBranchRegex(), job.getPathRegex(), job.getTriggers())) {
 					jenkins.triggerJob(job, query, token);
+					}
 				}
 			}
 		}
@@ -78,7 +85,7 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 	public boolean buildBranchCheck(final Repository repository,
 			RefChange refChange, String branch, String branchCheck,
 			final String pathCheck, List<Trigger> triggers) {
-		
+
 		if (refChange.getType() == RefChangeType.UPDATE && (triggers.contains(Trigger.PUSH))) {
 			if ((branchCheck.isEmpty() || branch.toLowerCase().matches(branchCheck.toLowerCase()))
 					&& pathCheck.isEmpty()) {
@@ -132,7 +139,6 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 			return;
 		}
 		List<Job> jobList = settingsService.getJobs(settings.asMap());
-		
 		for (int i = 0; i < jobList.size(); i++) {
 		    Job job = jobList.get(i);		    
 		    if (job.getJobName().isEmpty()){
