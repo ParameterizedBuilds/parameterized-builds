@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.commit.CommitService;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
@@ -41,6 +42,7 @@ public class ParameterizedBuildHookTest {
 	public static final String COND_USERNAME_PREFIX = "cond-username-";
 	public static final String COND_PASSWORD_PREFIX = "cond-password-";
 	private Collection<String> fileNames = new ArrayList<String>();
+	private AuthenticationContext authenticationContext;
 	
 	@Before
 	public void setup() throws Exception {
@@ -48,7 +50,8 @@ public class ParameterizedBuildHookTest {
 		settingsService = mock(SettingsService.class);
 		commitService = mock(CommitService.class);
 		jenkins = mock(Jenkins.class);
-		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins);
+		authenticationContext = mock(AuthenticationContext.class);
+		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,authenticationContext);
 		
 		fileNames.add("path/to/file");
 		fileNames.add("foo/bar/file");
