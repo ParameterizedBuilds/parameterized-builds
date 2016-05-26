@@ -1,5 +1,6 @@
 package com.kylenicholls.stash.parameterizedbuilds;
 
+import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.commit.CommitService;
 import com.atlassian.bitbucket.content.AbstractChangeCallback;
 import com.atlassian.bitbucket.content.Change;
@@ -19,6 +20,7 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
+import com.atlassian.bitbucket.user.ApplicationUser;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,19 +37,28 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 	private final SettingsService settingsService;
 	private final CommitService commitService;
 	private final Jenkins jenkins;
+	private AuthenticationContext actx;
 	
 	public ParameterizedBuildHook(SettingsService settingsService,
 			CommitService commitService,
-			Jenkins jenkins) {
+			Jenkins jenkins, AuthenticationContext actx) {
 		this.settingsService = settingsService;
 		this.commitService = commitService;
 		this.jenkins = jenkins;
+		this.actx = actx;
 	}
 
 	@Override
 	public void postReceive(RepositoryHookContext context,
 			Collection<RefChange> refChanges) {
 		Repository repository = context.getRepository();
+		
+		String token = null; 
+		
+		ApplicationUser cur = actx.getCurrentUser();
+		if(cur != null){
+			token = jenkins.getUserToken(cur.getName());
+		}
 		
 		for (RefChange refChange : refChanges) {
 			String branch = refChange.getRef().getId().replace(REFS_HEADS, "");
@@ -58,7 +69,7 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 				String query = job.getQueryString(branch, commit, "");
 				
 				if (buildBranchCheck(repository, refChange, branch, job.getBranchRegex(), job.getPathRegex(), job.getTriggers())) {
-					jenkins.triggerJob(job, query, null);
+					jenkins.triggerJob(job, query, token);
 				}
 			}
 		}
