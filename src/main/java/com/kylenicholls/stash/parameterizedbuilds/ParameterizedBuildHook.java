@@ -53,8 +53,12 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 			Collection<RefChange> refChanges) {
 		Repository repository = context.getRepository();
 		
+		String token = null; 
+		
 		ApplicationUser cur = actx.getCurrentUser();
-		String token = jenkins.getUserToken(cur.getName());
+		if(cur != null){
+			token = jenkins.getUserToken(cur.getName());
+		}
 		
 		for (RefChange refChange : refChanges) {
 			String branch = refChange.getRef().getId().replace(REFS_HEADS, "");
