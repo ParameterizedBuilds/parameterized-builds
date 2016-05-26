@@ -5,8 +5,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.codec.binary.Base64;
 
+import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
@@ -30,15 +33,17 @@ public class Jenkins {
 		}
 	}
 
-	public void setUserSettings(String user, String token){
-		if (user != null && !user.trim().isEmpty() 
-				&& token != null && !token.isEmpty()) {
-			pluginSettings.put(".jenkinsUser." + user, token);
-		} else {
-			pluginSettings.remove(".jenkinsUser." + user);
+	public void setUserSettings(@Nullable ApplicationUser user, String token){
+		if (user != null){
+			if (token != null && !token.isEmpty()) {
+				pluginSettings.put(".jenkinsUser." + user.getSlug(), token);
+			} else {
+				pluginSettings.remove(".jenkinsUser." + user.getSlug());
+			}
 		}
 	}
 
+	@Nullable
 	public Server getSettings() {
 		Object settingObj = pluginSettings.get(".jenkinsSettings");
 		if (settingObj != null) {
@@ -50,20 +55,23 @@ public class Jenkins {
 		}
 	}
 
-	public String getUserToken(String user) {
-		if (getUserSettings(user) != null) {
-			return user + ":" + getUserSettings(user);
+	@Nullable
+	public String getUserToken(@Nullable ApplicationUser user) {
+		if (user != null && getUserSettings(user) != null) {
+			return user.getSlug() + ":" + getUserSettings(user);
 		}
 		return null;
 	}
-	
-	public String getUserSettings(String user) {
-		Object settingObj = pluginSettings.get(".jenkinsUser." + user);
-		if (settingObj != null) {
-			return settingObj.toString();
-		} else {
-			return null;
+
+	@Nullable
+	public String getUserSettings(@Nullable ApplicationUser user) {
+		if (user != null) {
+			Object settingObj = pluginSettings.get(".jenkinsUser." + user.getSlug());
+			if (settingObj != null) {
+				return settingObj.toString();
+			}
 		}
+		return null;
 	}
 
 	public String[] triggerJob(Job job, String queryParams, String userToken){

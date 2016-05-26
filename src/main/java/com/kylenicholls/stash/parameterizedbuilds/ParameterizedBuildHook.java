@@ -20,7 +20,6 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
-import com.atlassian.bitbucket.user.ApplicationUser;
 
 import java.util.Collection;
 import java.util.List;
@@ -54,12 +53,7 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 			Collection<RefChange> refChanges) {
 		Repository repository = context.getRepository();
 		
-		String token = null; 
-		
-		ApplicationUser cur = actx.getCurrentUser();
-		if(cur != null){
-			token = jenkins.getUserToken(cur.getName());
-		}
+		String token = jenkins.getUserToken(actx.getCurrentUser());
 		
 		for (RefChange refChange : refChanges) {
 			String branch = refChange.getRef().getId().replace(REFS_HEADS, "");

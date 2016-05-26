@@ -46,7 +46,7 @@ public class CIServlet extends HttpServlet{
     		String baseUrl = server != null ? server.getBaseUrl() : null;
     		if (pathInfo.contains("/account/")) {
     			ApplicationUser appUser = authenticationContext.getCurrentUser();
-        		String jenkinsToken = jenkins.getUserSettings(appUser.getSlug());
+        		String jenkinsToken = jenkins.getUserSettings(appUser);
         		if (baseUrl == null) {
         			render(resp, "jenkins.user.settings", 
         					ImmutableMap.<String, Object>of("user", appUser, "token", "", "baseUrl", "", "errors", "A Bitbucket administrator must configure the base settings for Jenkins first. These settings can be found on the admin page of Bitbucket."));
@@ -90,9 +90,8 @@ public class CIServlet extends HttpServlet{
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
     	String pathInfo = req.getPathInfo();
     	if (pathInfo.contains("/account/")) {
-			String userSlug = authenticationContext.getCurrentUser().getSlug();
 			String token = req.getParameter("jenkinsToken");
-    		jenkins.setUserSettings(userSlug, token);
+    		jenkins.setUserSettings(authenticationContext.getCurrentUser(), token);
     	} else {
     		String jenkinsUrl = req.getParameter("jenkinsUrl");
     		String jenkinsUser = req.getParameter("jenkinsUser");

@@ -71,7 +71,7 @@ public class BuildResource extends RestResource {
 				getResults[0] = "error";
 				getResults[1] = "Settings not found for this job";
 			} else {
-				String userToken = jenkins.getUserToken(authenticationContext.getCurrentUser().getSlug());
+				String userToken = jenkins.getUserToken(authenticationContext.getCurrentUser());
 				String updatedParams = resolveQueryParamsFromMap(uriInfo.getQueryParameters());
 				getResults = jenkins.triggerJob(jobToBuild, updatedParams, userToken);
 			}

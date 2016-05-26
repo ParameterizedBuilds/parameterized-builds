@@ -22,6 +22,7 @@ import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.user.ApplicationUser;
 
 public class PullRequestHook {
 	private final SettingsService settingsService;
@@ -84,8 +85,8 @@ public class PullRequestHook {
 			final String queryParams = job.getQueryString(branch, commit, prDest);
 			List<Trigger> triggers = job.getTriggers();
 			final String pathRegex = job.getPathRegex();
-			String userSlug = pullRequest.getAuthor().getUser().getSlug();
-			final String token = jenkins.getUserToken(userSlug);
+			ApplicationUser user = pullRequest.getAuthor().getUser();
+			final String token = jenkins.getUserToken(user);
 			if (triggers.contains(trigger)) {
 				if (pathRegex.trim().isEmpty()){
 					jenkins.triggerJob(job, queryParams, token);
