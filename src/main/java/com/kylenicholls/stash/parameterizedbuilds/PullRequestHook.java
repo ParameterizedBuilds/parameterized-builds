@@ -5,7 +5,9 @@ import java.util.List;
 
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
+import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
+import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters.Builder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.bitbucket.content.AbstractChangeCallback;
@@ -82,7 +84,15 @@ public class PullRequestHook {
 		Settings settings = settingsService.getSettings(repository);
 		if (settings == null){return;}
 		for (final Job job : settingsService.getJobs(settings.asMap())){
-			final String queryParams = job.getQueryString(branch, commit, prDest);
+			Builder builder = new GetQueryStringParameters.Builder();
+			builder.branch(branch);
+			builder.commit(commit);
+			builder.prDestination(prDest);
+			builder.repoName(repository.getSlug());
+			builder.projectName(repository.getProject().getName());
+			GetQueryStringParameters parameters = builder.build();
+			
+			final String queryParams = job.getQueryString(parameters);
 			List<Trigger> triggers = job.getTriggers();
 			final String pathRegex = job.getPathRegex();
 			ApplicationUser user = pullRequest.getAuthor().getUser();

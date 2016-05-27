@@ -1,17 +1,17 @@
 package com.kylenicholls.stash.parameterizedbuilds;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +19,7 @@ import org.junit.Test;
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.commit.CommitService;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
+import com.atlassian.bitbucket.project.Project;
 import com.atlassian.bitbucket.repository.MinimalRef;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
@@ -42,6 +43,7 @@ public class ParameterizedBuildHookTest {
 	private String branchRegex;
 	private String branch;
 	private Repository repository;
+	private Project project;
 	public static final String COND_BASEURL_PREFIX = "cond-baseurl-";
 	public static final String COND_CI_PREFIX = "cond-ciserver-";
 	public static final String COND_JOB_PREFIX = "cond-jobname-";
@@ -53,6 +55,7 @@ public class ParameterizedBuildHookTest {
 	public static final String COND_PASSWORD_PREFIX = "cond-password-";
 	private Collection<String> fileNames = new ArrayList<String>();
 	private AuthenticationContext authenticationContext;
+	
 	
 	@Before
 	public void setup() throws Exception {
@@ -71,6 +74,7 @@ public class ParameterizedBuildHookTest {
 		fileNames.add("test3/test4");
 		branch = "anewbranch";
 		repository = mock(Repository.class);
+		project = mock(Project.class);
 	}
 	
 	// Test buildBranchCheck function
@@ -220,6 +224,9 @@ public class ParameterizedBuildHookTest {
 		when(minimalRef.getId()).thenReturn("refs/tags/tagname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		when(context.getSettings()).thenReturn(settings);
+		when(repository.getSlug()).thenReturn("repoSlug");
+		when(repository.getProject()).thenReturn(project);
+		when(project.getKey()).thenReturn("project_key");
 		List<Job> jobs = new ArrayList<Job>();
 		Job job = new Job
 				.JobBuilder(1)
@@ -246,6 +253,9 @@ public class ParameterizedBuildHookTest {
 		when(minimalRef.getId()).thenReturn("refs/tags/tagname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		when(context.getSettings()).thenReturn(settings);
+		when(repository.getSlug()).thenReturn("repoSlug");
+		when(repository.getProject()).thenReturn(project);
+		when(project.getKey()).thenReturn("project_key");
 		List<Job> jobs = new ArrayList<Job>();
 		Job job = new Job
 				.JobBuilder(1)
@@ -272,6 +282,9 @@ public class ParameterizedBuildHookTest {
 		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		when(context.getSettings()).thenReturn(settings);
+		when(repository.getSlug()).thenReturn("repoSlug");
+		when(repository.getProject()).thenReturn(project);
+		when(project.getKey()).thenReturn("project_key");
 		List<Job> jobs = new ArrayList<Job>();
 		Job job = new Job
 				.JobBuilder(1)
@@ -298,6 +311,9 @@ public class ParameterizedBuildHookTest {
 		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		when(context.getSettings()).thenReturn(settings);
+		when(repository.getSlug()).thenReturn("repoSlug");
+		when(repository.getProject()).thenReturn(project);
+		when(project.getKey()).thenReturn("project_key");
 		List<Job> jobs = new ArrayList<Job>();
 		Job job = new Job
 				.JobBuilder(1)

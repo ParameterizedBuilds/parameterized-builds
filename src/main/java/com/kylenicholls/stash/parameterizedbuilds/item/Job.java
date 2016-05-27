@@ -149,7 +149,7 @@ public class Job {
        }
     }
 
-	public String getQueryString(String branch, String commit, String prDestination) {
+	public String getQueryString(GetQueryStringParameters parameterObject) {
 		String queryParams = "";
 		Iterator<Entry<String, String>> it = buildParameters.entrySet().iterator();
 	    while (it.hasNext()) {
@@ -157,9 +157,12 @@ public class Job {
 			queryParams += pair.getKey() + "=" + pair.getValue().split(";")[0] + (it.hasNext() ? "&" : "");
 	        it.remove();
 	    }
-		if (!branch.isEmpty()){queryParams = queryParams.replace("$BRANCH", branch);}
-		if (!commit.isEmpty()){queryParams = queryParams.replace("$COMMIT", commit);}
-		if (!prDestination.isEmpty()){queryParams = queryParams.replace("$PRDESTINATION", prDestination);}
+	    
+		if (!parameterObject.getBranch().isEmpty()){queryParams = queryParams.replace("$BRANCH", parameterObject.getBranch());}
+		if (!parameterObject.getCommit().isEmpty()){queryParams = queryParams.replace("$COMMIT", parameterObject.getCommit());}
+		if (!parameterObject.getPrDestination().isEmpty()){queryParams = queryParams.replace("$PRDESTINATION", parameterObject.getPrDestination());}
+		if (!parameterObject.getRepoName().isEmpty()){queryParams = queryParams.replace("$REPOSITORY", parameterObject.getRepoName());}
+		if (!parameterObject.getProjectName().isEmpty()){queryParams = queryParams.replace("$PROJECT", parameterObject.getProjectName());}
 		return queryParams;
 	}
 	
