@@ -11,6 +11,8 @@ import com.atlassian.bitbucket.hook.repository.*;
 import com.atlassian.bitbucket.repository.*;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
+import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters;
+import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters.Builder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
@@ -66,7 +68,14 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook,
 			
 			for (Job job : settingsService.getJobs(context.getSettings().asMap())){
 				pathMatched = false;
-				String query = job.getQueryString(branch, commit, "");
+				Builder builder = new GetQueryStringParameters.Builder();
+				builder.branch(branch);
+				builder.commit(commit);
+				builder.repoName(repository.getSlug());
+				builder.projectName(repository.getProject().getKey());
+				GetQueryStringParameters parameters = builder.build();
+				
+				String query = job.getQueryString(parameters);
 				if (job.getIsTag() == isTag){
 					if (buildBranchCheck(repository, refChange, branch, job.getBranchRegex(), job.getPathRegex(), job.getTriggers())) {
 					jenkins.triggerJob(job, query, token);
