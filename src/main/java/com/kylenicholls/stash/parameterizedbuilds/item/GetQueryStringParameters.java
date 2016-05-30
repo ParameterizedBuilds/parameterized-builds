@@ -8,6 +8,7 @@ public class GetQueryStringParameters {
 	private String prDestination;
 	private String repoName;
 	private String projectName;
+
 	public String getBranch() {
 		return branch;
 	}
@@ -27,12 +28,13 @@ public class GetQueryStringParameters {
 	public String getProjectName() {
 		return projectName;
 	}
+
 	public static class Builder {
-		private String branch="";
-		private String commit="";
-		private String prDestination="";
-		private String repoName="";
-		private String projectName="";
+		private String branch = "";
+		private String commit = "";
+		private String prDestination = "";
+		private String repoName = "";
+		private String projectName = "";
 
 		public Builder branch(String branch) {
 			Preconditions.checkNotNull(branch);

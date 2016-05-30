@@ -2,18 +2,14 @@ package com.kylenicholls.stash.parameterizedbuilds.conditions;
 
 import java.util.Map;
 
-import com.atlassian.plugin.PluginParseException;
-import com.atlassian.plugin.web.Condition;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.plugin.PluginParseException;
+import com.atlassian.plugin.web.Condition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
-/**
- * A Condition that passes when the webhook is enabled for the provided
- * repository.
- */
 public class ManualButtonCondition implements Condition {
 
 	private static final String REPOSITORY = "repository";
@@ -23,12 +19,12 @@ public class ManualButtonCondition implements Condition {
 	public ManualButtonCondition(SettingsService settingsService) {
 		this.settingsService = settingsService;
 	}
-	
+
 	@Override
 	public void init(Map<String, String> context) throws PluginParseException {
 		// Nothing to do here
 	}
-	
+
 	@Override
 	public boolean shouldDisplay(Map<String, Object> context) {
 		final Object obj = context.get(REPOSITORY);
@@ -39,8 +35,8 @@ public class ManualButtonCondition implements Condition {
 		final Repository repository = (Repository) obj;
 		Settings settings = settingsService.getSettings(repository);
 
-		for (Job job : settingsService.getJobs(settings.asMap())){
-			if (job.getTriggers().contains(Trigger.MANUAL)){
+		for (Job job : settingsService.getJobs(settings.asMap())) {
+			if (job.getTriggers().contains(Trigger.MANUAL)) {
 				return true;
 			}
 		}

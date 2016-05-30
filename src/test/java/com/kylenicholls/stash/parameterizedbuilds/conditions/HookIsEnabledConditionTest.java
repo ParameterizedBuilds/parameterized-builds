@@ -1,7 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.conditions;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.repository.Repository;
-import com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 
 public class HookIsEnabledConditionTest {
@@ -36,18 +35,28 @@ public class HookIsEnabledConditionTest {
 	}
 
 	@Test
-	public void testShouldNotDisplayIfRepositoryNullOrNotRepository() {
+	public void testShouldNotDisplayIfRepositoryNull() {
 		context.put("repository", null);
 		assertFalse(condition.shouldDisplay(context));
+	}
 
+	@Test
+	public void testShouldNotDisplayIfNotRepository() {
 		context.put("repository", "notARepository");
 		assertFalse(condition.shouldDisplay(context));
 	}
-	
+
 	@Test
 	public void testShouldDisplayHookEnabled() {
 		when(settingsService.getHook(repository)).thenReturn(repoHook);
 		when(repoHook.isEnabled()).thenReturn(true);
 		assertTrue(condition.shouldDisplay(context));
+	}
+
+	@Test
+	public void testShouldNotDisplayWhenHookDisable() {
+		when(settingsService.getHook(repository)).thenReturn(repoHook);
+		when(repoHook.isEnabled()).thenReturn(false);
+		assertFalse(condition.shouldDisplay(context));
 	}
 }

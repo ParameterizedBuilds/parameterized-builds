@@ -1,7 +1,5 @@
 package com.kylenicholls.stash.parameterizedbuilds;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -9,8 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
@@ -25,10 +21,11 @@ import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
-import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
 public class ParameterizedBuildHookTest {
 	private RepositoryHookContext context;
@@ -37,296 +34,317 @@ public class ParameterizedBuildHookTest {
 	private MinimalRef minimalRef;
 	private ParameterizedBuildHook buildHook;
 	private SettingsService settingsService;
-	private CommitService commitService;
 	private Jenkins jenkins;
-	private String pathRegex;
-	private String branchRegex;
-	private String branch;
 	private Repository repository;
-	private Project project;
-	public static final String COND_BASEURL_PREFIX = "cond-baseurl-";
-	public static final String COND_CI_PREFIX = "cond-ciserver-";
-	public static final String COND_JOB_PREFIX = "cond-jobname-";
-	public static final String COND_BRANCH_PREFIX = "cond-branch-";
-	public static final String COND_PATH_PREFIX = "cond-path-";
-	public static final String COND_PARAM_PREFIX = "cond-param-";
-	public static final String COND_TRIGGER_PREFIX = "cond-trigger-";
-	public static final String COND_USERNAME_PREFIX = "cond-username-";
-	public static final String COND_PASSWORD_PREFIX = "cond-password-";
-	private Collection<String> fileNames = new ArrayList<String>();
-	private AuthenticationContext authenticationContext;
-	
-	
+	private SettingsValidationErrors validationErrors;
+
 	@Before
 	public void setup() throws Exception {
+		settingsService = mock(SettingsService.class);
+		CommitService commitService = mock(CommitService.class);
+		jenkins = mock(Jenkins.class);
+		AuthenticationContext authenticationContext = mock(AuthenticationContext.class);
+		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins, authenticationContext);
+		
 		context = mock(RepositoryHookContext.class);
 		settings = mock(Settings.class);
 		refChange = mock(RefChange.class);
 		minimalRef = mock(MinimalRef.class);
-		settingsService = mock(SettingsService.class);
-		commitService = mock(CommitService.class);
-		jenkins = mock(Jenkins.class);
-		authenticationContext = mock(AuthenticationContext.class);
-		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,authenticationContext);
-		
-		fileNames.add("path/to/file");
-		fileNames.add("foo/bar/file");
-		fileNames.add("test3/test4");
-		branch = "anewbranch";
 		repository = mock(Repository.class);
-		project = mock(Project.class);
-	}
-	
-	// Test buildBranchCheck function
-	@Test
-	public void testBranchUpdatedAndTriggerIsAlways() {
-		pathRegex = "";
-		branchRegex = "";
-		List<Trigger> triggers = Arrays.asList(Trigger.PUSH, Trigger.MANUAL, Trigger.PULLREQUEST);
-		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue(results);
-	}
-	
-	@Test
-	public void testBranchUpdatedAndTriggerIsPostreceive() {
-		pathRegex = "";
-		branchRegex = "";
-		List<Trigger> triggers = Arrays.asList(Trigger.PUSH);
-		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue(results);
-	}
+		validationErrors = mock(SettingsValidationErrors.class);
+		Project project = mock(Project.class);
 
-	@Test
-	public void testBranchUpdatedAndTriggerIsPullrequests() {
-		pathRegex = "";
-		branchRegex = "";
-		List<Trigger> triggers = Arrays.asList(Trigger.PULLREQUEST);
-		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertFalse(results);
-	}
-	
-	@Test
-	public void testBranchAddedAndTriggerIsPostreceive() {
-		pathRegex = "";
-		branchRegex = "";
-		List<Trigger> triggers = Arrays.asList(Trigger.PUSH);
-		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertFalse(results);
-	}
-	
-	@Test
-	public void testBranchUpdatedAndTriggerIsManual() {
-		pathRegex = "";
-		branchRegex = "";
-		List<Trigger> triggers = Arrays.asList(Trigger.MANUAL);
-		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertFalse(results);
-	}
-	
-	@Test
-	public void testBranchUpdatedAndNoRestrictionsOnBuilding() {
-		pathRegex = "";
-		branchRegex = "";
-		List<Trigger> triggers = Arrays.asList(Trigger.PUSH, Trigger.MANUAL, Trigger.PULLREQUEST);
-		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue("Branch was not built when it should have been", results);
-	}
-	
-	@Test
-	public void testBranchAddedAndNoRestrictionsOnBuilding() {
-		pathRegex = "";
-		branchRegex = "";
-		List<Trigger> triggers = Arrays.asList(Trigger.ADD, Trigger.MANUAL, Trigger.PULLREQUEST);
-		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue("Branch was not built when it should have been", results);
-	}
-	
-	@Test
-	public void testBranchUpdatedAndRestrictionOnBranch() {
-		pathRegex = "";
-		branchRegex = "anewbr.*|foobar";
-		List<Trigger> triggers = Arrays.asList(Trigger.PUSH);
-		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue("Branch regex matching failed", results);
-		
-		branchRegex = "anewbranch|foobar";
-		results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue("Branch strict matching filed", results);
-		
-		branchRegex = "foobar|barfoo";
-		results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertFalse("Branch was matched when it shouldn't have been", results);
-	}
-
-	@Test
-	public void testBranchAddedAndRestrictionOnBranch() {
-		pathRegex = "";
-		branchRegex = "anewbr.*|foobar";
-		List<Trigger> triggers = Arrays.asList(Trigger.ADD);
-		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue("Branch regex matching failed", results);
-		
-		branchRegex = "anewbranch|foobar";
-		results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue("Branch strict matching filed", results);
-		
-		branchRegex = "foobar";
-		results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertFalse("Branch was matched when it shouldn't have been", results);
-	}
-	
-	@Test
-	public void testBranchDeletedDoNotMatch() {
-		pathRegex = "test3.*|foobar.*";
-		branchRegex = "anewbranch|foobar";
-		List<Trigger> triggers = Arrays.asList(Trigger.NULL);
-		when(refChange.getType()).thenReturn(RefChangeType.DELETE);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertFalse(results);
-
-		pathRegex = "foobar|barfoo";
-		branchRegex = "foobar|barfoo.*";
-		results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertFalse(results);
-	}
-	
-	@Test
-	public void testBranchDeletedMatch() {
-		pathRegex = "";
-		branchRegex = "";
-		List<Trigger> triggers = Arrays.asList(Trigger.DELETE);
-		when(refChange.getType()).thenReturn(RefChangeType.DELETE);
-		boolean results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue(results);
-		
-		pathRegex = "";
-		branchRegex = "anewbranch|foobar";
-		results = buildHook.buildBranchCheck(repository, refChange, branch, branchRegex, pathRegex, triggers);
-		assertTrue(results);
-	}
-	
-	@Test
-	public void testJobTriggeredWhenTagAndTriggerTag() {
-		List<RefChange> refChanges = new ArrayList<RefChange>();
-		refChanges.add(refChange);
 		when(context.getRepository()).thenReturn(repository);
 		when(refChange.getRef()).thenReturn(minimalRef);
-		when(refChange.getToHash()).thenReturn("hash");
+		when(refChange.getToHash()).thenReturn("commithash");
+		when(context.getSettings()).thenReturn(settings);
+		when(repository.getSlug()).thenReturn("repoSlug");
+		when(repository.getProject()).thenReturn(project);
+		when(project.getKey()).thenReturn("project_key");
+		Server server = new Server("baseurl", null, null, false);
+		when(jenkins.getSettings()).thenReturn(server);
+		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
+	}
+
+	@Test
+	public void testBranchRegexDoesNotMatch() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
+				.branchRegex("foobar").pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(0)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchRegexEmpty() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(1)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchRegexMatches() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
+				.branchRegex("bran.*").pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(1)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchUpdatedAndTriggerIsPush() {
+		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(1)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchUpdatedAndTriggerIsNotPush() {
+		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" }).buildParameters("").branchRegex("")
+				.pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(0)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchUpdatedAndPathRegexEmtpy() {
+		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(1)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchAddedAndTriggerIsAdd() {
+		when(refChange.getType()).thenReturn(RefChangeType.ADD);
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" }).buildParameters("").branchRegex("")
+				.pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(1)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchAddedAndTriggerIsNotAdd() {
+		when(refChange.getType()).thenReturn(RefChangeType.ADD);
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(0)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchDeletedAndTriggerIsDelete() {
+		when(refChange.getType()).thenReturn(RefChangeType.DELETE);
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "delete" }).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(1)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testBranchDeletedAndTriggerIsNotDelete() {
+		when(refChange.getType()).thenReturn(RefChangeType.DELETE);
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branch");
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" }).buildParameters("").branchRegex("")
+				.pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(0)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testJobTriggeredWhenTagAddedAndTriggerIsTagAdded() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/tags/tagname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		when(context.getSettings()).thenReturn(settings);
-		when(repository.getSlug()).thenReturn("repoSlug");
-		when(repository.getProject()).thenReturn(project);
-		when(project.getKey()).thenReturn("project_key");
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(true).triggers(new String[] { "add" }).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
-		Job job = new Job
-				.JobBuilder(1)
-				.jobName("name")
-				.isTag(true)
-				.triggers(new String[]{"add", "manual"})
-				.buildParameters("param1=value1\r\nparam2=value2")
-				.branchRegex("")
-				.pathRegex("")
-				.createJob();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "param1=value1&param2=value2", null);
+		verify(jenkins, times(1)).triggerJob(job, "", null);
 	}
-	
+
 	@Test
-	public void testJobNotTriggeredWhenTagAndNotTriggerTag() {
+	public void testJobNotTriggeredWhenTagAddedAndTriggerIsBranchAdded() {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
-		when(context.getRepository()).thenReturn(repository);
-		when(refChange.getRef()).thenReturn(minimalRef);
-		when(refChange.getToHash()).thenReturn("hash");
 		when(minimalRef.getId()).thenReturn("refs/tags/tagname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		when(context.getSettings()).thenReturn(settings);
-		when(repository.getSlug()).thenReturn("repoSlug");
-		when(repository.getProject()).thenReturn(project);
-		when(project.getKey()).thenReturn("project_key");
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(false).triggers(new String[] { "add" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
-		Job job = new Job
-				.JobBuilder(1)
-				.jobName("name")
-				.isTag(false)
-				.triggers(new String[]{"add", "manual"})
-				.buildParameters("param1=value1\r\nparam2=value2")
-				.branchRegex("")
-				.pathRegex("")
-				.createJob();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "param1=value1&param2=value2", null);
+		verify(jenkins, times(0)).triggerJob(job, "", null);
 	}
-	
+
 	@Test
-	public void testJobTriggeredWhenBranchAndTriggerBranch() {
+	public void testJobTriggeredWhenBranchAddedAndTriggerIsBranchAdded() {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
-		when(context.getRepository()).thenReturn(repository);
-		when(refChange.getRef()).thenReturn(minimalRef);
-		when(refChange.getToHash()).thenReturn("hash");
 		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		when(context.getSettings()).thenReturn(settings);
-		when(repository.getSlug()).thenReturn("repoSlug");
-		when(repository.getProject()).thenReturn(project);
-		when(project.getKey()).thenReturn("project_key");
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(false).triggers(new String[] { "add" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
-		Job job = new Job
-				.JobBuilder(1)
-				.jobName("name")
-				.isTag(false)
-				.triggers(new String[]{"add", "manual"})
-				.buildParameters("param1=value1\r\nparam2=value2")
-				.branchRegex("")
-				.pathRegex("")
-				.createJob();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "param1=value1&param2=value2", null);
+		verify(jenkins, times(1)).triggerJob(job, "", null);
 	}
-	
+
 	@Test
-	public void testJobNotTriggeredWhenBranchAndNotTriggerBranch() {
+	public void testJobNotTriggeredWhenBranchAddedAndTriggerIsTagAdded() {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
-		when(context.getRepository()).thenReturn(repository);
-		when(refChange.getRef()).thenReturn(minimalRef);
-		when(refChange.getToHash()).thenReturn("hash");
 		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		when(context.getSettings()).thenReturn(settings);
-		when(repository.getSlug()).thenReturn("repoSlug");
-		when(repository.getProject()).thenReturn(project);
-		when(project.getKey()).thenReturn("project_key");
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(true).triggers(new String[] { "add" }).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
-		Job job = new Job
-				.JobBuilder(1)
-				.jobName("name")
-				.isTag(true)
-				.triggers(new String[]{"add", "manual"})
-				.buildParameters("param1=value1\r\nparam2=value2")
-				.branchRegex("")
-				.pathRegex("")
-				.createJob();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "param1=value1&param2=value2", null);
+		verify(jenkins, times(0)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testJobNotTriggeredWhenBranchAddedAndTriggerIsBranchPushed() {
+		List<RefChange> refChanges = new ArrayList<RefChange>();
+		refChanges.add(refChange);
+		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
+		when(refChange.getType()).thenReturn(RefChangeType.ADD);
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(false).triggers(new String[] { "push" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.postReceive(context, refChanges);
+		verify(jenkins, times(0)).triggerJob(job, "", null);
+	}
+
+	@Test
+	public void testShowErrorIfJenkinsSettingsNull() {
+		when(jenkins.getSettings()).thenReturn(null);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(1)).addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
+	}
+
+	@Test
+	public void testShowErrorIfBaseUrlEmpty() {
+		Server server = new Server("", null, null, false);
+		when(jenkins.getSettings()).thenReturn(server);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(1)).addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
+	}
+
+	@Test
+	public void testShowErrorIfJobNameEmpty() {
+		Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("").branchRegex("")
+				.pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(1)).addFieldError(SettingsService.JOB_PREFIX + "0", "Field is required");
+	}
+
+	@Test
+	public void testShowErrorIfTriggersEmpty() {
+		Job job = new Job.JobBuilder(1).jobName("name").triggers("".split(";")).buildParameters("").branchRegex("")
+				.pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(1)).addFieldError(SettingsService.TRIGGER_PREFIX + "0",
+				"You must choose at least one trigger");
+	}
+
+	@Test
+	public void testShowErrorIfBranchRegexInvalid() {
+		Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";")).buildParameters("").branchRegex("(")
+				.pathRegex("").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(1)).addFieldError(SettingsService.BRANCH_PREFIX + "0", "Unclosed group");
+	}
+
+	@Test
+	public void testShowErrorIfPathRegexInvalid() {
+		Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";")).buildParameters("").branchRegex("")
+				.pathRegex("(").createJob();
+		List<Job> jobs = new ArrayList<Job>();
+		jobs.add(job);
+		when(settingsService.getJobs(any())).thenReturn(jobs);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(1)).addFieldError(SettingsService.PATH_PREFIX + "0", "Unclosed group");
 	}
 }

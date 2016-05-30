@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
+import com.atlassian.bitbucket.permission.Permission;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
-import com.atlassian.bitbucket.hook.repository.RepositoryHook;
-import com.atlassian.bitbucket.permission.Permission;
-import com.atlassian.bitbucket.util.Operation;
 import com.atlassian.bitbucket.user.SecurityService;
+import com.atlassian.bitbucket.util.Operation;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 
 public class SettingsService {
