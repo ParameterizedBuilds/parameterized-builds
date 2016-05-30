@@ -16,25 +16,26 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
 public class Jenkins {
-	
+
 	private static final String PLUGIN_KEY = "com.kylenicholls.stash.parameterized-builds";
 	private final PluginSettings pluginSettings;
-	
+
 	public Jenkins(PluginSettingsFactory factory) {
 		this.pluginSettings = factory.createSettingsForKey(PLUGIN_KEY);
 	}
-	
-	public void setSettings(String url, String user, String token, boolean altUrl){
+
+	public void setSettings(String url, String user, String token, boolean altUrl) {
 		if (url != null && !url.isEmpty()) {
 			String altUrlString = altUrl ? "true" : "false";
-			pluginSettings.put(".jenkinsSettings", url + ";" + user + ";" + token + ";" + altUrlString);       
+			pluginSettings
+					.put(".jenkinsSettings", url + ";" + user + ";" + token + ";" + altUrlString);
 		} else {
 			pluginSettings.remove(".jenkinsSettings");
 		}
 	}
 
-	public void setUserSettings(@Nullable ApplicationUser user, String token){
-		if (user != null){
+	public void setUserSettings(@Nullable ApplicationUser user, String token) {
+		if (user != null) {
 			if (token != null && !token.isEmpty()) {
 				pluginSettings.put(".jenkinsUser." + user.getSlug(), token);
 			} else {
@@ -74,49 +75,53 @@ public class Jenkins {
 		return null;
 	}
 
-	public String[] triggerJob(Job job, String queryParams, String userToken){
+	public String[] triggerJob(Job job, String queryParams, String userToken) {
 		String buildUrl = "";
 		Server server = getSettings();
 		if (server == null) {
-			return new String[]{"error", "Jenkins settings are not setup"};
+			return new String[] { "error", "Jenkins settings are not setup" };
 		}
-		
+
 		String jobName = job.getJobName();
-		
+
 		String ciServer = server.getBaseUrl();
 		boolean altUrl = server.getAltUrl();
-		
-	    if (userToken == null && job.getToken() != null && !job.getToken().isEmpty()){
-	    	if (queryParams.trim().isEmpty()){queryParams = "token=" + job.getToken();}
-	    	else {queryParams += "&token=" + job.getToken();}
-	    }
 
-	    if (queryParams.trim().isEmpty()){
+		if (userToken == null && job.getToken() != null && !job.getToken().isEmpty()) {
+			if (queryParams.trim().isEmpty()) {
+				queryParams = "token=" + job.getToken();
+			} else {
+				queryParams += "&token=" + job.getToken();
+			}
+		}
+
+		if (queryParams.trim().isEmpty()) {
 			buildUrl = ciServer + "/job/" + jobName + "/build";
-		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2 ){
-			if (altUrl && (userToken == null || !userToken.equals(""))){
+		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2) {
+			if (altUrl && (userToken == null || !userToken.equals(""))) {
 				buildUrl = ciServer + "/buildByToken/build?job=" + jobName + "&" + queryParams;
 			} else {
 				buildUrl = ciServer + "/job/" + jobName + "/build?" + queryParams;
 			}
 		} else {
-			if (altUrl && (userToken == null || userToken.equals(""))){
-				buildUrl = ciServer + "/buildByToken/buildWithParameters?job=" + jobName + "&" + queryParams;
+			if (altUrl && (userToken == null || userToken.equals(""))) {
+				buildUrl = ciServer + "/buildByToken/buildWithParameters?job=" + jobName + "&"
+						+ queryParams;
 			} else {
 				buildUrl = ciServer + "/job/" + jobName + "/buildWithParameters?" + queryParams;
 			}
 		}
-	    
+
 		boolean prompt = false;
-		if (userToken == null){
+		if (userToken == null) {
 			prompt = true;
-			if (server.getUser() != null && !server.getUser().equals("")){
+			if (server.getUser() != null && !server.getUser().equals("")) {
 				userToken = server.getUser() + ":" + server.getToken();
 			}
 		}
 		return httpPost(buildUrl.replace(" ", "%20"), userToken, prompt);
 	}
-	
+
 	public String[] httpPost(String buildUrl, String token, boolean prompt) {
 		String[] results = new String[2];
 		int status = 0;
@@ -128,8 +133,7 @@ public class Jenkins {
 			if (token != null && !token.equals("")) {
 				byte[] authEncBytes = Base64.encodeBase64(token.getBytes());
 				String authStringEnc = new String(authEncBytes);
-				connection.setRequestProperty("Authorization", "Basic "
-						+ authStringEnc);
+				connection.setRequestProperty("Authorization", "Basic " + authStringEnc);
 			}
 
 			connection.setReadTimeout(30000);
@@ -146,7 +150,7 @@ public class Jenkins {
 			} else {
 				results[1] = status + ": " + connection.getResponseMessage();
 				return results;
-			} 
+			}
 
 			// log.debug("HTTP response:\n" + body.toString());
 		} catch (MalformedURLException e) {

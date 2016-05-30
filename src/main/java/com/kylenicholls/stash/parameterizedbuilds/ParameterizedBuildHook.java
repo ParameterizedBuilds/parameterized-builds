@@ -29,7 +29,8 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
-public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, RepositorySettingsValidator {
+public class ParameterizedBuildHook
+		implements AsyncPostReceiveRepositoryHook, RepositorySettingsValidator {
 
 	private static final String REFS_HEADS = "refs/heads/";
 	private static final String REFS_TAGS = "refs/tags/";
@@ -39,8 +40,8 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, R
 	private final Jenkins jenkins;
 	private AuthenticationContext actx;
 
-	public ParameterizedBuildHook(SettingsService settingsService, CommitService commitService, Jenkins jenkins,
-			AuthenticationContext actx) {
+	public ParameterizedBuildHook(SettingsService settingsService, CommitService commitService,
+			Jenkins jenkins, AuthenticationContext actx) {
 		this.settingsService = settingsService;
 		this.commitService = commitService;
 		this.jenkins = jenkins;
@@ -79,8 +80,8 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, R
 		}
 	}
 
-	private boolean buildBranchCheck(final Repository repository, RefChange refChange, String branch, Job job,
-			GetQueryStringParameters parameters, String token) {
+	private boolean buildBranchCheck(final Repository repository, RefChange refChange,
+			String branch, Job job, GetQueryStringParameters parameters, String token) {
 		String branchRegex = job.getBranchRegex();
 		String pathRegex = job.getPathRegex();
 		List<Trigger> triggers = job.getTriggers();
@@ -89,8 +90,8 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, R
 				if (pathRegex.isEmpty()) {
 					return true;
 				} else {
-					ChangesRequest request = new ChangesRequest.Builder(repository, refChange.getToHash())
-							.sinceId(refChange.getFromHash()).build();
+					ChangesRequest request = new ChangesRequest.Builder(repository,
+							refChange.getToHash()).sinceId(refChange.getFromHash()).build();
 					commitService.streamChanges(request, new AbstractChangeCallback() {
 						public boolean onChange(Change change) throws IOException {
 							if (change.getPath().toString().matches(pathRegex)) {
@@ -112,7 +113,8 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, R
 				}
 			} else if (refChange.getType() == RefChangeType.ADD && triggers.contains(Trigger.ADD)) {
 				return true;
-			} else if (refChange.getType() == RefChangeType.DELETE && triggers.contains(Trigger.DELETE)) {
+			} else if (refChange.getType() == RefChangeType.DELETE
+					&& triggers.contains(Trigger.DELETE)) {
 				return true;
 			}
 		}
@@ -120,7 +122,8 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, R
 	}
 
 	@Override
-	public void validate(Settings settings, SettingsValidationErrors errors, Repository repository) {
+	public void validate(Settings settings, SettingsValidationErrors errors,
+			Repository repository) {
 
 		Server server = jenkins.getSettings();
 		if (server == null || server.getBaseUrl().isEmpty()) {
@@ -135,7 +138,8 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, R
 			}
 
 			if (job.getTriggers().contains(Trigger.NULL)) {
-				errors.addFieldError(SettingsService.TRIGGER_PREFIX + i, "You must choose at least one trigger");
+				errors.addFieldError(SettingsService.TRIGGER_PREFIX
+						+ i, "You must choose at least one trigger");
 			}
 
 			PatternSyntaxException branchExecption = null;
@@ -145,7 +149,8 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, R
 				branchExecption = e;
 			}
 			if (branchExecption != null) {
-				errors.addFieldError(SettingsService.BRANCH_PREFIX + i, branchExecption.getDescription());
+				errors.addFieldError(SettingsService.BRANCH_PREFIX + i, branchExecption
+						.getDescription());
 			}
 
 			PatternSyntaxException pathExecption = null;
@@ -155,7 +160,8 @@ public class ParameterizedBuildHook implements AsyncPostReceiveRepositoryHook, R
 				pathExecption = e;
 			}
 			if (pathExecption != null) {
-				errors.addFieldError(SettingsService.PATH_PREFIX + i, pathExecption.getDescription());
+				errors.addFieldError(SettingsService.PATH_PREFIX + i, pathExecption
+						.getDescription());
 			}
 		}
 	}

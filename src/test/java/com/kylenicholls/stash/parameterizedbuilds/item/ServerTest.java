@@ -13,7 +13,7 @@ public class ServerTest {
 		String token = "token";
 		boolean altUrl = false;
 		Server server = new Server(baseUrl, user, token, altUrl);
-		
+
 		assertEquals(baseUrl, server.getBaseUrl());
 		assertEquals(user, server.getUser());
 		assertEquals(token, server.getToken());

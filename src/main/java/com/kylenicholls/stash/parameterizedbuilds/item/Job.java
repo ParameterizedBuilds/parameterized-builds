@@ -129,8 +129,8 @@ public class Job {
 		}
 
 		public Job createJob() {
-			return new Job(nestedJobId, nestedJobName, nestedIsTag, nestedTriggers, nestedToken, nestedBuildParameters,
-					nestedBranchRegex, nestedPathRegex);
+			return new Job(nestedJobId, nestedJobName, nestedIsTag, nestedTriggers, nestedToken,
+					nestedBuildParameters, nestedBranchRegex, nestedPathRegex);
 		}
 	}
 
@@ -139,7 +139,8 @@ public class Job {
 		Iterator<Entry<String, String>> it = buildParameters.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String, String> pair = (Map.Entry<String, String>) it.next();
-			queryParams += pair.getKey() + "=" + pair.getValue().split(";")[0] + (it.hasNext() ? "&" : "");
+			queryParams += pair.getKey() + "=" + pair.getValue().split(";")[0]
+					+ (it.hasNext() ? "&" : "");
 			it.remove();
 		}
 

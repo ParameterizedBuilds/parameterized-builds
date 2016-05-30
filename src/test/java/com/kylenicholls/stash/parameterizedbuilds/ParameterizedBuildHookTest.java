@@ -39,13 +39,14 @@ public class ParameterizedBuildHookTest {
 	private SettingsValidationErrors validationErrors;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		settingsService = mock(SettingsService.class);
 		CommitService commitService = mock(CommitService.class);
 		jenkins = mock(Jenkins.class);
 		AuthenticationContext authenticationContext = mock(AuthenticationContext.class);
-		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins, authenticationContext);
-		
+		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,
+				authenticationContext);
+
 		context = mock(RepositoryHookContext.class);
 		settings = mock(Settings.class);
 		refChange = mock(RefChange.class);
@@ -71,8 +72,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
-				.branchRegex("foobar").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" })
+				.buildParameters("").branchRegex("foobar").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -85,8 +86,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -99,8 +100,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
-				.branchRegex("bran.*").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" })
+				.buildParameters("").branchRegex("bran.*").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -114,8 +115,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -129,8 +130,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" }).buildParameters("").branchRegex("")
-				.pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -144,8 +145,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -159,8 +160,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" }).buildParameters("").branchRegex("")
-				.pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -174,8 +175,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "push" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -189,8 +190,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "delete" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "delete" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -204,8 +205,8 @@ public class ParameterizedBuildHookTest {
 		List<RefChange> refChanges = new ArrayList<RefChange>();
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branch");
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" }).buildParameters("").branchRegex("")
-				.pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "add" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -219,8 +220,8 @@ public class ParameterizedBuildHookTest {
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/tags/tagname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		Job job = new Job.JobBuilder(1).jobName("name").isTag(true).triggers(new String[] { "add" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(true).triggers(new String[] { "add" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -234,8 +235,9 @@ public class ParameterizedBuildHookTest {
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/tags/tagname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		Job job = new Job.JobBuilder(1).jobName("name").isTag(false).triggers(new String[] { "add" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(false)
+				.triggers(new String[] { "add" }).buildParameters("").branchRegex("").pathRegex("")
+				.createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -249,8 +251,9 @@ public class ParameterizedBuildHookTest {
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		Job job = new Job.JobBuilder(1).jobName("name").isTag(false).triggers(new String[] { "add" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(false)
+				.triggers(new String[] { "add" }).buildParameters("").branchRegex("").pathRegex("")
+				.createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -264,8 +267,8 @@ public class ParameterizedBuildHookTest {
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		Job job = new Job.JobBuilder(1).jobName("name").isTag(true).triggers(new String[] { "add" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(true).triggers(new String[] { "add" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -279,8 +282,9 @@ public class ParameterizedBuildHookTest {
 		refChanges.add(refChange);
 		when(minimalRef.getId()).thenReturn("refs/heads/branchname");
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
-		Job job = new Job.JobBuilder(1).jobName("name").isTag(false).triggers(new String[] { "push" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("name").isTag(false)
+				.triggers(new String[] { "push" }).buildParameters("").branchRegex("").pathRegex("")
+				.createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -292,7 +296,8 @@ public class ParameterizedBuildHookTest {
 	public void testShowErrorIfJenkinsSettingsNull() {
 		when(jenkins.getSettings()).thenReturn(null);
 		buildHook.validate(settings, validationErrors, repository);
-		verify(validationErrors, times(1)).addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
+		verify(validationErrors, times(1))
+				.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
 	}
 
 	@Test
@@ -300,51 +305,55 @@ public class ParameterizedBuildHookTest {
 		Server server = new Server("", null, null, false);
 		when(jenkins.getSettings()).thenReturn(server);
 		buildHook.validate(settings, validationErrors, repository);
-		verify(validationErrors, times(1)).addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
+		verify(validationErrors, times(1))
+				.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
 	}
 
 	@Test
 	public void testShowErrorIfJobNameEmpty() {
-		Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("").branchRegex("")
-				.pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.validate(settings, validationErrors, repository);
-		verify(validationErrors, times(1)).addFieldError(SettingsService.JOB_PREFIX + "0", "Field is required");
+		verify(validationErrors, times(1))
+				.addFieldError(SettingsService.JOB_PREFIX + "0", "Field is required");
 	}
 
 	@Test
 	public void testShowErrorIfTriggersEmpty() {
-		Job job = new Job.JobBuilder(1).jobName("name").triggers("".split(";")).buildParameters("").branchRegex("")
-				.pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("name").triggers("".split(";")).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.validate(settings, validationErrors, repository);
-		verify(validationErrors, times(1)).addFieldError(SettingsService.TRIGGER_PREFIX + "0",
-				"You must choose at least one trigger");
+		verify(validationErrors, times(1)).addFieldError(SettingsService.TRIGGER_PREFIX
+				+ "0", "You must choose at least one trigger");
 	}
 
 	@Test
 	public void testShowErrorIfBranchRegexInvalid() {
-		Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";")).buildParameters("").branchRegex("(")
-				.pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";"))
+				.buildParameters("").branchRegex("(").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.validate(settings, validationErrors, repository);
-		verify(validationErrors, times(1)).addFieldError(SettingsService.BRANCH_PREFIX + "0", "Unclosed group");
+		verify(validationErrors, times(1))
+				.addFieldError(SettingsService.BRANCH_PREFIX + "0", "Unclosed group");
 	}
 
 	@Test
 	public void testShowErrorIfPathRegexInvalid() {
-		Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";")).buildParameters("").branchRegex("")
-				.pathRegex("(").createJob();
+		Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";"))
+				.buildParameters("").branchRegex("").pathRegex("(").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.validate(settings, validationErrors, repository);
-		verify(validationErrors, times(1)).addFieldError(SettingsService.PATH_PREFIX + "0", "Unclosed group");
+		verify(validationErrors, times(1))
+				.addFieldError(SettingsService.PATH_PREFIX + "0", "Unclosed group");
 	}
 }

@@ -31,7 +31,8 @@ public class PullRequestHook {
 	private final PullRequestService pullRequestService;
 	private final Jenkins jenkins;
 
-	public PullRequestHook(SettingsService settingsService, PullRequestService pullRequestService, Jenkins jenkins) {
+	public PullRequestHook(SettingsService settingsService, PullRequestService pullRequestService,
+			Jenkins jenkins) {
 		this.settingsService = settingsService;
 		this.pullRequestService = pullRequestService;
 		this.jenkins = jenkins;
@@ -96,27 +97,28 @@ public class PullRequestHook {
 				if (pathRegex.trim().isEmpty()) {
 					jenkins.triggerJob(job, queryParams, token);
 				} else {
-					pullRequestService.streamChanges(new PullRequestChangesRequest.Builder(pullRequest).build(),
-							new AbstractChangeCallback() {
-								public boolean onChange(Change change) throws IOException {
-									String changedFile = change.getPath().toString();
-									// for each flagged path, check if the
-									// changed file matches that path
-									if (changedFile.matches(pathRegex)) {
-										jenkins.triggerJob(job, queryParams, token);
-										return false;
-									}
-									return true;
-								}
+					pullRequestService
+							.streamChanges(new PullRequestChangesRequest.Builder(pullRequest)
+									.build(), new AbstractChangeCallback() {
+										public boolean onChange(Change change) throws IOException {
+											String changedFile = change.getPath().toString();
+											if (changedFile.matches(pathRegex)) {
+												jenkins.triggerJob(job, queryParams, token);
+												return false;
+											}
+											return true;
+										}
 
-								public void onEnd(ChangeSummary summary) throws IOException {
-									// noop
-								}
+										public void onEnd(ChangeSummary summary)
+												throws IOException {
+											// noop
+										}
 
-								public void onStart(ChangeContext context) throws IOException {
-									// noop
-								}
-							});
+										public void onStart(ChangeContext context)
+												throws IOException {
+											// noop
+										}
+									});
 				}
 			}
 		}

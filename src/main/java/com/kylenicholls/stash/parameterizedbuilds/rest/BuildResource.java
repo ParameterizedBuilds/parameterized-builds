@@ -19,19 +19,19 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
+import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.i18n.I18nService;
 import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.rest.util.ResourcePatterns;
 import com.atlassian.bitbucket.rest.RestResource;
+import com.atlassian.bitbucket.rest.util.ResourcePatterns;
 import com.atlassian.bitbucket.rest.util.RestUtils;
 import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.auth.AuthenticationContext;
-import com.sun.jersey.spi.resource.Singleton;
+import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+import com.sun.jersey.spi.resource.Singleton;
 
 @Path(ResourcePatterns.REPOSITORY_URI)
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -44,9 +44,7 @@ public class BuildResource extends RestResource {
 	private Jenkins jenkins;
 	private final AuthenticationContext authenticationContext;
 
-	public BuildResource(I18nService i18nService,
-			SettingsService settingsService, 
-			Jenkins jenkins,
+	public BuildResource(I18nService i18nService, SettingsService settingsService, Jenkins jenkins,
 			AuthenticationContext authenticationContext) {
 		super(i18nService);
 		this.settingsService = settingsService;
@@ -56,18 +54,19 @@ public class BuildResource extends RestResource {
 
 	@POST
 	@Path(value = "triggerBuild/{id}")
-	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id, @Context UriInfo uriInfo) {
-		if (authenticationContext.isAuthenticated()){
+	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id,
+			@Context UriInfo uriInfo) {
+		if (authenticationContext.isAuthenticated()) {
 			String[] getResults = new String[2];
 			Map<String, String> data = new HashMap<String, String>();
 			Settings settings = settingsService.getSettings(repository);
-			if (settings == null){
+			if (settings == null) {
 				return Response.status(404).build();
 			}
 			List<Job> settingsList = settingsService.getJobs(settings.asMap());
 			Job jobToBuild = resolveJobConfigFromUriMap(Integer.parseInt(id), settingsList);
-			
-			if (jobToBuild == null){
+
+			if (jobToBuild == null) {
 				getResults[0] = "error";
 				getResults[1] = "Settings not found for this job";
 			} else {
@@ -75,56 +74,56 @@ public class BuildResource extends RestResource {
 				String updatedParams = resolveQueryParamsFromMap(uriInfo.getQueryParameters());
 				getResults = jenkins.triggerJob(jobToBuild, updatedParams, userToken);
 			}
-			
+
 			data.put("status", getResults[0]);
 			data.put("message", getResults[1]);
 			return Response.ok(data).build();
 		}
 		return null;
 	}
-	
+
 	@GET
 	@Path(value = "getJobs")
 	public Response getJobs(@Context final Repository repository) {
-		if (authenticationContext.isAuthenticated()){
+		if (authenticationContext.isAuthenticated()) {
 			Settings settings = settingsService.getSettings(repository);
 			int count = 0;
 			Map<Integer, Object> data = new LinkedHashMap<Integer, Object>();
-			if (settings == null){
+			if (settings == null) {
 				return Response.status(404).build();
 			}
-			for (Job job : settingsService.getJobs(settings.asMap())){
-				if (job.getTriggers().contains(Trigger.MANUAL)){
+			for (Job job : settingsService.getJobs(settings.asMap())) {
+				if (job.getTriggers().contains(Trigger.MANUAL)) {
 					Map<String, Object> temp = new LinkedHashMap<String, Object>();
 					temp.put("id", job.getJobId());
 					temp.put("jobName", job.getJobName());
 					temp.put("parameters", job.getBuildParameters());
 					data.put(count, temp);
-					count ++;
+					count++;
 				}
 			}
 			return Response.ok(data).build();
 		}
 		return null;
 	}
-	
+
 	protected Job resolveJobConfigFromUriMap(int id, List<Job> settingsList) {
-		for (Job job : settingsList){
-			if (job.getJobId() == id){
+		for (Job job : settingsList) {
+			if (job.getJobId() == id) {
 				return job;
 			}
 		}
 		return null;
 	}
-	
+
 	protected String resolveQueryParamsFromMap(MultivaluedMap<String, String> queryParameters) {
 		String queryParams = "";
 		Iterator<Entry<String, List<String>>> it = queryParameters.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<String, List<String>> pair = (Map.Entry<String, List<String>>)it.next();
+		while (it.hasNext()) {
+			Map.Entry<String, List<String>> pair = (Map.Entry<String, List<String>>) it.next();
 			queryParams += pair.getKey() + "=" + pair.getValue().get(0) + (it.hasNext() ? "&" : "");
-	        it.remove();
-	    }
+			it.remove();
+		}
 		return queryParams;
 	}
 }

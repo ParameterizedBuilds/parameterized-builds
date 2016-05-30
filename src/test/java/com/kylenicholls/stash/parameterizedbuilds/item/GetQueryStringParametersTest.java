@@ -13,8 +13,9 @@ public class GetQueryStringParametersTest {
 		String prDest = "prDest";
 		String projectName = "projectName";
 		String repoName = "repoName";
-		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().branch(branch).commit(commit)
-				.prDestination(prDest).projectName(projectName).repoName(repoName).build();
+		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().branch(branch)
+				.commit(commit).prDestination(prDest).projectName(projectName).repoName(repoName)
+				.build();
 
 		assertEquals(branch, parameters.getBranch());
 		assertEquals(commit, parameters.getCommit());

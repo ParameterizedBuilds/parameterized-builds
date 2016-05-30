@@ -23,7 +23,7 @@ public class HookIsEnabledConditionTest {
 	private Repository repository;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		settingsService = mock(SettingsService.class);
 		repository = mock(Repository.class);
 		repoHook = mock(RepositoryHook.class);

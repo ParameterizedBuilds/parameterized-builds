@@ -27,7 +27,7 @@ public class ManualButtonConditionTest {
 	private Settings settings;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		settingsService = mock(SettingsService.class);
 		repository = mock(Repository.class);
 		settings = mock(Settings.class);
@@ -53,8 +53,8 @@ public class ManualButtonConditionTest {
 	@Test
 	public void testShouldDisplayWhenManualTrigger() {
 		when(settingsService.getSettings(repository)).thenReturn(settings);
-		Job job = new Job.JobBuilder(1).jobName("").triggers("manual".split(";")).buildParameters("").branchRegex("")
-				.pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers("manual".split(";"))
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -64,8 +64,8 @@ public class ManualButtonConditionTest {
 	@Test
 	public void testShouldNotDisplayWhenNotManualTrigger() {
 		when(settingsService.getSettings(repository)).thenReturn(settings);
-		Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("").branchRegex("")
-				.pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("")
+				.branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);

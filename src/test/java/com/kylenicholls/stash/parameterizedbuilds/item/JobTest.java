@@ -20,9 +20,10 @@ public class JobTest {
 		String branch = "branch";
 		String path = "path";
 		String token = "token";
-		Job job = new Job.JobBuilder(jobId).jobName(jobName).isTag(isTag).triggers(new String[] { "add", "manual" })
-				.buildParameters("param1=value1\r\nparam2=value2").branchRegex(branch).pathRegex(path).token(token)
-				.createJob();
+		Job job = new Job.JobBuilder(jobId).jobName(jobName).isTag(isTag)
+				.triggers(new String[] { "add", "manual" })
+				.buildParameters("param1=value1\r\nparam2=value2").branchRegex(branch)
+				.pathRegex(path).token(token).createJob();
 
 		List<Trigger> triggers = new ArrayList<Trigger>();
 		triggers.add(Trigger.ADD);
@@ -78,20 +79,20 @@ public class JobTest {
 	@Test
 	public void testBRANCHVariable() {
 		String value = "branchname";
-		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder()
-				.branch(value).build();
+		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().branch(value)
+				.build();
 		Job job = new Job.JobBuilder(1).buildParameters("param=$BRANCH").createJob();
-		
+
 		assertEquals("param=" + value, job.getQueryString(parameters));
 	}
 
 	@Test
 	public void testCOMMITVariable() {
 		String value = "commit";
-		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder()
-				.commit(value).build();
+		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().commit(value)
+				.build();
 		Job job = new Job.JobBuilder(1).buildParameters("param=$COMMIT").createJob();
-		
+
 		assertEquals("param=" + value, job.getQueryString(parameters));
 	}
 
@@ -101,17 +102,17 @@ public class JobTest {
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder()
 				.prDestination(value).build();
 		Job job = new Job.JobBuilder(1).buildParameters("param=$PRDESTINATION").createJob();
-		
+
 		assertEquals("param=" + value, job.getQueryString(parameters));
 	}
 
 	@Test
 	public void testREPOSITORYVariable() {
 		String value = "branchname";
-		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder()
-				.repoName(value).build();
+		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().repoName(value)
+				.build();
 		Job job = new Job.JobBuilder(1).buildParameters("param=$REPOSITORY").createJob();
-		
+
 		assertEquals("param=" + value, job.getQueryString(parameters));
 	}
 
@@ -121,7 +122,7 @@ public class JobTest {
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder()
 				.projectName(value).build();
 		Job job = new Job.JobBuilder(1).buildParameters("param=$PROJECT").createJob();
-		
+
 		assertEquals("param=" + value, job.getQueryString(parameters));
 	}
 
@@ -129,14 +130,15 @@ public class JobTest {
 	public void testShouldUseFirstOptionForChoiceParams() {
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().build();
 		Job job = new Job.JobBuilder(1).buildParameters("param=1;2;3").createJob();
-		
+
 		assertEquals("param=1", job.getQueryString(parameters));
 	}
 
 	@Test
 	public void testShouldSupportMutlipleParams() {
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().build();
-		Job job = new Job.JobBuilder(1).buildParameters("param1=value1\r\nparam2=value2").createJob();
+		Job job = new Job.JobBuilder(1).buildParameters("param1=value1\r\nparam2=value2")
+				.createJob();
 
 		assertEquals("param1=value1&param2=value2", job.getQueryString(parameters));
 	}

@@ -15,7 +15,35 @@
 	<name>Parameterized Builds for Jenkins</name>
 	<description>Adds a build hook with customizable parameters for Jenkins</description>
 	<packaging>atlassian-plugin</packaging>
-
+	<repositories>
+		<repository>
+			<id>atlassian-public</id>
+			<url>https://maven.atlassian.com/repository/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>atlassian-public</id>
+			<url>https://maven.atlassian.com/repository/public</url>
+			<releases>
+				<enabled>true</enabled>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<snapshots>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -197,20 +225,7 @@
 							<goal>check</goal>
 						</goals>
 						<configuration>
-							<excludes>
-								<exclude>**/*kylenicholls.*</exclude>
-							</excludes>
 							<rules>
-								<rule>
-									<element>BUNDLE</element>
-									<limits>
-										<limit>
-											<counter>COMPLEXITY</counter>
-											<value>COVEREDRATIO</value>
-											<minimum>0.0</minimum>
-										</limit>
-									</limits>
-								</rule>
 							</rules>
 						</configuration>
 					</execution>
@@ -224,10 +239,4 @@
 		<amps.version>6.1.0</amps.version>
 		<plugin.testrunner.version>1.2.0</plugin.testrunner.version>
 	</properties>
-	<scm>
-		<connection>scm:git:ssh://git@sf-source.citrite.net:7999/build/conditional-build-trigger.git</connection>
-		<developerConnection>scm:git:ssh://git@sf-source.citrite.net:7999/build/conditional-build-trigger.git</developerConnection>
-		<url>https://sf-source.citrite.net/projects/BUILD/repos/conditional-build-trigger/browse</url>
-		<tag>HEAD</tag>
-	</scm>
 </project>

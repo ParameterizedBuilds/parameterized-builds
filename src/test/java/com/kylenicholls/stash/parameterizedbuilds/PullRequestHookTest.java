@@ -42,10 +42,9 @@ public class PullRequestHookTest {
 	private PullRequestDeclinedEvent declinedEvent;
 	private Repository repository;
 	private static final String USER_TOKEN = "user:token";
-	
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		settingsService = mock(SettingsService.class);
 		pullRequestService = mock(PullRequestService.class);
 		jenkins = mock(Jenkins.class);
@@ -88,8 +87,8 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPROpenedAndTriggerIsPULLREQUEST() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -99,8 +98,8 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPRReOpenedAndTriggerIsPULLREQUEST() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -110,8 +109,8 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPRSourceRescopedAndTriggerIsPULLREQUEST() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -122,8 +121,8 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPRDestRescopedAndTriggerIsPULLREQUEST() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -134,8 +133,8 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPRMergedAndTriggerIsPRMERGED() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRMERGED" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRMERGED" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -145,8 +144,8 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPRDeclinedAndTriggerIsPRDECLINED() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRDECLINED" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRDECLINED" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -163,8 +162,8 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPROpenedAndTriggerIsPRDECLINED() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRDECLINED" }).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
+		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRDECLINED" })
+				.buildParameters("").branchRegex("").pathRegex("").createJob();
 		List<Job> jobs = new ArrayList<Job>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
