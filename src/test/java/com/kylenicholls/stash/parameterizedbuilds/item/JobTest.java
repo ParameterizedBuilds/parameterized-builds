@@ -142,4 +142,115 @@ public class JobTest {
 
 		assertEquals("param1=value1&param2=value2", job.getQueryString(parameters));
 	}
+
+	@Test
+	public void testBuildUrlNotParameterized() {
+		String jobName = "jobname";
+		Job job = new Job.JobBuilder(0).jobName(jobName).createJob();
+		String buildUrl = job.buildUrl(false, "", null);
+
+		assertEquals("/job/jobname/build", buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlLegacyToken() {
+		String jobName = "jobname";
+		String token = "token";
+		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
+		String buildUrl = job.buildUrl(false, "", null);
+
+		assertEquals("/job/" + jobName + "/build?token=" + token, buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlParameterized() {
+		String jobName = "jobname";
+		String params = "param1=value1";
+		Job job = new Job.JobBuilder(0).jobName(jobName).createJob();
+		String buildUrl = job.buildUrl(false, params, null);
+
+		assertEquals("/job/" + jobName + "/buildWithParameters?" + params, buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlParameterizedWithLegacyToken() {
+		String jobName = "jobname";
+		String token = "token";
+		String params = "param1=value1";
+		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
+		String buildUrl = job.buildUrl(false, params, null);
+
+		assertEquals("/job/" + jobName + "/buildWithParameters?" + params + "&token="
+				+ token, buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlWithLegacyTokenEmpty() {
+		String jobName = "jobname";
+		Job job = new Job.JobBuilder(0).jobName(jobName).token("").createJob();
+		String buildUrl = job.buildUrl(false, "", null);
+
+		assertEquals("/job/" + jobName + "/build", buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlWithUserTokenAndLegacyToken() {
+		String jobName = "jobname";
+		Job job = new Job.JobBuilder(0).jobName(jobName).token("token").createJob();
+		String buildUrl = job.buildUrl(false, "", "usertoken");
+
+		assertEquals("/job/" + jobName + "/build", buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlWithAltUrlAndLegacyToken() {
+		String jobName = "jobname";
+		String token = "token";
+		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
+		String buildUrl = job.buildUrl(true, "", null);
+
+		assertEquals("/buildByToken/build?job=" + jobName + "&token=" + token, buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlWithAltUrlAndParameters() {
+		String jobName = "jobname";
+		String params = "param1=value1";
+		Job job = new Job.JobBuilder(0).jobName(jobName).createJob();
+		String buildUrl = job.buildUrl(true, params, null);
+
+		assertEquals("/buildByToken/buildWithParameters?job=" + jobName + "&" + params, buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlWithAltUrlAndParametersAndLegacyToken() {
+		String jobName = "jobname";
+		String token = "token";
+		String params = "param1=value1";
+		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
+		String buildUrl = job.buildUrl(true, params, null);
+
+		assertEquals("/buildByToken/buildWithParameters?job=" + jobName + "&" + params + "&token="
+				+ token, buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlWithAltUrlAndParametersAndUserToken() {
+		String jobName = "jobname";
+		String params = "param1=value1";
+		Job job = new Job.JobBuilder(0).jobName(jobName).createJob();
+		String buildUrl = job.buildUrl(true, params, "usertoken");
+
+		assertEquals("/job/" + jobName + "/buildWithParameters?" + params, buildUrl);
+	}
+
+	@Test
+	public void testBuildUrlWithAltUrlAndLegacyTokenAndUserToken() {
+		String jobName = "jobname";
+		String token = "token";
+		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
+		String buildUrl = job.buildUrl(true, "", "usertoken");
+
+		assertEquals("/job/" + jobName + "/build", buildUrl);
+	}
 }

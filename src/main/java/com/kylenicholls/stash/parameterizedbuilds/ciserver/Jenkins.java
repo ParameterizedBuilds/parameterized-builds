@@ -78,42 +78,13 @@ public class Jenkins {
 	}
 
 	public JenkinsResponse triggerJob(Job job, String queryParams, String userToken) {
-		String buildUrl = "";
 		Server server = getSettings();
 		if (server == null) {
 			return new JenkinsResponse.JenkinsMessage().error(true)
 					.messageText("Jenkins settings are not setup").build();
 		}
 
-		String jobName = job.getJobName();
-
-		String ciServer = server.getBaseUrl();
-		boolean altUrl = server.getAltUrl();
-
-		if (userToken == null && job.getToken() != null && !job.getToken().isEmpty()) {
-			if (queryParams.trim().isEmpty()) {
-				queryParams = "token=" + job.getToken();
-			} else {
-				queryParams += "&token=" + job.getToken();
-			}
-		}
-
-		if (queryParams.trim().isEmpty()) {
-			buildUrl = ciServer + "/job/" + jobName + "/build";
-		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2) {
-			if (altUrl && (userToken == null || !userToken.equals(""))) {
-				buildUrl = ciServer + "/buildByToken/build?job=" + jobName + "&" + queryParams;
-			} else {
-				buildUrl = ciServer + "/job/" + jobName + "/build?" + queryParams;
-			}
-		} else {
-			if (altUrl && (userToken == null || userToken.equals(""))) {
-				buildUrl = ciServer + "/buildByToken/buildWithParameters?job=" + jobName + "&"
-						+ queryParams;
-			} else {
-				buildUrl = ciServer + "/job/" + jobName + "/buildWithParameters?" + queryParams;
-			}
-		}
+		String buildUrl = server.getBaseUrl() + job.buildUrl(server.getAltUrl(), queryParams, userToken);
 
 		boolean prompt = false;
 		if (userToken == null) {

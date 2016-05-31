@@ -14,6 +14,9 @@ public class Server {
 	}
 
 	public String getBaseUrl() {
+		if (baseUrl.endsWith("/")) {
+			return baseUrl.substring(0, baseUrl.length() - 1);
+		}
 		return baseUrl;
 	}
 

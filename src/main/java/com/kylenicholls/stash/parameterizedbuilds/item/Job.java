@@ -161,6 +161,37 @@ public class Job {
 		}
 		return queryParams;
 	}
+	
+	public String buildUrl(boolean useAltUrl, String queryParams, String userToken) {
+		String buildUrl = "";
+		
+		if (userToken == null && this.token != null && !this.token.isEmpty()) {
+			if (queryParams.trim().isEmpty()) {
+				queryParams = "token=" + this.token;
+			} else {
+				queryParams += "&token=" + this.token;
+			}
+		}
+		
+		if (queryParams.trim().isEmpty()) {
+			buildUrl = "/job/" + this.jobName + "/build";
+		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2) {
+			if (useAltUrl) {
+				buildUrl = "/buildByToken/build?job=" + this.jobName + "&" + queryParams;
+			} else {
+				buildUrl = "/job/" + this.jobName + "/build?" + queryParams;
+			}
+		} else {
+			if (useAltUrl && (userToken == null)) {
+				buildUrl = "/buildByToken/buildWithParameters?job=" + this.jobName + "&"
+						+ queryParams;
+			} else {
+				buildUrl = "/job/" + this.jobName + "/buildWithParameters?" + queryParams;
+			}
+		}
+		
+		return buildUrl;
+	}
 
 	public enum Trigger {
 		ADD, PUSH, PULLREQUEST, MANUAL, DELETE, PRMERGED, PRDECLINED, NULL;
