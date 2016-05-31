@@ -106,10 +106,10 @@ Parameter Types:
  * `option1` will be the default for push events
 * boolean: `key=true`
  * when using the `MANUAL` trigger users will be prompted with a checkbox
- * `true` will be the default, use `key=false` to make false the default
+ * `true` will be the default, use `key=false` to make false the default  
  
  
- ## Contributing
+ # Contributing
  * Pull requests should be opened against master
  * Write unit tests for any changes you make
  * A passing [Travis CI](https://travis-ci.org/KyleLNicholls/parameterized-builds) build is required

@@ -1,0 +1,109 @@
+package com.kylenicholls.stash.parameterizedbuilds.helper;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
+import com.atlassian.bitbucket.user.SecurityService;
+import com.kylenicholls.stash.parameterizedbuilds.item.Job;
+import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+
+public class SettingsServiceTest {
+	private SettingsService settingsService;
+	private RepositoryHookService hookService;
+	private SecurityService securityService;
+
+	@Before
+	public void setup() throws Exception {
+		hookService = mock(RepositoryHookService.class);
+		securityService = mock(SecurityService.class);
+		settingsService = new SettingsService(hookService, securityService);
+	}
+
+	@Test
+	public void testGetJobs() {
+		String jobName = "jobName";
+		String jobName2 = "jobName2";
+		String triggers = "add;push";
+		String params = "param1=value1";
+		String token = "token";
+		String branchRegex = "branchRegex";
+		String pathRegex = "pathRegex";
+		Map<String, Object> jobConfig = new LinkedHashMap<>();
+		jobConfig.put(SettingsService.JOB_PREFIX + "0", jobName);
+		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", triggers);
+		jobConfig.put(SettingsService.PARAM_PREFIX + "0", params);
+		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", token);
+		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", branchRegex);
+		jobConfig.put(SettingsService.PATH_PREFIX + "0", pathRegex);
+		jobConfig.put(SettingsService.JOB_PREFIX + "1", jobName2);
+		jobConfig.put(SettingsService.TRIGGER_PREFIX + "1", "");
+		jobConfig.put(SettingsService.PARAM_PREFIX + "1", "");
+		jobConfig.put(SettingsService.TOKEN_PREFIX + "1", "");
+		jobConfig.put(SettingsService.BRANCH_PREFIX + "1", "");
+		jobConfig.put(SettingsService.PATH_PREFIX + "1", "");
+		List<Job> jobs = settingsService.getJobs(jobConfig);
+
+		List<Trigger> triggerList = Arrays.asList(Trigger.ADD, Trigger.PUSH);
+		Map<String, String> paramMap = new HashMap<>();
+		paramMap.put("param1", "value1");
+		assertEquals(2, jobs.size());
+		assertEquals(0, jobs.get(0).getJobId());
+		assertEquals(jobName, jobs.get(0).getJobName());
+		assertEquals(triggerList, jobs.get(0).getTriggers());
+		assertEquals(paramMap, jobs.get(0).getBuildParameters());
+		assertEquals(token, jobs.get(0).getToken());
+		assertEquals(branchRegex, jobs.get(0).getBranchRegex());
+		assertEquals(pathRegex, jobs.get(0).getPathRegex());
+		assertEquals(1, jobs.get(1).getJobId());
+		assertEquals(jobName2, jobs.get(1).getJobName());
+	}
+
+	@Test
+	public void testNoJobsDefined() {
+		Map<String, Object> jobConfig = new HashMap<String, Object>();
+		List<Job> jobs = settingsService.getJobs(jobConfig);
+
+		assertEquals(null, jobs);
+	}
+
+	@Test
+	public void testGetJobWithUndefinedRefType() {
+		Map<String, Object> jobConfig = new HashMap<>();
+		jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
+		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
+		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
+		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
+		List<Job> jobs = settingsService.getJobs(jobConfig);
+
+		assertFalse(jobs.get(0).getIsTag());
+	}
+
+	@Test
+	public void testGetJobWithTagDefined() {
+		Map<String, Object> jobConfig = new HashMap<>();
+		jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
+		jobConfig.put(SettingsService.ISTAG_PREFIX + "0", "true");
+		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
+		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
+		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
+		List<Job> jobs = settingsService.getJobs(jobConfig);
+
+		assertTrue(jobs.get(0).getIsTag());
+	}
+}
