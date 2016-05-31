@@ -107,7 +107,7 @@ public class BuildResource extends RestResource {
 		return null;
 	}
 
-	protected Job resolveJobConfigFromUriMap(int id, List<Job> settingsList) {
+	private Job resolveJobConfigFromUriMap(int id, List<Job> settingsList) {
 		for (Job job : settingsList) {
 			if (job.getJobId() == id) {
 				return job;
@@ -116,7 +116,7 @@ public class BuildResource extends RestResource {
 		return null;
 	}
 
-	protected String resolveQueryParamsFromMap(MultivaluedMap<String, String> queryParameters) {
+	private String resolveQueryParamsFromMap(MultivaluedMap<String, String> queryParameters) {
 		String queryParams = "";
 		Iterator<Entry<String, List<String>>> it = queryParameters.entrySet().iterator();
 		while (it.hasNext()) {

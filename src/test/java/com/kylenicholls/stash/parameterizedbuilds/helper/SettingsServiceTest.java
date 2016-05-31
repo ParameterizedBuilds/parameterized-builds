@@ -21,13 +21,11 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class SettingsServiceTest {
 	private SettingsService settingsService;
-	private RepositoryHookService hookService;
-	private SecurityService securityService;
 
 	@Before
 	public void setup() throws Exception {
-		hookService = mock(RepositoryHookService.class);
-		securityService = mock(SecurityService.class);
+		RepositoryHookService hookService = mock(RepositoryHookService.class);
+		SecurityService securityService = mock(SecurityService.class);
 		settingsService = new SettingsService(hookService, securityService);
 	}
 

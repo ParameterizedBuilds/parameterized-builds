@@ -24,7 +24,7 @@ public class Jenkins {
 		this.pluginSettings = factory.createSettingsForKey(PLUGIN_KEY);
 	}
 
-	public void setSettings(String url, String user, String token, boolean altUrl) {
+	protected void setSettings(String url, String user, String token, boolean altUrl) {
 		if (url != null && !url.isEmpty()) {
 			String altUrlString = altUrl ? "true" : "false";
 			pluginSettings
@@ -34,7 +34,7 @@ public class Jenkins {
 		}
 	}
 
-	public void setUserSettings(@Nullable ApplicationUser user, String token) {
+	protected void setUserSettings(@Nullable ApplicationUser user, String token) {
 		if (user != null) {
 			if (token != null && !token.isEmpty()) {
 				pluginSettings.put(".jenkinsUser." + user.getSlug(), token);
@@ -65,7 +65,7 @@ public class Jenkins {
 	}
 
 	@Nullable
-	public String getUserSettings(@Nullable ApplicationUser user) {
+	protected String getUserSettings(@Nullable ApplicationUser user) {
 		if (user != null) {
 			Object settingObj = pluginSettings.get(".jenkinsUser." + user.getSlug());
 			if (settingObj != null) {
@@ -122,7 +122,7 @@ public class Jenkins {
 		return httpPost(buildUrl.replace(" ", "%20"), userToken, prompt);
 	}
 
-	public String[] httpPost(String buildUrl, String token, boolean prompt) {
+	private String[] httpPost(String buildUrl, String token, boolean prompt) {
 		String[] results = new String[2];
 		int status = 0;
 		// Trigger build using build URL from hook setting
