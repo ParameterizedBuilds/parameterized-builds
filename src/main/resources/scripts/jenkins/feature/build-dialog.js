@@ -48,18 +48,49 @@ define('trigger/build-dialog', [
 		  dataType: 'json',
 		  async: true
 		}).success(function (data) {
-			var buildStatus = data.status;
-    		var buildMessage = data.message;
-    		if (buildStatus !== "201"){
+    		if (data.error){
     			successFlag.close();
     			flag({
                     type: 'warning',
-                    body: buildMessage,
+                    body: data.messageText,
                     close: 'auto'
                 });
+    		} else if (data.prompt) {
+    			var promptCookie = getCookie("jenkinsPrompt");
+    			var settingsPath = _aui.contextPath() + "/plugins/servlet/account/jenkins";
+    			if (promptCookie !== "ignore") {
+	    			flag({
+	                    type: 'info',
+	                    body: '<p>Optional: <a href="' + settingsPath + 
+	                    '" target="_blank">You can link your Jenkins account to your Bitbucket account.</a></p>' + 
+	                    '<br/><label><input id="prompt-cookie" type="checkbox" /><span>Don\'t show again</span></label>'
+	                });
+    			}
     		}
 		});
 	};
+	
+	$(document).on('change', '#prompt-cookie', function(e) {
+		var d = new Date();
+	    d.setTime(d.getTime() + (365*24*60*60*1000));
+	    var expires = "expires="+ d.toUTCString();
+		document.cookie = "jenkinsPrompt=ignore;" + expires + ";path=/";
+    });
+	
+	function getCookie(cname) {
+	    var name = cname + "=";
+	    var ca = document.cookie.split(';');
+	    for(var i = 0; i <ca.length; i++) {
+	        var c = ca[i];
+	        while (c.charAt(0)==' ') {
+	            c = c.substring(1);
+	        }
+	        if (c.indexOf(name) == 0) {
+	            return c.substring(name.length,c.length);
+	        }
+	    }
+	    return "";
+	}
 	
     function getParameterArray(jobId){
     	var parameterArray = [];

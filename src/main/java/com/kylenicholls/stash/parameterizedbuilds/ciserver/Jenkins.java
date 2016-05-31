@@ -12,6 +12,8 @@ import org.apache.commons.codec.binary.Base64;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
+import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse.JenkinsMessage;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
@@ -75,11 +77,12 @@ public class Jenkins {
 		return null;
 	}
 
-	public String[] triggerJob(Job job, String queryParams, String userToken) {
+	public JenkinsResponse triggerJob(Job job, String queryParams, String userToken) {
 		String buildUrl = "";
 		Server server = getSettings();
 		if (server == null) {
-			return new String[] { "error", "Jenkins settings are not setup" };
+			return new JenkinsResponse.JenkinsMessage().error(true)
+					.messageText("Jenkins settings are not setup").build();
 		}
 
 		String jobName = job.getJobName();
@@ -115,54 +118,56 @@ public class Jenkins {
 		boolean prompt = false;
 		if (userToken == null) {
 			prompt = true;
-			if (server.getUser() != null && !server.getUser().equals("")) {
+			if (server.getUser() != null && !server.getUser().isEmpty()) {
 				userToken = server.getUser() + ":" + server.getToken();
 			}
 		}
 		return httpPost(buildUrl.replace(" ", "%20"), userToken, prompt);
 	}
 
-	private String[] httpPost(String buildUrl, String token, boolean prompt) {
-		String[] results = new String[2];
-		int status = 0;
-		// Trigger build using build URL from hook setting
+	private JenkinsResponse httpPost(String buildUrl, String token, boolean prompt) {
+		JenkinsMessage jenkinsMessage = new JenkinsResponse.JenkinsMessage().prompt(prompt);
 		try {
 			URL url = new URL(buildUrl);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
-			if (token != null && !token.equals("")) {
+			if (token != null && !token.isEmpty()) {
 				byte[] authEncBytes = Base64.encodeBase64(token.getBytes());
 				String authStringEnc = new String(authEncBytes);
 				connection.setRequestProperty("Authorization", "Basic " + authStringEnc);
 			}
 
-			connection.setReadTimeout(30000);
+			connection.setReadTimeout(45000);
 			connection.setInstanceFollowRedirects(true);
 			HttpURLConnection.setFollowRedirects(true);
 
 			connection.connect();
 
-			status = connection.getResponseCode();
-			results[0] = Integer.toString(status);
+			int status = connection.getResponseCode();
 			if (status == 201) {
-				results[1] = "201: Build triggered";
-				return results;
+				return jenkinsMessage.messageText("Build triggered").build();
+			} else if (status == 403) {
+				return jenkinsMessage.error(true)
+						.messageText("You do not have permissions to build this job").build();
+			} else if (status == 404) {
+				return jenkinsMessage.error(true).messageText("Job was not found").build();
+			} else if (status == 500) {
+				return jenkinsMessage.error(true)
+						.messageText("Error triggering job, invalid build parameters").build();
 			} else {
-				results[1] = status + ": " + connection.getResponseMessage();
-				return results;
+				return jenkinsMessage.error(true).messageText(connection.getResponseMessage())
+						.build();
 			}
 
-			// log.debug("HTTP response:\n" + body.toString());
 		} catch (MalformedURLException e) {
-			// log.error("Malformed URL:" + e);
+			return jenkinsMessage.error(true).messageText("Malformed URL:" + e.getMessage())
+					.build();
 		} catch (IOException e) {
-			// log.error("Some IO exception occurred", e);
+			return jenkinsMessage.error(true).messageText("IO exception occurred" + e.getMessage())
+					.build();
 		} catch (Exception e) {
-			// log.error("Something else went wrong: ", e);
+			return jenkinsMessage.error(true).messageText("Something went wrong: " + e.getMessage())
+					.build();
 		}
-
-		results[0] = "error";
-		results[1] = status + ": unknown error";
-		return results;
 	}
 }

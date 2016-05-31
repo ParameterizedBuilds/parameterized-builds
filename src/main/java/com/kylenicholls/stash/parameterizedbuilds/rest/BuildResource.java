@@ -1,6 +1,5 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,29 +56,27 @@ public class BuildResource extends RestResource {
 	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id,
 			@Context UriInfo uriInfo) {
 		if (authenticationContext.isAuthenticated()) {
-			String[] getResults = new String[2];
-			Map<String, String> data = new HashMap<String, String>();
+			Map<String, Object> data = new LinkedHashMap<String, Object>();
 			Settings settings = settingsService.getSettings(repository);
 			if (settings == null) {
-				return Response.status(404).build();
+				data.put("message", "No hook settings were found for this repository");
+				return Response.status(Response.Status.NOT_FOUND).build();
 			}
 			List<Job> settingsList = settingsService.getJobs(settings.asMap());
 			Job jobToBuild = resolveJobConfigFromUriMap(Integer.parseInt(id), settingsList);
 
 			if (jobToBuild == null) {
-				getResults[0] = "error";
-				getResults[1] = "Settings not found for this job";
+				data.put("message", "No settings found for this job");
+				return Response.status(Response.Status.NOT_FOUND).entity(data).build();
 			} else {
 				String userToken = jenkins.getUserToken(authenticationContext.getCurrentUser());
 				String updatedParams = resolveQueryParamsFromMap(uriInfo.getQueryParameters());
-				getResults = jenkins.triggerJob(jobToBuild, updatedParams, userToken);
+				Map<String, Object> message = jenkins
+						.triggerJob(jobToBuild, updatedParams, userToken).getMessage();
+				return Response.ok(message).build();
 			}
-
-			data.put("status", getResults[0]);
-			data.put("message", getResults[1]);
-			return Response.ok(data).build();
 		}
-		return null;
+		return Response.status(Response.Status.FORBIDDEN).build();
 	}
 
 	@GET
@@ -90,7 +87,7 @@ public class BuildResource extends RestResource {
 			int count = 0;
 			Map<Integer, Object> data = new LinkedHashMap<Integer, Object>();
 			if (settings == null) {
-				return Response.status(404).build();
+				return Response.status(Response.Status.NOT_FOUND).build();
 			}
 			for (Job job : settingsService.getJobs(settings.asMap())) {
 				if (job.getTriggers().contains(Trigger.MANUAL)) {
@@ -104,7 +101,7 @@ public class BuildResource extends RestResource {
 			}
 			return Response.ok(data).build();
 		}
-		return null;
+		return Response.status(Response.Status.FORBIDDEN).build();
 	}
 
 	private Job resolveJobConfigFromUriMap(int id, List<Job> settingsList) {

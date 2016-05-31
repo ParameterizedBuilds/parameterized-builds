@@ -17,6 +17,7 @@ import org.junit.Test;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
@@ -166,8 +167,12 @@ public class JenkinsTest {
 	public void testTriggerJobWithNoServerSettings() {
 		when(pluginSettings.get(".jenkinsSettings")).thenReturn(null);
 		Job job = new Job.JobBuilder(1).jobName(JOB_NAME).createJob();
-		String[] results = jenkins.triggerJob(job, "", "");
-		assertEquals("error", results[0]);
-		assertEquals("Jenkins settings are not setup", results[1]);
+		JenkinsResponse actual = jenkins.triggerJob(job, "", "");
+
+		JenkinsResponse expected = new JenkinsResponse.JenkinsMessage().error(true)
+				.messageText("Jenkins settings are not setup").build();
+		assertEquals(expected.getError(), actual.getError());
+		assertEquals(expected.getPrompt(), actual.getPrompt());
+		assertEquals(expected.getMessageText(), actual.getMessageText());
 	}
 }
