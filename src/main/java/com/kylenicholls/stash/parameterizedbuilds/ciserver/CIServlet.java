@@ -29,6 +29,7 @@ public class CIServlet extends HttpServlet {
 	private static final String JENKINS_ADMIN_SETTINGS = "jenkins.admin.settings";
 	private static final String JENKINS_PROJECT_SETTINGS = "jenkins.admin.settingsProjectAdmin";
 	private static final String SERVER = "server";
+	private static final String PROJECT_KEY = "projectKey";
 	private final SoyTemplateRenderer soyTemplateRenderer;
 	private final AuthenticationContext authContext;
 	private final NavBuilder navBuilder;
@@ -77,7 +78,7 @@ public class CIServlet extends HttpServlet {
 		Server projectServer = jenkins.getJenkinsServer(projectKey);
 		render(resp, JENKINS_PROJECT_SETTINGS, ImmutableMap
 				.<String, Object> of(SERVER, projectServer != null ? projectServer
-						: "", "projectKey", projectKey, ERRORS, ""));
+						: "", PROJECT_KEY, projectKey, ERRORS, ""));
 	}
 
 	private void renderForGlobal(HttpServletResponse resp)
@@ -145,7 +146,7 @@ public class CIServlet extends HttpServlet {
 			jenkins.saveJenkinsServer(null, projectKey);
 		} else if (server.getBaseUrl().isEmpty()) {
 			render(res, JENKINS_PROJECT_SETTINGS, ImmutableMap
-					.<String, Object> of(SERVER, server, "projectKey", projectKey, ERRORS, "Base URL required"));
+					.<String, Object> of(SERVER, server, PROJECT_KEY, projectKey, ERRORS, "Base URL required"));
 			return;
 		} else {
 			jenkins.saveJenkinsServer(server, projectKey);

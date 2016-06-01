@@ -7,8 +7,8 @@
 3. [Link your bitbucket server account to Jenkins](#link-your-bitbucket-server-account-to-jenkins)
 
 #### Define a server
-Add a Jenkins server under Jenkins Settings found on the 
-Administration page of Bitbucket Server
+Jenkins servers can be defined globally on the Administration page of Bitbucket Server
+or per project on the project settings page.
 
 ![Jenkins administration settings](readme/img/jenkins_admin.png)  
 * `Base URL` should be the http/https root address to you jenkins server
@@ -42,11 +42,13 @@ build for branches/tags that match the filter
 On your user account page you can add your Jenkins API token.
 When added bitbucket server will use your Jenkins account 
 to trigger jobs for branches you create/push, pull requests you open, or for manual builds.  
+If you have multiple Jenkins servers setup you can set the api token for each one.
 
 Order of authentication:  
 The Jenkins user `Token` from the Jenkins User Settings will be used for authentation first.  
 If that is not set then the `Token` parameter in the job configuration will be used second.  
-If that is not set then the `Default User` and `Default Token` on the Jenkins administration page will be used.
+If that is not set then the `Default User` and `Default Token` on the Jenkins 
+server settings page will be used.
 
 
 ## Triggers
