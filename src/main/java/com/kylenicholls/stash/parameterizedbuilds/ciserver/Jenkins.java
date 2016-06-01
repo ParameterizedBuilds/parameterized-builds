@@ -20,6 +20,8 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 public class Jenkins {
 
 	private static final String PLUGIN_KEY = "com.kylenicholls.stash.parameterized-builds";
+	private static final String JENKINS_SETTINGS = ".jenkinsSettings";
+	private static final String JENKINS_USER = ".jenkinsUser.";
 	private final PluginSettings pluginSettings;
 
 	public Jenkins(PluginSettingsFactory factory) {
@@ -30,25 +32,25 @@ public class Jenkins {
 		if (url != null && !url.isEmpty()) {
 			String altUrlString = altUrl ? "true" : "false";
 			pluginSettings
-					.put(".jenkinsSettings", url + ";" + user + ";" + token + ";" + altUrlString);
+					.put(JENKINS_SETTINGS, url + ";" + user + ";" + token + ";" + altUrlString);
 		} else {
-			pluginSettings.remove(".jenkinsSettings");
+			pluginSettings.remove(JENKINS_SETTINGS);
 		}
 	}
 
 	protected void setUserSettings(@Nullable ApplicationUser user, String token) {
 		if (user != null) {
 			if (token != null && !token.isEmpty()) {
-				pluginSettings.put(".jenkinsUser." + user.getSlug(), token);
+				pluginSettings.put(JENKINS_USER + user.getSlug(), token);
 			} else {
-				pluginSettings.remove(".jenkinsUser." + user.getSlug());
+				pluginSettings.remove(JENKINS_USER + user.getSlug());
 			}
 		}
 	}
 
 	@Nullable
 	public Server getSettings() {
-		Object settingObj = pluginSettings.get(".jenkinsSettings");
+		Object settingObj = pluginSettings.get(JENKINS_SETTINGS);
 		if (settingObj != null) {
 			String[] serverProps = settingObj.toString().split(";");
 			boolean altUrl = serverProps.length > 3 && serverProps[3].equals("true") ? true : false;
@@ -69,7 +71,7 @@ public class Jenkins {
 	@Nullable
 	protected String getUserSettings(@Nullable ApplicationUser user) {
 		if (user != null) {
-			Object settingObj = pluginSettings.get(".jenkinsUser." + user.getSlug());
+			Object settingObj = pluginSettings.get(JENKINS_USER + user.getSlug());
 			if (settingObj != null) {
 				return settingObj.toString();
 			}
