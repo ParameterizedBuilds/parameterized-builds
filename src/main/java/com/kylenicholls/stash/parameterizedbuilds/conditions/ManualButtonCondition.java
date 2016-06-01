@@ -10,14 +10,10 @@ import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
-public class ManualButtonCondition implements Condition {
-
-	private static final String REPOSITORY = "repository";
-
-	private SettingsService settingsService;
+public class ManualButtonCondition extends BaseCondition {
 
 	public ManualButtonCondition(SettingsService settingsService) {
-		this.settingsService = settingsService;
+		super(settingsService);
 	}
 
 	@Override
@@ -27,12 +23,10 @@ public class ManualButtonCondition implements Condition {
 
 	@Override
 	public boolean shouldDisplay(Map<String, Object> context) {
-		final Object obj = context.get(REPOSITORY);
-		// Get current repo, if failure disable button
-		if (obj == null || !(obj instanceof Repository))
+		final Repository repository = getRepository(context);
+		if(repository == null) {
 			return false;
-
-		final Repository repository = (Repository) obj;
+		}
 		Settings settings = settingsService.getSettings(repository);
 
 		for (Job job : settingsService.getJobs(settings.asMap())) {

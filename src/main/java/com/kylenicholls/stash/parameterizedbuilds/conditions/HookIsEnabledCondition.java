@@ -8,12 +8,10 @@ import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 
-public class HookIsEnabledCondition implements Condition {
-	private static final String REPOSITORY = "repository";
-	private SettingsService settingsService;
+public class HookIsEnabledCondition extends BaseCondition {
 
 	public HookIsEnabledCondition(SettingsService settingsService) {
-		this.settingsService = settingsService;
+		super(settingsService);
 	}
 
 	@Override
@@ -23,12 +21,10 @@ public class HookIsEnabledCondition implements Condition {
 
 	@Override
 	public boolean shouldDisplay(Map<String, Object> context) {
-		final Object obj = context.get(REPOSITORY);
-		// Get current repo, if failure disable button
-		if (obj == null || !(obj instanceof Repository))
+		final Repository repository = getRepository(context);
+		if(repository == null) {
 			return false;
-
-		final Repository repository = (Repository) obj;
+		}
 		RepositoryHook hook = settingsService.getHook(repository);
 
 		return hook.isEnabled();
