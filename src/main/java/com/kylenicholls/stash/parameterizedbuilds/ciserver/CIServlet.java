@@ -30,10 +30,10 @@ public class CIServlet extends HttpServlet {
 	private static final String JENKINS_PROJECT_SETTINGS = "jenkins.admin.settingsProjectAdmin";
 	private static final String SERVER = "server";
 	private static final String PROJECT_KEY = "projectKey";
-	private final SoyTemplateRenderer soyTemplateRenderer;
-	private final AuthenticationContext authContext;
-	private final NavBuilder navBuilder;
-	private final Jenkins jenkins;
+	private final transient SoyTemplateRenderer soyTemplateRenderer;
+	private final transient AuthenticationContext authContext;
+	private final transient NavBuilder navBuilder;
+	private final transient Jenkins jenkins;
 	private final ProjectService projectService;
 
 	public CIServlet(SoyTemplateRenderer soyTemplateRenderer, AuthenticationContext authContext,
