@@ -19,9 +19,12 @@ import com.atlassian.soy.renderer.SoyTemplateRenderer;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 public class CIServlet extends HttpServlet {
+	private static final Logger logger = LoggerFactory.getLogger(CIServlet.class);
 	private static final String USER_TOKEN_PREFIX = "jenkinsToken-";
 	private static final String PROJECT_KEY_PREFIX = "projectKey-";
 	private static final String JENKINS_USER_SETTINGS = "jenkins.user.settings";
@@ -48,18 +51,22 @@ public class CIServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		String pathInfo = req.getPathInfo();
-		if (authContext.isAuthenticated()) {
-			if (pathInfo.contains("/account/")) {
-				renderForAccount(res);
-			} else if (pathInfo.contains("/jenkins/project/")) {
-				renderForProject(res, pathInfo);
+		try {
+			String pathInfo = req.getPathInfo();
+			if (authContext.isAuthenticated()) {
+				if (pathInfo.contains("/account/")) {
+					renderForAccount(res);
+				} else if (pathInfo.contains("/jenkins/project/")) {
+					renderForProject(res, pathInfo);
+				} else {
+					renderForGlobal(res);
+				}
 			} else {
-				renderForGlobal(res);
+				res.sendRedirect(navBuilder.login().next(req.getServletPath() + pathInfo)
+						.buildAbsolute());
 			}
-		} else {
-			res.sendRedirect(navBuilder.login().next(req.getServletPath() + pathInfo)
-					.buildAbsolute());
+		} catch(Exception e) {
+			logger.error("Exception in CIServlet.doGet: " + e.getMessage(), e);
 		}
 	}
 
@@ -91,20 +98,24 @@ public class CIServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		String pathInfo = req.getPathInfo();
-		if (pathInfo.contains("/account/")) {
-			postAccountSettings(req.getParameterMap());
-			doGet(req, res);
-		} else {
-			Server server = getServerFromMap(req);
-			boolean clearSettings = req.getParameter("clear-settings") != null
-					&& req.getParameter("clear-settings").equals("on") ? true : false;
-			if (pathInfo.contains("/jenkins/project/")) {
-				String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "").split("/")[0];
-				postProjectSettings(server, clearSettings, projectKey, req, res);
+		try {
+			String pathInfo = req.getPathInfo();
+			if (pathInfo.contains("/account/")) {
+				postAccountSettings(req.getParameterMap());
+				doGet(req, res);
 			} else {
-				postGlobalSettings(server, clearSettings, req, res);
+				Server server = getServerFromMap(req);
+				boolean clearSettings = req.getParameter("clear-settings") != null
+						&& req.getParameter("clear-settings").equals("on") ? true : false;
+				if (pathInfo.contains("/jenkins/project/")) {
+					String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "").split("/")[0];
+					postProjectSettings(server, clearSettings, projectKey, req, res);
+				} else {
+					postGlobalSettings(server, clearSettings, req, res);
+				}
 			}
+		} catch(Exception e) {
+			logger.error("Exception in CIServlet.doPost: " + e.getMessage(), e);
 		}
 	}
 
