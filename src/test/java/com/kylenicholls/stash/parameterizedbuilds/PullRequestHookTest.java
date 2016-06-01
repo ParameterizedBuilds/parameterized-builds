@@ -41,7 +41,7 @@ public class PullRequestHookTest {
 	private PullRequestMergedEvent mergedEvent;
 	private PullRequestDeclinedEvent declinedEvent;
 	private Repository repository;
-	private static final String USER_TOKEN = "user:token";
+	private ApplicationUser user;
 
 	@Before
 	public void setup() {
@@ -72,12 +72,11 @@ public class PullRequestHookTest {
 		PullRequestRef prFromRef = mock(PullRequestRef.class);
 		PullRequestRef prToRef = mock(PullRequestRef.class);
 		PullRequestParticipant author = mock(PullRequestParticipant.class);
-		ApplicationUser user = mock(ApplicationUser.class);
+		user = mock(ApplicationUser.class);
 		when(pullRequest.getFromRef()).thenReturn(prFromRef);
 		when(pullRequest.getToRef()).thenReturn(prToRef);
 		when(pullRequest.getAuthor()).thenReturn(author);
 		when(author.getUser()).thenReturn(user);
-		when(jenkins.getUserToken(user)).thenReturn(USER_TOKEN);
 		when(prFromRef.getRepository()).thenReturn(repository);
 		when(prFromRef.getDisplayId()).thenReturn("sourcebranch");
 		when(prFromRef.getLatestCommit()).thenReturn("commithash");
@@ -93,7 +92,8 @@ public class PullRequestHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestOpened(openedEvent);
-		verify(jenkins, times(1)).triggerJob(job, "", USER_TOKEN);
+		
+		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
 	}
 
 	@Test
@@ -104,7 +104,8 @@ public class PullRequestHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestReOpened(reopenedEvent);
-		verify(jenkins, times(1)).triggerJob(job, "", USER_TOKEN);
+		
+		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
 	}
 
 	@Test
@@ -116,7 +117,8 @@ public class PullRequestHookTest {
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		when(rescopedEvent.getPreviousFromHash()).thenReturn("newhash");
 		hook.onPullRequestRescoped(rescopedEvent);
-		verify(jenkins, times(1)).triggerJob(job, "", USER_TOKEN);
+		
+		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
 	}
 
 	@Test
@@ -128,7 +130,8 @@ public class PullRequestHookTest {
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		when(rescopedEvent.getPreviousFromHash()).thenReturn("commithash");
 		hook.onPullRequestRescoped(rescopedEvent);
-		verify(jenkins, times(0)).triggerJob(job, "", USER_TOKEN);
+		
+		verify(jenkins, times(0)).triggerJob(job, "", user, repository.getProject().getKey());
 	}
 
 	@Test
@@ -139,7 +142,8 @@ public class PullRequestHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestMerged(mergedEvent);
-		verify(jenkins, times(1)).triggerJob(job, "", USER_TOKEN);
+		
+		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
 	}
 
 	@Test
@@ -150,14 +154,16 @@ public class PullRequestHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestDeclined(declinedEvent);
-		verify(jenkins, times(1)).triggerJob(job, "", USER_TOKEN);
+		
+		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
 	}
 
 	@Test
 	public void testPROpenedAndNoSettings() throws IOException {
 		when(settingsService.getSettings(repository)).thenReturn(null);
 		hook.onPullRequestOpened(openedEvent);
-		verify(jenkins, times(0)).triggerJob(any(), any(), any());
+		
+		verify(jenkins, times(0)).triggerJob(any(), any(), any(), any());
 	}
 
 	@Test
@@ -168,6 +174,7 @@ public class PullRequestHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestOpened(openedEvent);
-		verify(jenkins, times(0)).triggerJob(job, "", USER_TOKEN);
+		
+		verify(jenkins, times(0)).triggerJob(job, "", user, repository.getProject().getKey());
 	}
 }

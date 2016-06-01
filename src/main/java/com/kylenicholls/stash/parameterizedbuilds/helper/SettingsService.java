@@ -32,7 +32,6 @@ public class SettingsService {
 	}
 
 	public Settings getSettings(final Repository repository) {
-
 		Settings settings = null;
 		try {
 			settings = securityService

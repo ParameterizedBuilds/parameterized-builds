@@ -21,6 +21,7 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
+import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters;
@@ -52,7 +53,7 @@ public class ParameterizedBuildHook
 	public void postReceive(RepositoryHookContext context, Collection<RefChange> refChanges) {
 		Repository repository = context.getRepository();
 
-		String token = jenkins.getUserToken(actx.getCurrentUser());
+		ApplicationUser user = actx.getCurrentUser();
 
 		for (RefChange refChange : refChanges) {
 			String branch = refChange.getRef().getId().replace(REFS_HEADS, "");
@@ -72,8 +73,9 @@ public class ParameterizedBuildHook
 				GetQueryStringParameters parameters = builder.build();
 
 				if (job.getIsTag() == isTag) {
-					if (buildBranchCheck(repository, refChange, branch, job, parameters, token)) {
-						jenkins.triggerJob(job, job.getQueryString(parameters), token);
+					if (buildBranchCheck(repository, refChange, branch, job, parameters, user)) {
+						jenkins.triggerJob(job, job.getQueryString(parameters), user, repository
+								.getProject().getKey());
 					}
 				}
 			}
@@ -81,7 +83,7 @@ public class ParameterizedBuildHook
 	}
 
 	private boolean buildBranchCheck(final Repository repository, RefChange refChange,
-			String branch, Job job, GetQueryStringParameters parameters, String token) {
+			String branch, Job job, GetQueryStringParameters parameters, ApplicationUser user) {
 		String branchRegex = job.getBranchRegex();
 		String pathRegex = job.getPathRegex();
 		List<Trigger> triggers = job.getTriggers();
@@ -95,7 +97,9 @@ public class ParameterizedBuildHook
 					commitService.streamChanges(request, new AbstractChangeCallback() {
 						public boolean onChange(Change change) throws IOException {
 							if (change.getPath().toString().matches(pathRegex)) {
-								jenkins.triggerJob(job, job.getQueryString(parameters), token);
+								jenkins.triggerJob(job, job
+										.getQueryString(parameters), user, repository.getProject()
+												.getKey());
 								return false;
 							}
 							return true;
@@ -124,10 +128,11 @@ public class ParameterizedBuildHook
 	@Override
 	public void validate(Settings settings, SettingsValidationErrors errors,
 			Repository repository) {
-
-		Server server = jenkins.getSettings();
-		if (server == null || server.getBaseUrl().isEmpty()) {
-			errors.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
+		Server server = jenkins.getJenkinsServer();
+		Server projectServer = jenkins.getJenkinsServer(repository.getProject().getKey());
+		if ((server == null || server.getBaseUrl().isEmpty())
+				&& (projectServer == null || projectServer.getBaseUrl().isEmpty())) {
+			errors.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
 			return;
 		}
 		List<Job> jobList = settingsService.getJobs(settings.asMap());

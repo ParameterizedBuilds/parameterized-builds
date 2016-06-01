@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,6 +26,7 @@ import com.atlassian.bitbucket.rest.RestResource;
 import com.atlassian.bitbucket.rest.util.ResourcePatterns;
 import com.atlassian.bitbucket.rest.util.RestUtils;
 import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -38,41 +40,42 @@ import com.sun.jersey.spi.resource.Singleton;
 @Singleton
 @AnonymousAllowed
 public class BuildResource extends RestResource {
-
 	private SettingsService settingsService;
 	private Jenkins jenkins;
-	private final AuthenticationContext authenticationContext;
+	private final AuthenticationContext authContext;
 
 	public BuildResource(I18nService i18nService, SettingsService settingsService, Jenkins jenkins,
-			AuthenticationContext authenticationContext) {
+			AuthenticationContext authContext) {
 		super(i18nService);
 		this.settingsService = settingsService;
 		this.jenkins = jenkins;
-		this.authenticationContext = authenticationContext;
+		this.authContext = authContext;
 	}
 
 	@POST
 	@Path(value = "triggerBuild/{id}")
 	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id,
 			@Context UriInfo uriInfo) {
-		if (authenticationContext.isAuthenticated()) {
+		if (authContext.isAuthenticated()) {
 			Map<String, Object> data = new LinkedHashMap<String, Object>();
 			Settings settings = settingsService.getSettings(repository);
 			if (settings == null) {
 				data.put("message", "No hook settings were found for this repository");
 				return Response.status(Response.Status.NOT_FOUND).build();
 			}
-			List<Job> settingsList = settingsService.getJobs(settings.asMap());
-			Job jobToBuild = resolveJobConfigFromUriMap(Integer.parseInt(id), settingsList);
+			List<Job> jobs = settingsService.getJobs(settings.asMap());
+			Job jobToBuild = getJobById(Integer.parseInt(id), jobs);
 
 			if (jobToBuild == null) {
 				data.put("message", "No settings found for this job");
 				return Response.status(Response.Status.NOT_FOUND).entity(data).build();
 			} else {
-				String userToken = jenkins.getUserToken(authenticationContext.getCurrentUser());
+				ApplicationUser user = authContext.getCurrentUser();
 				String updatedParams = resolveQueryParamsFromMap(uriInfo.getQueryParameters());
 				Map<String, Object> message = jenkins
-						.triggerJob(jobToBuild, updatedParams, userToken).getMessage();
+						.triggerJob(jobToBuild, updatedParams, user, repository.getProject()
+								.getKey())
+						.getMessage();
 				return Response.ok(message).build();
 			}
 		}
@@ -82,7 +85,7 @@ public class BuildResource extends RestResource {
 	@GET
 	@Path(value = "getJobs")
 	public Response getJobs(@Context final Repository repository) {
-		if (authenticationContext.isAuthenticated()) {
+		if (authContext.isAuthenticated()) {
 			Settings settings = settingsService.getSettings(repository);
 			int count = 0;
 			Map<Integer, Object> data = new LinkedHashMap<Integer, Object>();
@@ -104,8 +107,9 @@ public class BuildResource extends RestResource {
 		return Response.status(Response.Status.FORBIDDEN).build();
 	}
 
-	private Job resolveJobConfigFromUriMap(int id, List<Job> settingsList) {
-		for (Job job : settingsList) {
+	@Nullable
+	private Job getJobById(int id, List<Job> jobs) {
+		for (Job job : jobs) {
 			if (job.getJobId() == id) {
 				return job;
 			}

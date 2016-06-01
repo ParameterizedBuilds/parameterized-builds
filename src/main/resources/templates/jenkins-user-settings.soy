@@ -2,8 +2,7 @@
 
 /**
  * @param user
- * @param token
- * @param baseUrl
+ * @param projectTokens
  * @param errors
  */
 {template .settings}
@@ -20,20 +19,21 @@
 		{$errors}
 	{else}
 		<form class="aui prevent-double-submit  pull-request-settings" action="" method="post" accept-charset="UTF-8">
-			{call .anotherParam}
-				{param token: $token /}
-			{/call}
-			{if $baseUrl}
-				<div class="field-group">
-					 <a class="aui-button" onClick="window.open( '{$baseUrl}/user/{$user.slug}/configure', '_blank' )">Get Jenkins API Token</a>
-				</div>
+			{foreach $projectToken in $projectTokens}
+				{call .anotherParam}
+					{param userToken: $projectToken /}
+				{/call}
+			{/foreach}
+			{if length($projectTokens) == 0}
+				<div>No Jenkins servers were found. Contact your Bitbucket Server administrator to add a Jenkins server.</div>
+			{else}
+			    {call aui.form.submit}
+					{param id: 'submit' /}
+					{param text: 'Save' /}
+					{param type: 'submit' /}
+					{param extraClasses: 'aui-button-primary' /}
+			    {/call}
 			{/if}
-		    {call aui.form.submit}
-		      {param id: 'submit' /}
-		      {param text: 'Save' /}
-		      {param type: 'submit' /}
-			  {param extraClasses: 'aui-button-primary' /}
-		    {/call}
 	    </form>
     {/if}
 </body>
@@ -41,13 +41,20 @@
 {/template}
 
 /**
- * @param token
+ * @param userToken
  */
 {template .anotherParam}
+	<input type="hidden" name="projectKey-{$userToken.projectKey}" value="{$userToken.projectKey}">
 	{call aui.form.passwordField}
-        {param id: 'jenkinsToken' /}
-        {param value: $token /}
-        {param labelContent: 'Token'  /}
+        {param id: 'jenkinsToken-' + $userToken.projectKey /}
+        {param value: $userToken.token /}
+        {param labelContent: $userToken.projectName + ' Token' /}
         {param autocomplete: 'off' /}
     {/call}
+	{if $userToken.baseUrl}
+		<div class="field-group">
+			 <a class="aui-button" onClick="window.open( '{$userToken.baseUrl}/user/{$userToken.userSlug}/configure', '_blank' )">Get Jenkins API Token</a>
+		</div>
+	{/if}
+	<hr />
 {/template}

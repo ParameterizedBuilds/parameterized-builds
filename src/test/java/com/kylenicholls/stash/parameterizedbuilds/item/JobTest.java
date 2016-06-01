@@ -20,7 +20,7 @@ public class JobTest {
 		String branch = "branch";
 		String path = "path";
 		String token = "token";
-		Job job = new Job.JobBuilder(jobId).jobName(jobName).isTag(isTag)
+		Job actual = new Job.JobBuilder(jobId).jobName(jobName).isTag(isTag)
 				.triggers(new String[] { "add", "manual" })
 				.buildParameters("param1=value1\r\nparam2=value2").branchRegex(branch)
 				.pathRegex(path).token(token).createJob();
@@ -32,48 +32,48 @@ public class JobTest {
 		parameters.put("param1", "value1");
 		parameters.put("param2", "value2");
 
-		assertEquals(jobId, job.getJobId());
-		assertEquals(jobName, job.getJobName());
-		assertEquals(isTag, job.getIsTag());
-		assertEquals(triggers, job.getTriggers());
-		assertEquals(parameters, job.getBuildParameters());
-		assertEquals(branch, job.getBranchRegex());
-		assertEquals(path, job.getPathRegex());
-		assertEquals(token, job.getToken());
+		assertEquals(jobId, actual.getJobId());
+		assertEquals(jobName, actual.getJobName());
+		assertEquals(isTag, actual.getIsTag());
+		assertEquals(triggers, actual.getTriggers());
+		assertEquals(parameters, actual.getBuildParameters());
+		assertEquals(branch, actual.getBranchRegex());
+		assertEquals(path, actual.getPathRegex());
+		assertEquals(token, actual.getToken());
 	}
 
 	@Test
 	public void testCreateNewTagJob() {
 		int jobId = 0;
 		boolean isTag = true;
-		Job job = new Job.JobBuilder(jobId).isTag(isTag).createJob();
+		Job actual = new Job.JobBuilder(jobId).isTag(isTag).createJob();
 
-		assertEquals(jobId, job.getJobId());
-		assertEquals(isTag, job.getIsTag());
+		assertEquals(jobId, actual.getJobId());
+		assertEquals(isTag, actual.getIsTag());
 	}
 
 	@Test
 	public void testAddTriggerNullIfTriggerInvalid() {
-		Job job = new Job.JobBuilder(1).triggers("".split(";")).createJob();
+		Job actual = new Job.JobBuilder(1).triggers("".split(";")).createJob();
 
-		assertEquals(1, job.getTriggers().size());
-		assertEquals(Trigger.NULL, job.getTriggers().get(0));
+		assertEquals(1, actual.getTriggers().size());
+		assertEquals(Trigger.NULL, actual.getTriggers().get(0));
 	}
 
 	@Test
 	public void testBuildEmptyParameterMap() {
-		Job job = new Job.JobBuilder(1).buildParameters("").createJob();
+		Job actual = new Job.JobBuilder(1).buildParameters("").createJob();
 
-		assertEquals(new LinkedHashMap<String, String>(), job.getBuildParameters());
+		assertEquals(new LinkedHashMap<String, String>(), actual.getBuildParameters());
 	}
 
 	@Test
 	public void testBuildKeyValuePairWithNullValue() {
-		Job job = new Job.JobBuilder(1).buildParameters("param1=").createJob();
+		Job actual = new Job.JobBuilder(1).buildParameters("param1=").createJob();
 
 		Map<String, String> parameters = new LinkedHashMap<String, String>();
 		parameters.put("param1", "");
-		assertEquals(parameters, job.getBuildParameters());
+		assertEquals(parameters, actual.getBuildParameters());
 	}
 
 	@Test
@@ -81,9 +81,9 @@ public class JobTest {
 		String value = "branchname";
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().branch(value)
 				.build();
-		Job job = new Job.JobBuilder(1).buildParameters("param=$BRANCH").createJob();
+		Job actual = new Job.JobBuilder(1).buildParameters("param=$BRANCH").createJob();
 
-		assertEquals("param=" + value, job.getQueryString(parameters));
+		assertEquals("param=" + value, actual.getQueryString(parameters));
 	}
 
 	@Test
@@ -91,9 +91,9 @@ public class JobTest {
 		String value = "commit";
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().commit(value)
 				.build();
-		Job job = new Job.JobBuilder(1).buildParameters("param=$COMMIT").createJob();
+		Job actual = new Job.JobBuilder(1).buildParameters("param=$COMMIT").createJob();
 
-		assertEquals("param=" + value, job.getQueryString(parameters));
+		assertEquals("param=" + value, actual.getQueryString(parameters));
 	}
 
 	@Test
@@ -101,9 +101,9 @@ public class JobTest {
 		String value = "branchname";
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder()
 				.prDestination(value).build();
-		Job job = new Job.JobBuilder(1).buildParameters("param=$PRDESTINATION").createJob();
+		Job actual = new Job.JobBuilder(1).buildParameters("param=$PRDESTINATION").createJob();
 
-		assertEquals("param=" + value, job.getQueryString(parameters));
+		assertEquals("param=" + value, actual.getQueryString(parameters));
 	}
 
 	@Test
@@ -111,9 +111,9 @@ public class JobTest {
 		String value = "branchname";
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().repoName(value)
 				.build();
-		Job job = new Job.JobBuilder(1).buildParameters("param=$REPOSITORY").createJob();
+		Job actual = new Job.JobBuilder(1).buildParameters("param=$REPOSITORY").createJob();
 
-		assertEquals("param=" + value, job.getQueryString(parameters));
+		assertEquals("param=" + value, actual.getQueryString(parameters));
 	}
 
 	@Test
@@ -121,55 +121,59 @@ public class JobTest {
 		String value = "branchname";
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder()
 				.projectName(value).build();
-		Job job = new Job.JobBuilder(1).buildParameters("param=$PROJECT").createJob();
+		Job actual = new Job.JobBuilder(1).buildParameters("param=$PROJECT").createJob();
 
-		assertEquals("param=" + value, job.getQueryString(parameters));
+		assertEquals("param=" + value, actual.getQueryString(parameters));
 	}
 
 	@Test
 	public void testShouldUseFirstOptionForChoiceParams() {
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().build();
-		Job job = new Job.JobBuilder(1).buildParameters("param=1;2;3").createJob();
+		Job actual = new Job.JobBuilder(1).buildParameters("param=1;2;3").createJob();
 
-		assertEquals("param=1", job.getQueryString(parameters));
+		assertEquals("param=1", actual.getQueryString(parameters));
 	}
 
 	@Test
 	public void testShouldSupportMutlipleParams() {
 		GetQueryStringParameters parameters = new GetQueryStringParameters.Builder().build();
-		Job job = new Job.JobBuilder(1).buildParameters("param1=value1\r\nparam2=value2")
+		Job actual = new Job.JobBuilder(1).buildParameters("param1=value1\r\nparam2=value2")
 				.createJob();
 
-		assertEquals("param1=value1&param2=value2", job.getQueryString(parameters));
+		assertEquals("param1=value1&param2=value2", actual.getQueryString(parameters));
 	}
 
 	@Test
 	public void testBuildUrlNotParameterized() {
 		String jobName = "jobname";
+		Server server = new Server("url", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).createJob();
-		String buildUrl = job.buildUrl(false, "", null);
+		String actual = job.buildUrl(server, "", null);
 
-		assertEquals("/job/jobname/build", buildUrl);
+		assertEquals(server.getBaseUrl() + "/job/jobname/build", actual);
 	}
 
 	@Test
 	public void testBuildUrlLegacyToken() {
 		String jobName = "jobname";
 		String token = "token";
+		Server server = new Server("url", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
-		String buildUrl = job.buildUrl(false, "", null);
+		String actual = job.buildUrl(server, "", null);
 
-		assertEquals("/job/" + jobName + "/build?token=" + token, buildUrl);
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build?token=" + token, actual);
 	}
 
 	@Test
 	public void testBuildUrlParameterized() {
 		String jobName = "jobname";
 		String params = "param1=value1";
+		Server server = new Server("url", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).createJob();
-		String buildUrl = job.buildUrl(false, params, null);
+		String actual = job.buildUrl(server, params, null);
 
-		assertEquals("/job/" + jobName + "/buildWithParameters?" + params, buildUrl);
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?"
+				+ params, actual);
 	}
 
 	@Test
@@ -177,49 +181,56 @@ public class JobTest {
 		String jobName = "jobname";
 		String token = "token";
 		String params = "param1=value1";
+		Server server = new Server("url", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
-		String buildUrl = job.buildUrl(false, params, null);
+		String actual = job.buildUrl(server, params, null);
 
-		assertEquals("/job/" + jobName + "/buildWithParameters?" + params + "&token="
-				+ token, buildUrl);
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?" + params
+				+ "&token=" + token, actual);
 	}
 
 	@Test
 	public void testBuildUrlWithLegacyTokenEmpty() {
 		String jobName = "jobname";
+		Server server = new Server("url", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).token("").createJob();
-		String buildUrl = job.buildUrl(false, "", null);
+		String actual = job.buildUrl(server, "", null);
 
-		assertEquals("/job/" + jobName + "/build", buildUrl);
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
 
 	@Test
 	public void testBuildUrlWithUserTokenAndLegacyToken() {
 		String jobName = "jobname";
+		Server server = new Server("url", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).token("token").createJob();
-		String buildUrl = job.buildUrl(false, "", "usertoken");
+		String actual = job.buildUrl(server, "", "usertoken");
 
-		assertEquals("/job/" + jobName + "/build", buildUrl);
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
 
 	@Test
 	public void testBuildUrlWithAltUrlAndLegacyToken() {
 		String jobName = "jobname";
 		String token = "token";
+		Server server = new Server("url", "", "", true);
 		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
-		String buildUrl = job.buildUrl(true, "", null);
+		String actual = job.buildUrl(server, "", null);
 
-		assertEquals("/buildByToken/build?job=" + jobName + "&token=" + token, buildUrl);
+		assertEquals(server.getBaseUrl() + "/buildByToken/build?job=" + jobName + "&token="
+				+ token, actual);
 	}
 
 	@Test
 	public void testBuildUrlWithAltUrlAndParameters() {
 		String jobName = "jobname";
 		String params = "param1=value1";
+		Server server = new Server("url", "", "", true);
 		Job job = new Job.JobBuilder(0).jobName(jobName).createJob();
-		String buildUrl = job.buildUrl(true, params, null);
+		String actual = job.buildUrl(server, params, null);
 
-		assertEquals("/buildByToken/buildWithParameters?job=" + jobName + "&" + params, buildUrl);
+		assertEquals(server.getBaseUrl() + "/buildByToken/buildWithParameters?job=" + jobName + "&"
+				+ params, actual);
 	}
 
 	@Test
@@ -227,30 +238,34 @@ public class JobTest {
 		String jobName = "jobname";
 		String token = "token";
 		String params = "param1=value1";
+		Server server = new Server("url", "", "", true);
 		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
-		String buildUrl = job.buildUrl(true, params, null);
+		String actual = job.buildUrl(server, params, null);
 
-		assertEquals("/buildByToken/buildWithParameters?job=" + jobName + "&" + params + "&token="
-				+ token, buildUrl);
+		assertEquals(server.getBaseUrl() + "/buildByToken/buildWithParameters?job=" + jobName + "&"
+				+ params + "&token=" + token, actual);
 	}
 
 	@Test
 	public void testBuildUrlWithAltUrlAndParametersAndUserToken() {
 		String jobName = "jobname";
 		String params = "param1=value1";
+		Server server = new Server("url", "", "", true);
 		Job job = new Job.JobBuilder(0).jobName(jobName).createJob();
-		String buildUrl = job.buildUrl(true, params, "usertoken");
+		String actual = job.buildUrl(server, params, "usertoken");
 
-		assertEquals("/job/" + jobName + "/buildWithParameters?" + params, buildUrl);
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?"
+				+ params, actual);
 	}
 
 	@Test
 	public void testBuildUrlWithAltUrlAndLegacyTokenAndUserToken() {
 		String jobName = "jobname";
 		String token = "token";
+		Server server = new Server("url", "", "", true);
 		Job job = new Job.JobBuilder(0).jobName(jobName).token(token).createJob();
-		String buildUrl = job.buildUrl(true, "", "usertoken");
+		String actual = job.buildUrl(server, "", "usertoken");
 
-		assertEquals("/job/" + jobName + "/build", buildUrl);
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
 }

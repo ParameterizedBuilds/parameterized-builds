@@ -11,6 +11,36 @@
     <meta name="activeTab" content="jenkins-admin-tab">
     <title>Jenkins Settings</title>
 </head>
+{call .body}
+    {param server: $server /}
+    {param errors: $errors /}
+{/call}
+{/template}
+
+/**
+ * @param server
+ * @param projectKey
+ * @param errors
+ */
+{template .settingsProjectAdmin}
+<html>
+<head>
+    <meta name="decorator" content="bitbucket.project.settings">
+	<meta name="projectKey" content="{$projectKey}">
+    <meta name="activeTab" content="jenkins-admin-project-tab">
+    <title>Jenkins Settings</title>
+</head>
+{call .body}
+    {param server: $server /}
+    {param errors: $errors /}
+{/call}
+{/template}
+
+/**
+ * @param server
+ * @param errors
+ */
+{template .body}
 <body>
 	<h2 class="page-panel-content-header">Jenkins Settings</h2>
 	<form class="aui prevent-double-submit  pull-request-settings" action="" method="post" accept-charset="UTF-8">

@@ -37,15 +37,16 @@ public class ParameterizedBuildHookTest {
 	private Jenkins jenkins;
 	private Repository repository;
 	private SettingsValidationErrors validationErrors;
+	private Project project;
 
 	@Before
 	public void setup() {
 		settingsService = mock(SettingsService.class);
 		CommitService commitService = mock(CommitService.class);
 		jenkins = mock(Jenkins.class);
-		AuthenticationContext authenticationContext = mock(AuthenticationContext.class);
+		AuthenticationContext authContext = mock(AuthenticationContext.class);
 		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,
-				authenticationContext);
+				authContext);
 
 		context = mock(RepositoryHookContext.class);
 		settings = mock(Settings.class);
@@ -53,7 +54,7 @@ public class ParameterizedBuildHookTest {
 		minimalRef = mock(MinimalRef.class);
 		repository = mock(Repository.class);
 		validationErrors = mock(SettingsValidationErrors.class);
-		Project project = mock(Project.class);
+		project = mock(Project.class);
 
 		when(context.getRepository()).thenReturn(repository);
 		when(refChange.getRef()).thenReturn(minimalRef);
@@ -63,7 +64,8 @@ public class ParameterizedBuildHookTest {
 		when(repository.getProject()).thenReturn(project);
 		when(project.getKey()).thenReturn("project_key");
 		Server server = new Server("baseurl", null, null, false);
-		when(jenkins.getSettings()).thenReturn(server);
+		when(jenkins.getJenkinsServer()).thenReturn(server);
+		when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
 		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
 	}
 
@@ -78,7 +80,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "", null);
+
+		verify(jenkins, times(0)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -92,7 +95,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "", null);
+
+		verify(jenkins, times(1)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -106,7 +110,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "", null);
+
+		verify(jenkins, times(1)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -121,7 +126,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "", null);
+
+		verify(jenkins, times(1)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -136,7 +142,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "", null);
+
+		verify(jenkins, times(0)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -151,7 +158,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "", null);
+
+		verify(jenkins, times(1)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -166,7 +174,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "", null);
+
+		verify(jenkins, times(1)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -181,7 +190,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "", null);
+
+		verify(jenkins, times(0)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -196,7 +206,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "", null);
+
+		verify(jenkins, times(1)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -211,7 +222,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "", null);
+
+		verify(jenkins, times(0)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -226,7 +238,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "", null);
+
+		verify(jenkins, times(1)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -242,7 +255,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "", null);
+
+		verify(jenkins, times(0)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -258,7 +272,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(1)).triggerJob(job, "", null);
+
+		verify(jenkins, times(1)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -273,7 +288,8 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "", null);
+
+		verify(jenkins, times(0)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
@@ -289,24 +305,66 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.postReceive(context, refChanges);
-		verify(jenkins, times(0)).triggerJob(job, "", null);
+
+		verify(jenkins, times(0)).triggerJob(job, "", null, project.getKey());
 	}
 
 	@Test
 	public void testShowErrorIfJenkinsSettingsNull() {
-		when(jenkins.getSettings()).thenReturn(null);
+		when(jenkins.getJenkinsServer()).thenReturn(null);
+		when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
 		buildHook.validate(settings, validationErrors, repository);
 		verify(validationErrors, times(1))
-				.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
+				.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
 	}
 
 	@Test
 	public void testShowErrorIfBaseUrlEmpty() {
 		Server server = new Server("", null, null, false);
-		when(jenkins.getSettings()).thenReturn(server);
+		when(jenkins.getJenkinsServer()).thenReturn(server);
+		when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
 		buildHook.validate(settings, validationErrors, repository);
 		verify(validationErrors, times(1))
-				.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket");
+				.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
+	}
+
+	@Test
+	public void testShowErrorIfJenkinsSettingsUrlEmpty() {
+		Server server = new Server("", null, null, false);
+		when(jenkins.getJenkinsServer()).thenReturn(server);
+		when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(1))
+				.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
+	}
+
+	@Test
+	public void testShowErrorIfProjectSettingsUrlEmpty() {
+		when(jenkins.getJenkinsServer()).thenReturn(null);
+		Server server = new Server("", null, null, false);
+		when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(1))
+				.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
+	}
+
+	@Test
+	public void testNoErrorIfOnlyJenkinsSettingsNull() {
+		when(jenkins.getJenkinsServer()).thenReturn(null);
+		Server server = new Server("baseurl", null, null, false);
+		when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
+		buildHook.validate(settings, validationErrors, repository);
+		verify(validationErrors, times(0)).addFieldError(any(), any());
+	}
+
+	@Test
+	public void testNoErrorIfOnlyProjectSettingsNull() {
+		Server server = new Server("baseurl", null, null, false);
+		when(jenkins.getJenkinsServer()).thenReturn(server);
+		when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
+		buildHook.validate(settings, validationErrors, repository);
+		
+		verify(validationErrors, times(0)).addFieldError(any(), any());
 	}
 
 	@Test
@@ -317,6 +375,7 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.validate(settings, validationErrors, repository);
+		
 		verify(validationErrors, times(1))
 				.addFieldError(SettingsService.JOB_PREFIX + "0", "Field is required");
 	}
@@ -329,6 +388,7 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.validate(settings, validationErrors, repository);
+
 		verify(validationErrors, times(1)).addFieldError(SettingsService.TRIGGER_PREFIX
 				+ "0", "You must choose at least one trigger");
 	}
@@ -341,6 +401,7 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.validate(settings, validationErrors, repository);
+
 		verify(validationErrors, times(1))
 				.addFieldError(SettingsService.BRANCH_PREFIX + "0", "Unclosed group");
 	}
@@ -353,6 +414,7 @@ public class ParameterizedBuildHookTest {
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		buildHook.validate(settings, validationErrors, repository);
+
 		verify(validationErrors, times(1))
 				.addFieldError(SettingsService.PATH_PREFIX + "0", "Unclosed group");
 	}

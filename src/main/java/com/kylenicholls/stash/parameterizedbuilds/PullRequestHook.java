@@ -92,10 +92,9 @@ public class PullRequestHook {
 			List<Trigger> triggers = job.getTriggers();
 			final String pathRegex = job.getPathRegex();
 			ApplicationUser user = pullRequest.getAuthor().getUser();
-			final String token = jenkins.getUserToken(user);
 			if (triggers.contains(trigger)) {
 				if (pathRegex.trim().isEmpty()) {
-					jenkins.triggerJob(job, queryParams, token);
+					jenkins.triggerJob(job, queryParams, user, repository.getProject().getKey());
 				} else {
 					pullRequestService
 							.streamChanges(new PullRequestChangesRequest.Builder(pullRequest)
@@ -103,7 +102,8 @@ public class PullRequestHook {
 										public boolean onChange(Change change) throws IOException {
 											String changedFile = change.getPath().toString();
 											if (changedFile.matches(pathRegex)) {
-												jenkins.triggerJob(job, queryParams, token);
+												jenkins.triggerJob(job, queryParams, user, repository
+														.getProject().getKey());
 												return false;
 											}
 											return true;

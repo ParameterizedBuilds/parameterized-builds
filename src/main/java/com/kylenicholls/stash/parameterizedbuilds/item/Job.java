@@ -163,7 +163,7 @@ public class Job {
 		return queryParams;
 	}
 	
-	public String buildUrl(boolean useAltUrl, String queryParams, String userToken) {
+	public String buildUrl(Server jenkinsServer, String queryParams, String userToken) {
 		String buildUrl = "";
 		
 		if (userToken == null && this.token != null && !this.token.isEmpty()) {
@@ -177,13 +177,13 @@ public class Job {
 		if (queryParams.trim().isEmpty()) {
 			buildUrl = JOB + this.jobName + "/build";
 		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2) {
-			if (useAltUrl) {
+			if (jenkinsServer.getAltUrl()) {
 				buildUrl = "/buildByToken/build?job=" + this.jobName + "&" + queryParams;
 			} else {
 				buildUrl = JOB + this.jobName + "/build?" + queryParams;
 			}
 		} else {
-			if (useAltUrl && (userToken == null)) {
+			if (jenkinsServer.getAltUrl() && (userToken == null)) {
 				buildUrl = "/buildByToken/buildWithParameters?job=" + this.jobName + "&"
 						+ queryParams;
 			} else {
@@ -191,7 +191,7 @@ public class Job {
 			}
 		}
 		
-		return buildUrl;
+		return jenkinsServer.getBaseUrl() + buildUrl;
 	}
 
 	public enum Trigger {
