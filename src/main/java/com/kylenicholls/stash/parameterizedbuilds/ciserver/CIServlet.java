@@ -22,6 +22,12 @@ public class CIServlet extends HttpServlet {
 	public static final String URL_PREFIX = "jenkinsUrl-";
 	public static final String USER_PREFIX = "jenkinsUser-";
 	public static final String TOKEN_PREFIX = "jenkinsToken-";
+	private static final String JENKINS_USER_SETTINGS = "jenkins.user.settings";
+	private static final String ERRORS = "errors";
+	private static final String BASE_URL = "baseUrl";
+	private static final String TOKEN = "token";
+	private static final String JENKINS_ADMIN_SETTINGS = "jenkins.admin.settings";
+	private static final String SERVER = "server";
 	private final SoyTemplateRenderer soyTemplateRenderer;
 	private final AuthenticationContext authenticationContext;
 	private final NavBuilder navBuilder;
@@ -46,24 +52,24 @@ public class CIServlet extends HttpServlet {
 				ApplicationUser appUser = authenticationContext.getCurrentUser();
 				String jenkinsToken = jenkins.getUserSettings(appUser);
 				if (baseUrl == null) {
-					render(resp, "jenkins.user.settings", ImmutableMap
-							.<String, Object> of("user", appUser, "token", "", "baseUrl", "", "errors", "A Bitbucket administrator must configure the base settings for Jenkins first. These settings can be found on the admin page of Bitbucket."));
+					render(resp, JENKINS_USER_SETTINGS, ImmutableMap
+							.<String, Object> of("user", appUser, TOKEN, "", BASE_URL, "", ERRORS, "A Bitbucket administrator must configure the base settings for Jenkins first. These settings can be found on the admin page of Bitbucket."));
 					return;
 				}
 				if (jenkinsToken == null) {
-					render(resp, "jenkins.user.settings", ImmutableMap
-							.<String, Object> of("user", appUser, "token", "", "baseUrl", baseUrl, "errors", ""));
+					render(resp, JENKINS_USER_SETTINGS, ImmutableMap
+							.<String, Object> of("user", appUser, TOKEN, "", BASE_URL, baseUrl, ERRORS, ""));
 				} else {
-					render(resp, "jenkins.user.settings", ImmutableMap
-							.<String, Object> of("user", appUser, "token", jenkinsToken, "baseUrl", baseUrl, "errors", ""));
+					render(resp, JENKINS_USER_SETTINGS, ImmutableMap
+							.<String, Object> of("user", appUser, TOKEN, jenkinsToken, BASE_URL, baseUrl, ERRORS, ""));
 				}
 			} else {
 				if (server == null) {
-					render(resp, "jenkins.admin.settings", ImmutableMap
-							.<String, Object> of("server", "", "errors", ""));
+					render(resp, JENKINS_ADMIN_SETTINGS, ImmutableMap
+							.<String, Object> of(SERVER, "", ERRORS, ""));
 				} else {
-					render(resp, "jenkins.admin.settings", ImmutableMap
-							.<String, Object> of("server", server, "errors", ""));
+					render(resp, JENKINS_ADMIN_SETTINGS, ImmutableMap
+							.<String, Object> of(SERVER, server, ERRORS, ""));
 				}
 			}
 
@@ -105,9 +111,9 @@ public class CIServlet extends HttpServlet {
 			if (clear != null && clear.equals("on")) {
 				jenkins.setSettings("", "", "", false);
 			} else if (jenkinsUrl.isEmpty()) {
-				render(res, "jenkins.admin.settings", ImmutableMap
-						.<String, Object> of("server", new Server(jenkinsUrl, jenkinsUser,
-								jenkinsToken, jenkinsAltUrl), "errors", "Base URL required"));
+				render(res, JENKINS_ADMIN_SETTINGS, ImmutableMap
+						.<String, Object> of(SERVER, new Server(jenkinsUrl, jenkinsUser,
+								jenkinsToken, jenkinsAltUrl), ERRORS, "Base URL required"));
 				return;
 			} else {
 				jenkins.setSettings(jenkinsUrl, jenkinsUser, jenkinsToken, jenkinsAltUrl);

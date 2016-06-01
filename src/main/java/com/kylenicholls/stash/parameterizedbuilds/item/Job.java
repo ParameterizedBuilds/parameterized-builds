@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class Job {
+	private static final String JOB = "/job/";
 	private int jobId;
 	private String jobName;
 	private boolean isTag;
@@ -174,19 +175,19 @@ public class Job {
 		}
 		
 		if (queryParams.trim().isEmpty()) {
-			buildUrl = "/job/" + this.jobName + "/build";
+			buildUrl = JOB + this.jobName + "/build";
 		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2) {
 			if (useAltUrl) {
 				buildUrl = "/buildByToken/build?job=" + this.jobName + "&" + queryParams;
 			} else {
-				buildUrl = "/job/" + this.jobName + "/build?" + queryParams;
+				buildUrl = JOB + this.jobName + "/build?" + queryParams;
 			}
 		} else {
 			if (useAltUrl && (userToken == null)) {
 				buildUrl = "/buildByToken/buildWithParameters?job=" + this.jobName + "&"
 						+ queryParams;
 			} else {
-				buildUrl = "/job/" + this.jobName + "/buildWithParameters?" + queryParams;
+				buildUrl = JOB + this.jobName + "/buildWithParameters?" + queryParams;
 			}
 		}
 		
