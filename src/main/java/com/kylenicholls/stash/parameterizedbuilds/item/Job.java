@@ -164,7 +164,7 @@ public class Job {
 	}
 	
 	public String buildUrl(Server jenkinsServer, String queryParams, String userToken) {
-		String buildUrl = "";
+		String buildUrl;
 		
 		if (userToken == null && this.token != null && !this.token.isEmpty()) {
 			if (queryParams.trim().isEmpty()) {

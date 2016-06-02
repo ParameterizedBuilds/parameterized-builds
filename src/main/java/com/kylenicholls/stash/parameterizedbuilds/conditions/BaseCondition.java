@@ -16,7 +16,7 @@ public abstract class BaseCondition implements Condition {
     }
 
     @Override
-    public void init(Map<String, String> params) throws PluginParseException {
+    public void init(Map<String, String> params) {
         // Nothing to do here
     }
 

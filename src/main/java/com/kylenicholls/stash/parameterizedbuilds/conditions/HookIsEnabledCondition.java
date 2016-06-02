@@ -14,7 +14,7 @@ public class HookIsEnabledCondition extends BaseCondition {
 	}
 
 	@Override
-	public void init(Map<String, String> context) throws PluginParseException {
+	public void init(Map<String, String> context) {
 		// Nothing to do here
 	}
 

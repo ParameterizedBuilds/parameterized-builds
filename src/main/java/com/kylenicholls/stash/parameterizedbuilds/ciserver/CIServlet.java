@@ -37,7 +37,7 @@ public class CIServlet extends HttpServlet {
 	private final transient AuthenticationContext authContext;
 	private final transient NavBuilder navBuilder;
 	private final transient Jenkins jenkins;
-	private final ProjectService projectService;
+	private final transient ProjectService projectService;
 
 	public CIServlet(SoyTemplateRenderer soyTemplateRenderer, AuthenticationContext authContext,
 			NavBuilder navBuilder, Jenkins jenkins, ProjectService projectService) {
