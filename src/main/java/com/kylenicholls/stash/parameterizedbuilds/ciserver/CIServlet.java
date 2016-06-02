@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.nav.NavBuilder;
 import com.atlassian.bitbucket.project.ProjectService;
@@ -19,8 +22,6 @@ import com.atlassian.soy.renderer.SoyTemplateRenderer;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 public class CIServlet extends HttpServlet {
@@ -65,13 +66,12 @@ public class CIServlet extends HttpServlet {
 				res.sendRedirect(navBuilder.login().next(req.getServletPath() + pathInfo)
 						.buildAbsolute());
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error("Exception in CIServlet.doGet: " + e.getMessage(), e);
 		}
 	}
 
-	private void renderForAccount(HttpServletResponse resp)
-			throws IOException, ServletException {
+	private void renderForAccount(HttpServletResponse resp) throws IOException, ServletException {
 		ApplicationUser user = authContext.getCurrentUser();
 		List<UserToken> projectTokens = jenkins
 				.getAllUserTokens(user, projectService.findAllKeys(), projectService);
@@ -88,8 +88,7 @@ public class CIServlet extends HttpServlet {
 						: "", PROJECT_KEY, projectKey, ERRORS, ""));
 	}
 
-	private void renderForGlobal(HttpServletResponse resp)
-			throws IOException, ServletException {
+	private void renderForGlobal(HttpServletResponse resp) throws IOException, ServletException {
 		Server server = jenkins.getJenkinsServer();
 		render(resp, JENKINS_ADMIN_SETTINGS, ImmutableMap
 				.<String, Object> of(SERVER, server != null ? server : "", ERRORS, ""));
@@ -108,13 +107,14 @@ public class CIServlet extends HttpServlet {
 				boolean clearSettings = req.getParameter("clear-settings") != null
 						&& req.getParameter("clear-settings").equals("on") ? true : false;
 				if (pathInfo.contains("/jenkins/project/")) {
-					String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "").split("/")[0];
+					String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "")
+							.split("/")[0];
 					postProjectSettings(server, clearSettings, projectKey, req, res);
 				} else {
 					postGlobalSettings(server, clearSettings, req, res);
 				}
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error("Exception in CIServlet.doPost: " + e.getMessage(), e);
 		}
 	}

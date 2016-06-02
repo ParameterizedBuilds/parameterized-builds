@@ -7,7 +7,8 @@ public class UserToken {
 	private String userSlug;
 	private String token;
 
-	public UserToken(String baseUrl, String projectKey, String projectName, String userSlug, String token) {
+	public UserToken(String baseUrl, String projectKey, String projectName, String userSlug,
+			String token) {
 		this.baseUrl = baseUrl;
 		this.projectKey = projectKey;
 		this.projectName = projectName;

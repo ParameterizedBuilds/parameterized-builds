@@ -32,7 +32,7 @@ public class ManualButtonConditionTest {
 		repository = mock(Repository.class);
 		settings = mock(Settings.class);
 
-		context = new HashMap<String, Object>();
+		context = new HashMap<>();
 		context.put("repository", repository);
 
 		condition = new ManualButtonCondition(settingsService);
@@ -54,8 +54,8 @@ public class ManualButtonConditionTest {
 	public void testShouldDisplayWhenManualTrigger() {
 		when(settingsService.getSettings(repository)).thenReturn(settings);
 		Job job = new Job.JobBuilder(1).jobName("").triggers("manual".split(";"))
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+				.buildParameters("").branchRegex("").pathRegex("").build();
+		List<Job> jobs = new ArrayList<>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		assertTrue(condition.shouldDisplay(context));
@@ -65,8 +65,8 @@ public class ManualButtonConditionTest {
 	public void testShouldNotDisplayWhenNotManualTrigger() {
 		when(settingsService.getSettings(repository)).thenReturn(settings);
 		Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("")
-				.branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+				.branchRegex("").pathRegex("").build();
+		List<Job> jobs = new ArrayList<>();
 		jobs.add(job);
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 		assertFalse(condition.shouldDisplay(context));

@@ -1,6 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -29,10 +30,20 @@ import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
+import com.kylenicholls.stash.parameterizedbuilds.item.Job.JobBuilder;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
 public class PullRequestHookTest {
+	private final String PROJECT_KEY = "projectkey";
+	private final String SOURCE_BRANCH = "sourcebranch";
+	private final String DEST_BRANCH = "destbranch";
+	private final String COMMIT = "commithash";
+	private final String REPO_SLUG = "reposlug";
+	private final String PROJECT_NAME = "projectname";
+	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
+	private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken",
+			false);
 	private SettingsService settingsService;
-	private PullRequestService pullRequestService;
 	private Jenkins jenkins;
 	private PullRequestHook hook;
 	private PullRequestOpenedEvent openedEvent;
@@ -42,15 +53,24 @@ public class PullRequestHookTest {
 	private PullRequestDeclinedEvent declinedEvent;
 	private Repository repository;
 	private ApplicationUser user;
+	private JobBuilder jobBuilder;
+	private List<Job> jobs;
 
 	@Before
 	public void setup() {
 		settingsService = mock(SettingsService.class);
-		pullRequestService = mock(PullRequestService.class);
+		PullRequestService pullRequestService = mock(PullRequestService.class);
 		jenkins = mock(Jenkins.class);
 		hook = new PullRequestHook(settingsService, pullRequestService, jenkins);
 
 		PullRequest pullRequest = mock(PullRequest.class);
+		Project project = mock(Project.class);
+		Settings settings = mock(Settings.class);
+		PullRequestRef prFromRef = mock(PullRequestRef.class);
+		PullRequestRef prToRef = mock(PullRequestRef.class);
+		PullRequestParticipant author = mock(PullRequestParticipant.class);
+		user = mock(ApplicationUser.class);
+		repository = mock(Repository.class);
 		openedEvent = mock(PullRequestOpenedEvent.class);
 		reopenedEvent = mock(PullRequestReopenedEvent.class);
 		rescopedEvent = mock(PullRequestRescopedEvent.class);
@@ -62,119 +82,190 @@ public class PullRequestHookTest {
 		when(rescopedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(mergedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(declinedEvent.getPullRequest()).thenReturn(pullRequest);
-
-		repository = mock(Repository.class);
-		Project project = mock(Project.class);
-		when(repository.getSlug()).thenReturn("slug");
+		when(repository.getSlug()).thenReturn(REPO_SLUG);
 		when(repository.getProject()).thenReturn(project);
-		when(project.getName()).thenReturn("projectname");
-		Settings settings = mock(Settings.class);
-		PullRequestRef prFromRef = mock(PullRequestRef.class);
-		PullRequestRef prToRef = mock(PullRequestRef.class);
-		PullRequestParticipant author = mock(PullRequestParticipant.class);
-		user = mock(ApplicationUser.class);
+		when(project.getName()).thenReturn(PROJECT_NAME);
+		when(project.getKey()).thenReturn(PROJECT_KEY);
 		when(pullRequest.getFromRef()).thenReturn(prFromRef);
 		when(pullRequest.getToRef()).thenReturn(prToRef);
 		when(pullRequest.getAuthor()).thenReturn(author);
 		when(author.getUser()).thenReturn(user);
 		when(prFromRef.getRepository()).thenReturn(repository);
-		when(prFromRef.getDisplayId()).thenReturn("sourcebranch");
-		when(prFromRef.getLatestCommit()).thenReturn("commithash");
-		when(prToRef.getDisplayId()).thenReturn("destbranch");
+		when(prFromRef.getDisplayId()).thenReturn(SOURCE_BRANCH);
+		when(prFromRef.getLatestCommit()).thenReturn(COMMIT);
+		when(prToRef.getDisplayId()).thenReturn(DEST_BRANCH);
 		when(settingsService.getSettings(repository)).thenReturn(settings);
+		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
+
+		jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
+				.pathRegex("");
+		jobs = new ArrayList<>();
+		when(settingsService.getJobs(any())).thenReturn(jobs);
 	}
 
 	@Test
 	public void testPROpenedAndTriggerIsPULLREQUEST() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestOpened(openedEvent);
-		
-		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
 	}
 
 	@Test
 	public void testPRReOpenedAndTriggerIsPULLREQUEST() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestReOpened(reopenedEvent);
-		
-		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
+
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
 	}
 
 	@Test
 	public void testPRSourceRescopedAndTriggerIsPULLREQUEST() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
 		when(rescopedEvent.getPreviousFromHash()).thenReturn("newhash");
 		hook.onPullRequestRescoped(rescopedEvent);
-		
-		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
+
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
 	}
 
 	@Test
 	public void testPRDestRescopedAndTriggerIsPULLREQUEST() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PULLREQUEST" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
-		when(rescopedEvent.getPreviousFromHash()).thenReturn("commithash");
+		when(rescopedEvent.getPreviousFromHash()).thenReturn(COMMIT);
 		hook.onPullRequestRescoped(rescopedEvent);
-		
-		verify(jenkins, times(0)).triggerJob(job, "", user, repository.getProject().getKey());
+
+		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
 
 	@Test
 	public void testPRMergedAndTriggerIsPRMERGED() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRMERGED" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = jobBuilder.triggers(new String[] { "PRMERGED" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestMerged(mergedEvent);
-		
-		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
+
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
 	}
 
 	@Test
 	public void testPRDeclinedAndTriggerIsPRDECLINED() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRDECLINED" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestDeclined(declinedEvent);
-		
-		verify(jenkins, times(1)).triggerJob(job, "", user, repository.getProject().getKey());
+
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
 	}
 
 	@Test
 	public void testPROpenedAndNoSettings() throws IOException {
 		when(settingsService.getSettings(repository)).thenReturn(null);
 		hook.onPullRequestOpened(openedEvent);
-		
-		verify(jenkins, times(0)).triggerJob(any(), any(), any(), any());
+
+		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
 
 	@Test
 	public void testPROpenedAndTriggerIsPRDECLINED() throws IOException {
-		Job job = new Job.JobBuilder(1).jobName("").triggers(new String[] { "PRDECLINED" })
-				.buildParameters("").branchRegex("").pathRegex("").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
 		hook.onPullRequestOpened(openedEvent);
-		
-		verify(jenkins, times(0)).triggerJob(job, "", user, repository.getProject().getKey());
+
+		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
+	}
+
+	@Test
+	public void testUseProjectServerAndUserToken() throws IOException {
+		String userToken = "user:token";
+		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
+		when(jenkins.getJoinedUserToken(user, PROJECT_KEY)).thenReturn(userToken);
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1)).triggerJob("projecturl/job/build", userToken, false);
+	}
+
+	@Test
+	public void testUseGlobalJenkinsAndUserToken() throws IOException {
+		String userToken = "user:token";
+		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(null);
+		when(jenkins.getJoinedUserToken(user)).thenReturn(userToken);
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1)).triggerJob("globalurl/job/build", userToken, false);
+	}
+
+	@Test
+	public void testNoDefaultUserSet() throws IOException {
+		when(jenkins.getJenkinsServer()).thenReturn(new Server("buildurl", "", "", false));
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1)).triggerJob("buildurl/job/build", null, true);
+	}
+
+	@Test
+	public void testSourceBranchVariable() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" })
+				.buildParameters("param=$BRANCH").build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1)).triggerJob("globalurl/job/buildWithParameters?param="
+				+ SOURCE_BRANCH, globalServer.getJoinedToken(), true);
+	}
+
+	@Test
+	public void testCommitVariable() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" })
+				.buildParameters("param=$COMMIT").build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1)).triggerJob("globalurl/job/buildWithParameters?param="
+				+ COMMIT, globalServer.getJoinedToken(), true);
+	}
+
+	@Test
+	public void testDestBranchVariable() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" })
+				.buildParameters("param=$PRDESTINATION").build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1)).triggerJob("globalurl/job/buildWithParameters?param="
+				+ DEST_BRANCH, globalServer.getJoinedToken(), true);
+	}
+
+	@Test
+	public void testRepoNameVariable() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" })
+				.buildParameters("param=$REPOSITORY").build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1)).triggerJob("globalurl/job/buildWithParameters?param="
+				+ REPO_SLUG, globalServer.getJoinedToken(), true);
+	}
+
+	@Test
+	public void testProjectNameVariable() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" })
+				.buildParameters("param=$PROJECT").build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1)).triggerJob("globalurl/job/buildWithParameters?param="
+				+ PROJECT_NAME, globalServer.getJoinedToken(), true);
 	}
 }

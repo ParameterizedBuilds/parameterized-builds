@@ -21,14 +21,12 @@ import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
-import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 
 public class JenkinsTest {
 	private static final String PLUGIN_KEY = "com.kylenicholls.stash.parameterized-builds";
 	private static final String USER_SLUG = "slug";
-	private static final String JOB_NAME = "jobname";
 	private static final String PROJECT_KEY = "projkey";
 	private Jenkins jenkins;
 	private PluginSettings pluginSettings;
@@ -263,30 +261,60 @@ public class JenkinsTest {
 	}
 
 	@Test
-	public void testTriggerJobAnonymousAndNoDefaultUser() {
-		when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(null);
-		when(pluginSettings.get(".jenkinsSettings")).thenReturn(null);
-		Job job = new Job.JobBuilder(1).jobName(JOB_NAME).createJob();
-		JenkinsResponse actual = jenkins.triggerJob(job, "", null, PROJECT_KEY);
+	public void testTriggerJobNoBuildUrl() {
+		JenkinsResponse actual = jenkins.triggerJob(null, null, false);
 
-		JenkinsResponse expected = new JenkinsResponse.JenkinsMessage().error(true)
-				.messageText("Jenkins settings are not setup").build();
-		assertEquals(expected.getError(), actual.getError());
-		assertEquals(expected.getPrompt(), actual.getPrompt());
-		assertEquals(expected.getMessageText(), actual.getMessageText());
+		assertEquals(true, actual.getError());
+		assertEquals(false, actual.getPrompt());
+		assertEquals("Jenkins settings are not setup", actual.getMessageText());
 	}
 
 	@Test
-	public void testTriggerJobNoDefaultUser() {
-		when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(null);
-		when(pluginSettings.get(".jenkinsSettings")).thenReturn(null);
-		Job job = new Job.JobBuilder(1).jobName(JOB_NAME).createJob();
-		JenkinsResponse actual = jenkins.triggerJob(job, "", user, PROJECT_KEY);
+	public void testGetJoinedGlobalToken() {
+		String token = "token";
+		when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn("token");
+		String actual = jenkins.getJoinedUserToken(user);
 
-		JenkinsResponse expected = new JenkinsResponse.JenkinsMessage().error(true)
-				.messageText("Jenkins settings are not setup").build();
-		assertEquals(expected.getError(), actual.getError());
-		assertEquals(expected.getPrompt(), actual.getPrompt());
-		assertEquals(expected.getMessageText(), actual.getMessageText());
+		assertEquals(USER_SLUG + ":" + token, actual);
+	}
+
+	@Test
+	public void testGetJoinedGlobalTokenNullToken() {
+		when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
+		String actual = jenkins.getJoinedUserToken(user);
+
+		assertEquals(null, actual);
+	}
+
+	@Test
+	public void testGetJoinedGlobalTokenNullUser() {
+		String actual = jenkins.getJoinedUserToken(null);
+
+		assertEquals(null, actual);
+	}
+
+	@Test
+	public void testGetJoinedProjectToken() {
+		String token = "token";
+		when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
+				.thenReturn("token");
+		String actual = jenkins.getJoinedUserToken(user, PROJECT_KEY);
+
+		assertEquals(USER_SLUG + ":" + token, actual);
+	}
+
+	@Test
+	public void testGetJoinedProjectTokenNullToken() {
+		when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY)).thenReturn(null);
+		String actual = jenkins.getJoinedUserToken(user, PROJECT_KEY);
+
+		assertEquals(null, actual);
+	}
+
+	@Test
+	public void testGetJoinedProjectTokenNullUser() {
+		String actual = jenkins.getJoinedUserToken(null, PROJECT_KEY);
+
+		assertEquals(null, actual);
 	}
 }

@@ -1,33 +1,35 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class Job {
-	private static final String JOB = "/job/";
-	private int jobId;
-	private String jobName;
-	private boolean isTag;
-	private List<Trigger> triggers;
-	private String token;
-	private Map<String, String> buildParameters;
-	private String branchRegex;
-	private String pathRegex;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriBuilder;
 
-	public Job(int jobId, String jobName, boolean isTag, List<Trigger> triggers, String token,
-			Map<String, String> buildParameters, String branchRegex, String pathRegex) {
-		this.jobId = jobId;
-		this.jobName = jobName;
-		this.isTag = isTag;
-		this.triggers = triggers;
-		this.token = token;
-		this.buildParameters = buildParameters;
-		this.branchRegex = branchRegex;
-		this.pathRegex = pathRegex;
+public class Job {
+	private final int jobId;
+	private final String jobName;
+	private final boolean isTag;
+	private final List<Trigger> triggers;
+	private final String token;
+	private final List<Entry<String, Object>> buildParameters;
+	private final String branchRegex;
+	private final String pathRegex;
+
+	private Job(JobBuilder builder) {
+		this.jobId = builder.jobId;
+		this.jobName = builder.jobName;
+		this.isTag = builder.isTag;
+		this.triggers = builder.triggers;
+		this.token = builder.token;
+		this.buildParameters = builder.buildParameters;
+		this.branchRegex = builder.branchRegex;
+		this.pathRegex = builder.pathRegex;
 	}
 
 	public int getJobId() {
@@ -50,7 +52,7 @@ public class Job {
 		return token;
 	}
 
-	public Map<String, String> getBuildParameters() {
+	public List<Entry<String, Object>> getBuildParameters() {
 		return buildParameters;
 	}
 
@@ -62,32 +64,52 @@ public class Job {
 		return pathRegex;
 	}
 
-	public static class JobBuilder {
-		private int nestedJobId;
-		private String nestedJobName;
-		private boolean nestedIsTag;
-		private List<Trigger> nestedTriggers;
-		private String nestedToken;
-		private Map<String, String> nestedBuildParameters;
-		private String nestedBranchRegex;
-		private String nestedPathRegex;
+	public Map<String, Object> asMap(BitbucketVariables bitbucketVariables) {
+		Map<String, Object> map = new LinkedHashMap<>();
+		map.put("id", jobId);
+		map.put("jobName", jobName);
+		List<Map<String, Object>> parameterMap = new ArrayList<>();
+		for (Entry<String, Object> parameter : buildParameters) {
+			Object value = parameter.getValue();
+			for (Entry<String, String> variable : bitbucketVariables.getVariables()) {
+				if (parameter.getValue() instanceof String) {
+					value = value.toString().replace(variable.getKey(), variable.getValue());
+				}
+			}
+			Map<String, Object> mapped = new HashMap<>();
+			mapped.put(parameter.getKey(), value);
+			parameterMap.add(mapped);
+		}
+		map.put("buildParameters", parameterMap);
+		return map;
+	}
 
-		public JobBuilder(final int jobId) {
-			this.nestedJobId = jobId;
+	public static class JobBuilder {
+		private final int jobId;
+		private String jobName;
+		private boolean isTag;
+		private List<Trigger> triggers;
+		private String token;
+		private List<Entry<String, Object>> buildParameters;
+		private String branchRegex;
+		private String pathRegex;
+
+		public JobBuilder(int jobId) {
+			this.jobId = jobId;
 		}
 
 		public JobBuilder jobName(String jobName) {
-			this.nestedJobName = jobName;
+			this.jobName = jobName;
 			return this;
 		}
 
 		public JobBuilder isTag(boolean isTag) {
-			this.nestedIsTag = isTag;
+			this.isTag = isTag;
 			return this;
 		}
 
 		public JobBuilder triggers(String[] triggersAry) {
-			List<Trigger> triggers = new ArrayList<Trigger>();
+			List<Trigger> triggers = new ArrayList<>();
 			for (String trig : triggersAry) {
 				try {
 					triggers.add(Trigger.valueOf(trig.toUpperCase()));
@@ -95,103 +117,121 @@ public class Job {
 					triggers.add(Trigger.NULL);
 				}
 			}
-			this.nestedTriggers = triggers;
+			this.triggers = triggers;
 			return this;
 		}
 
 		public JobBuilder token(String token) {
-			this.nestedToken = token;
+			this.token = token;
 			return this;
 		}
 
 		public JobBuilder buildParameters(String parameterString) {
-			Map<String, String> parameterMap = new LinkedHashMap<String, String>();
+			List<Entry<String, Object>> parameterList = new ArrayList<>();
 			if (!parameterString.isEmpty()) {
 				String[] lines = parameterString.split("\\r?\\n");
 				for (String line : lines) {
 					String[] pair = line.split("=");
 					String key = pair[0];
-					String value = pair.length > 1 ? pair[1] : "";
-					parameterMap.put(key, value);
+					if (pair.length > 1) {
+						if (pair[1].split(";").length > 1) {
+							parameterList
+									.add(new SimpleEntry<String, Object>(key, pair[1].split(";")));
+						} else {
+							if (pair[1].matches("true|false")) {
+								parameterList.add(new SimpleEntry<String, Object>(key,
+										Boolean.parseBoolean(pair[1])));
+							} else {
+								parameterList.add(new SimpleEntry<String, Object>(key, pair[1]));
+							}
+						}
+					} else {
+						parameterList.add(new SimpleEntry<String, Object>(key, ""));
+					}
 				}
 			}
-			this.nestedBuildParameters = parameterMap;
+			this.buildParameters = parameterList;
 			return this;
 		}
 
 		public JobBuilder branchRegex(String branchRegex) {
-			this.nestedBranchRegex = branchRegex;
+			this.branchRegex = branchRegex;
 			return this;
 		}
 
 		public JobBuilder pathRegex(String pathRegex) {
-			this.nestedPathRegex = pathRegex;
+			this.pathRegex = pathRegex;
 			return this;
 		}
 
-		public Job createJob() {
-			return new Job(nestedJobId, nestedJobName, nestedIsTag, nestedTriggers, nestedToken,
-					nestedBuildParameters, nestedBranchRegex, nestedPathRegex);
+		public Job build() {
+			return new Job(this);
 		}
 	}
 
-	public String getQueryString(GetQueryStringParameters parameterObject) {
-		String queryParams = "";
-		Iterator<Entry<String, String>> it = buildParameters.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, String> pair = it.next();
-			queryParams += pair.getKey() + "=" + pair.getValue().split(";")[0]
-					+ (it.hasNext() ? "&" : "");
-			it.remove();
+	public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,
+			boolean useUserToken) {
+		if (jenkinsServer == null) {
+			return null;
 		}
 
-		if (!parameterObject.getBranch().isEmpty()) {
-			queryParams = queryParams.replace("$BRANCH", parameterObject.getBranch());
+		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, this.buildParameters
+				.size() != 0);
+
+		for (Entry<String, Object> param : this.buildParameters) {
+			String key = param.getKey();
+			String value = "";
+			if (param.getValue() instanceof String[]) {
+				value = ((String[]) param.getValue())[0];
+			} else {
+				value = param.getValue().toString();
+			}
+			builder.queryParam(key, value);
 		}
-		if (!parameterObject.getCommit().isEmpty()) {
-			queryParams = queryParams.replace("$COMMIT", parameterObject.getCommit());
+
+		String buildUrl = builder.build().toString();
+
+		for (Entry<String, String> variable : bitbucketVariables.getVariables()) {
+			buildUrl = buildUrl.replace(variable.getKey(), variable.getValue());
 		}
-		if (!parameterObject.getPrDestination().isEmpty()) {
-			queryParams = queryParams.replace("$PRDESTINATION", parameterObject.getPrDestination());
-		}
-		if (!parameterObject.getRepoName().isEmpty()) {
-			queryParams = queryParams.replace("$REPOSITORY", parameterObject.getRepoName());
-		}
-		if (!parameterObject.getProjectName().isEmpty()) {
-			queryParams = queryParams.replace("$PROJECT", parameterObject.getProjectName());
-		}
-		return queryParams;
+
+		return buildUrl;
 	}
-	
-	public String buildUrl(Server jenkinsServer, String queryParams, String userToken) {
-		String buildUrl;
-		
-		if (userToken == null && this.token != null && !this.token.isEmpty()) {
-			if (queryParams.trim().isEmpty()) {
-				queryParams = "token=" + this.token;
-			} else {
-				queryParams += "&token=" + this.token;
-			}
+
+	public String buildManualUrl(Server jenkinsServer,
+			MultivaluedMap<String, String> manualParameters, boolean useUserToken) {
+		if (jenkinsServer == null) {
+			return null;
 		}
-		
-		if (queryParams.trim().isEmpty()) {
-			buildUrl = JOB + this.jobName + "/build";
-		} else if (queryParams.contains("token=") && queryParams.split("&").length < 2) {
-			if (jenkinsServer.getAltUrl()) {
-				buildUrl = "/buildByToken/build?job=" + this.jobName + "&" + queryParams;
-			} else {
-				buildUrl = JOB + this.jobName + "/build?" + queryParams;
-			}
+
+		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, manualParameters.size() > 0);
+
+		for (Entry<String, List<String>> param : manualParameters.entrySet()) {
+			builder.queryParam(param.getKey(), param.getValue().get(0));
+		}
+
+		return builder.build().toString();
+	}
+
+	private UriBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
+			boolean hasParameters) {
+		UriBuilder builder = UriBuilder.fromUri(jenkinsServer.getBaseUrl());
+		if (useUserToken || !jenkinsServer.getAltUrl()) {
+			builder.path("job").path(this.jobName);
 		} else {
-			if (jenkinsServer.getAltUrl() && (userToken == null)) {
-				buildUrl = "/buildByToken/buildWithParameters?job=" + this.jobName + "&"
-						+ queryParams;
-			} else {
-				buildUrl = JOB + this.jobName + "/buildWithParameters?" + queryParams;
-			}
+			builder.path("buildByToken").queryParam("job", this.jobName);
 		}
-		
-		return jenkinsServer.getBaseUrl() + buildUrl;
+
+		if (hasParameters) {
+			builder.path("buildWithParameters");
+		} else {
+			builder.path("build");
+		}
+
+		if (!useUserToken && this.token != null && !this.token.isEmpty()) {
+			builder.queryParam("token", this.token);
+		}
+		return builder;
 	}
 
 	public enum Trigger {

@@ -24,8 +24,7 @@ import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
-import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters;
-import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters.Builder;
+import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
@@ -52,7 +51,6 @@ public class ParameterizedBuildHook
 	@Override
 	public void postReceive(RepositoryHookContext context, Collection<RefChange> refChanges) {
 		Repository repository = context.getRepository();
-
 		ApplicationUser user = actx.getCurrentUser();
 
 		for (RefChange refChange : refChanges) {
@@ -62,28 +60,49 @@ public class ParameterizedBuildHook
 				branch = refChange.getRef().getId().replace(REFS_TAGS, "");
 				isTag = true;
 			}
-			String commit = refChange.getToHash();
 
-			for (Job job : settingsService.getJobs(context.getSettings().asMap())) {
-				Builder builder = new GetQueryStringParameters.Builder();
-				builder.branch(branch);
-				builder.commit(commit);
-				builder.repoName(repository.getSlug());
-				builder.projectName(repository.getProject().getKey());
-				GetQueryStringParameters parameters = builder.build();
+			triggerJenkinsJobs(context, repository, user, refChange, branch, isTag);
+		}
+	}
 
-				if (job.getIsTag() == isTag) {
-					if (buildBranchCheck(repository, refChange, branch, job, parameters, user)) {
-						jenkins.triggerJob(job, job.getQueryString(parameters), user, repository
-								.getProject().getKey());
+	private void triggerJenkinsJobs(RepositoryHookContext context, Repository repository,
+			ApplicationUser user, RefChange refChange, String branch, boolean isTag) {
+		String projectKey = repository.getProject().getKey();
+		String commit = refChange.getToHash();
+		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
+				.commit(commit).repoName(repository.getSlug()).projectName(projectKey).build();
+
+		for (Job job : settingsService.getJobs(context.getSettings().asMap())) {
+			if (job.getIsTag() == isTag) {
+				Server jenkinsServer = jenkins.getJenkinsServer(projectKey);
+				String joinedUserToken = jenkins.getJoinedUserToken(user, projectKey);
+				if (jenkinsServer == null) {
+					jenkinsServer = jenkins.getJenkinsServer();
+					joinedUserToken = jenkins.getJoinedUserToken(user);
+				}
+
+				String buildUrl = job
+						.buildUrl(jenkinsServer, bitbucketVariables, joinedUserToken != null);
+
+				// use default user and token if the user that triggered the
+				// build does not have a token set
+				boolean prompt = false;
+				if (joinedUserToken == null) {
+					prompt = true;
+					if (!jenkinsServer.getUser().isEmpty()) {
+						joinedUserToken = jenkinsServer.getJoinedToken();
 					}
+				}
+
+				if (buildBranchCheck(repository, refChange, branch, job, buildUrl, joinedUserToken, prompt)) {
+					jenkins.triggerJob(buildUrl, joinedUserToken, prompt);
 				}
 			}
 		}
 	}
 
 	private boolean buildBranchCheck(final Repository repository, RefChange refChange,
-			String branch, Job job, GetQueryStringParameters parameters, ApplicationUser user) {
+			String branch, Job job, String buildUrl, String token, boolean prompt) {
 		String branchRegex = job.getBranchRegex();
 		String pathRegex = job.getPathRegex();
 		List<Trigger> triggers = job.getTriggers();
@@ -97,9 +116,7 @@ public class ParameterizedBuildHook
 					commitService.streamChanges(request, new AbstractChangeCallback() {
 						public boolean onChange(Change change) throws IOException {
 							if (change.getPath().toString().matches(pathRegex)) {
-								jenkins.triggerJob(job, job
-										.getQueryString(parameters), user, repository.getProject()
-												.getKey());
+								jenkins.triggerJob(buildUrl, token, prompt);
 								return false;
 							}
 							return true;

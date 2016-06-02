@@ -8,6 +8,12 @@ public class JenkinsResponse {
 	private boolean prompt;
 	private String messageText;
 
+	private JenkinsResponse(JenkinsMessage message) {
+		this.error = message.error;
+		this.prompt = message.prompt;
+		this.messageText = message.messageText;
+	}
+
 	public boolean getError() {
 		return error;
 	}
@@ -19,8 +25,8 @@ public class JenkinsResponse {
 	public String getMessageText() {
 		return messageText;
 	}
-	
-	public Map<String, Object> getMessage(){
+
+	public Map<String, Object> getMessage() {
 		Map<String, Object> data = new LinkedHashMap<>();
 		data.put("error", this.error);
 		data.put("prompt", this.prompt);
@@ -51,11 +57,5 @@ public class JenkinsResponse {
 		public JenkinsResponse build() {
 			return new JenkinsResponse(this);
 		}
-	}
-
-	private JenkinsResponse(JenkinsMessage message) {
-		this.error = message.error;
-		this.prompt = message.prompt;
-		this.messageText = message.messageText;
 	}
 }

@@ -26,15 +26,9 @@ public class ServerTest {
 	@Test
 	public void testCreateNewServerWithSlash() {
 		String baseUrl = "url";
-		String user = "user";
-		String token = "token";
-		boolean altUrl = false;
-		Server actual = new Server(baseUrl + "/", user, token, altUrl);
+		Server actual = new Server(baseUrl + "/", "", "", false);
 
 		assertEquals(baseUrl, actual.getBaseUrl());
-		assertEquals(user, actual.getUser());
-		assertEquals(token, actual.getToken());
-		assertEquals(altUrl, actual.getAltUrl());
 	}
 
 	@Test

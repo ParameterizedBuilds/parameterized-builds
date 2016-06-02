@@ -28,7 +28,7 @@ public class HookIsEnabledConditionTest {
 		repository = mock(Repository.class);
 		repoHook = mock(RepositoryHook.class);
 
-		context = new HashMap<String, Object>();
+		context = new HashMap<>();
 		context.put("repository", repository);
 
 		condition = new HookIsEnabledCondition(settingsService);

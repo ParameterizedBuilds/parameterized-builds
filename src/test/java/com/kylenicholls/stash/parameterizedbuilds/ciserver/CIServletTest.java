@@ -32,11 +32,14 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 
 public class CIServletTest {
-	private static final String USER_TOKEN_PREFIX = "jenkinsToken-";
-	private static final String PROJECT_KEY_PREFIX = "projectKey-";
-	private static final String SOY_TEMPLATE = "com.kylenicholls.stash.parameterized-builds:jenkins-admin-soy";
-	private static final String PROJECT_KEY = "projkey";
-	private static final String USER_SLUG = "userslug";
+	private final String USER_TOKEN_PREFIX = "jenkinsToken-";
+	private final String PROJECT_KEY_PREFIX = "projectKey-";
+	private final String SOY_TEMPLATE = "com.kylenicholls.stash.parameterized-builds:jenkins-admin-soy";
+	private final String PROJECT_KEY = "projkey";
+	private final String USER_SLUG = "userslug";
+	private final String GLOBAL_PATH = "/plugins/servlet/jenkins";
+	private final String PROJECT_PATH = "/plugins/servlet/jenkins/project/";
+	private final String ACCOUNT_PATH = "/plugins/servlet/account/jenkins";
 	private CIServlet servlet;
 	private SoyTemplateRenderer renderer;
 	private Jenkins jenkins;
@@ -59,18 +62,18 @@ public class CIServletTest {
 		req = mock(HttpServletRequest.class);
 		resp = mock(HttpServletResponse.class);
 		user = mock(ApplicationUser.class);
+		project = mock(Project.class);
+
 		when(authContext.isAuthenticated()).thenReturn(true);
 		when(authContext.getCurrentUser()).thenReturn(user);
 		when(user.getSlug()).thenReturn(USER_SLUG);
-
-		project = mock(Project.class);
 		when(project.getKey()).thenReturn(PROJECT_KEY);
 		when(projectService.getByKey(PROJECT_KEY)).thenReturn(project);
 	}
 
 	@Test
 	public void testDoGetGlobalServer() throws ServletException, IOException, SoyException {
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		Server server = new Server("baseurl", null, null, false);
 		when(jenkins.getJenkinsServer()).thenReturn(server);
 		servlet.doGet(req, resp);
@@ -82,7 +85,7 @@ public class CIServletTest {
 
 	@Test
 	public void testDoGetGlobalServerNull() throws ServletException, IOException, SoyException {
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		when(jenkins.getJenkinsServer()).thenReturn(null);
 		servlet.doGet(req, resp);
 
@@ -94,7 +97,7 @@ public class CIServletTest {
 	@Test
 	public void testDoGetAccountServerNull() throws ServletException, IOException, SoyException {
 		List<UserToken> projectTokens = new ArrayList<>();
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/account/jenkins");
+		when(req.getPathInfo()).thenReturn(ACCOUNT_PATH);
 		when(jenkins.getJenkinsServer()).thenReturn(null);
 		when(jenkins.getAllUserTokens(user, new ArrayList<String>(), projectService))
 				.thenReturn(projectTokens);
@@ -108,7 +111,7 @@ public class CIServletTest {
 
 	@Test
 	public void testDoGetProjectServer() throws ServletException, IOException, SoyException {
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins/project/" + PROJECT_KEY);
+		when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
 		Server server = new Server("baseurl", null, null, false);
 		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(server);
 		servlet.doGet(req, resp);
@@ -121,7 +124,7 @@ public class CIServletTest {
 
 	@Test
 	public void testDoGetProjectServerNull() throws ServletException, IOException, SoyException {
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins/project/" + PROJECT_KEY);
+		when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
 		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(null);
 		servlet.doGet(req, resp);
 
@@ -140,7 +143,7 @@ public class CIServletTest {
 		parameterMap.put(USER_TOKEN_PREFIX, new String[] { globalToken });
 		parameterMap.put(PROJECT_KEY_PREFIX + PROJECT_KEY, new String[] { PROJECT_KEY });
 		parameterMap.put(USER_TOKEN_PREFIX + PROJECT_KEY, new String[] { projectToken });
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/account/jenkins");
+		when(req.getPathInfo()).thenReturn(ACCOUNT_PATH);
 		when(req.getParameterMap()).thenReturn(parameterMap);
 		when(req.getParameter("jenkinsToken")).thenReturn("token");
 		servlet.doPost(req, resp);
@@ -156,7 +159,7 @@ public class CIServletTest {
 		String defaultUser = "defaultuser";
 		String defaultToken = "defaulttoken";
 		String altUrl = "on";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("jenkinsUser")).thenReturn(defaultUser);
 		when(req.getParameter("jenkinsToken")).thenReturn(defaultToken);
@@ -174,7 +177,7 @@ public class CIServletTest {
 		String defaultUser = "defaultuser";
 		String defaultToken = "defaulttoken";
 		String altUrl = "on";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("jenkinsUser")).thenReturn(defaultUser);
 		when(req.getParameter("jenkinsToken")).thenReturn(defaultToken);
@@ -190,7 +193,7 @@ public class CIServletTest {
 		String baseUrl = "baseurl";
 		String defaultUser = "defaultuser";
 		String defaultToken = "defaulttoken";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("jenkinsUser")).thenReturn(defaultUser);
 		when(req.getParameter("jenkinsToken")).thenReturn(defaultToken);
@@ -208,7 +211,7 @@ public class CIServletTest {
 		String defaultUser = "defaultuser";
 		String defaultToken = "defaulttoken";
 		String altUrl = "";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("jenkinsUser")).thenReturn(defaultUser);
 		when(req.getParameter("jenkinsToken")).thenReturn(defaultToken);
@@ -222,7 +225,7 @@ public class CIServletTest {
 	@Test
 	public void testDoPostGlobalSettingsClear() throws ServletException, IOException, SoyException {
 		String clear = "on";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		when(req.getParameter("clear-settings")).thenReturn(clear);
 		servlet.doPost(req, resp);
 
@@ -234,7 +237,7 @@ public class CIServletTest {
 			throws ServletException, IOException, SoyException {
 		String baseUrl = "baseurl";
 		String clear = "";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("clear-settings")).thenReturn(clear);
 		servlet.doPost(req, resp);
@@ -246,7 +249,7 @@ public class CIServletTest {
 	public void testDoPostGlobalSettingsClearNull()
 			throws ServletException, IOException, SoyException {
 		String baseUrl = "baseurl";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins");
+		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("clear-settings")).thenReturn(null);
 		servlet.doPost(req, resp);
@@ -260,7 +263,7 @@ public class CIServletTest {
 		String defaultUser = "defaultuser";
 		String defaultToken = "defaulttoken";
 		String altUrl = "on";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins/project/" + PROJECT_KEY);
+		when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("jenkinsUser")).thenReturn(defaultUser);
 		when(req.getParameter("jenkinsToken")).thenReturn(defaultToken);
@@ -279,7 +282,7 @@ public class CIServletTest {
 		String defaultUser = "defaultuser";
 		String defaultToken = "defaulttoken";
 		String altUrl = "on";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins/project/" + PROJECT_KEY);
+		when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("jenkinsUser")).thenReturn(defaultUser);
 		when(req.getParameter("jenkinsToken")).thenReturn(defaultToken);
@@ -293,7 +296,7 @@ public class CIServletTest {
 	public void testDoPostProjectSettingsClear()
 			throws ServletException, IOException, SoyException {
 		String clear = "on";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins/project/" + PROJECT_KEY);
+		when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
 		when(req.getParameter("clear-settings")).thenReturn(clear);
 		servlet.doPost(req, resp);
 
@@ -305,7 +308,7 @@ public class CIServletTest {
 			throws ServletException, IOException, SoyException {
 		String baseUrl = "baseurl";
 		String clear = "";
-		when(req.getPathInfo()).thenReturn("/plugins/servlet/jenkins/project/" + PROJECT_KEY);
+		when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
 		when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
 		when(req.getParameter("clear-settings")).thenReturn(clear);
 		servlet.doPost(req, resp);

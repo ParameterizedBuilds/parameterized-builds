@@ -11,6 +11,8 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
@@ -18,12 +20,11 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
 import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse.JenkinsMessage;
-import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 
 public class Jenkins {
-
+	private static final Logger logger = LoggerFactory.getLogger(Jenkins.class);
 	private static final String PLUGIN_KEY = "com.kylenicholls.stash.parameterized-builds";
 	private static final String JENKINS_SETTINGS = ".jenkinsSettings";
 	private static final String JENKINS_SETTINGS_PROJECT = JENKINS_SETTINGS + ".";
@@ -129,12 +130,10 @@ public class Jenkins {
 	@Nullable
 	public Server getJenkinsServer(String projectKey) {
 		Object settingObj = pluginSettings.get(JENKINS_SETTINGS_PROJECT + projectKey);
-		if (settingObj != null) {
-			if (settingObj instanceof java.util.Map) {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> serverMap = (Map<String, Object>) settingObj;
-				return new Server(serverMap);
-			}
+		if (settingObj != null && settingObj instanceof java.util.Map) {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> serverMap = (Map<String, Object>) settingObj;
+			return new Server(serverMap);
 		}
 		return null;
 	}
@@ -149,7 +148,7 @@ public class Jenkins {
 	 *            anonymous
 	 */
 	@Nullable
-	private String getJoinedUserToken(@Nullable ApplicationUser user) {
+	public String getJoinedUserToken(@Nullable ApplicationUser user) {
 		String userToken = getUserToken(user, null);
 		if (userToken != null) {
 			return user.getSlug() + ":" + userToken;
@@ -170,7 +169,7 @@ public class Jenkins {
 	 *            the project to get the token for
 	 */
 	@Nullable
-	private String getJoinedUserToken(@Nullable ApplicationUser user, @Nullable String projectKey) {
+	public String getJoinedUserToken(@Nullable ApplicationUser user, String projectKey) {
 		String userToken = getUserToken(user, projectKey);
 		if (userToken != null) {
 			return user.getSlug() + ":" + userToken;
@@ -251,45 +250,21 @@ public class Jenkins {
 	 * Returns a message object from the triggered job.
 	 *
 	 * @return a message object from the triggered job.
-	 * @param job
-	 *            the job that will be built
-	 * @param queryParams
-	 *            url parameters to be appended to the build request
-	 * @param user
-	 *            the user that triggered the build, can be null for anonymous
-	 * @param projectKey
-	 *            the project of the triggered build, used to get the base url
-	 *            and user token for the project, falls back to the global
-	 *            Jenkins server if the project doesn't have a Jenkins server
+	 * @param buildUrl
+	 *            the build url to trigger
+	 * @param joinedToken
+	 *            the authentication token to use in the request
+	 * @param promptUser
+	 *            prompt the user to link their jenkins account
 	 */
-	public JenkinsResponse triggerJob(Job job, String queryParams, @Nullable ApplicationUser user,
-			String projectKey) {
-		Server jenkinsServer = getJenkinsServer(projectKey);
-		String joinedUserToken = getJoinedUserToken(user, projectKey);
-		// if the project Jenkins server does not exist then fall back to the
-		// global Jenkins server
-		if (jenkinsServer == null) {
-			jenkinsServer = getJenkinsServer();
-			joinedUserToken = getJoinedUserToken(user);
-		}
-
-		if (jenkinsServer == null) {
+	public JenkinsResponse triggerJob(@Nullable String buildUrl, @Nullable String joinedToken,
+			boolean promptUser) {
+		if (buildUrl == null) {
 			return new JenkinsResponse.JenkinsMessage().error(true)
 					.messageText("Jenkins settings are not setup").build();
 		}
 
-		String buildUrl = job.buildUrl(jenkinsServer, queryParams, joinedUserToken);
-
-		boolean prompt = false;
-		// user default user and token if the user that triggered the build does
-		// not have a token set
-		if (joinedUserToken == null) {
-			prompt = true;
-			if (!jenkinsServer.getUser().isEmpty()) {
-				joinedUserToken = jenkinsServer.getJoinedToken();
-			}
-		}
-		return httpPost(buildUrl.replace(" ", "%20"), joinedUserToken, prompt);
+		return httpPost(buildUrl.replace(" ", "%20"), joinedToken, promptUser);
 	}
 
 	private JenkinsResponse httpPost(String buildUrl, String token, boolean prompt) {
@@ -313,19 +288,21 @@ public class Jenkins {
 			int status = connection.getResponseCode();
 			if (status == 201) {
 				return jenkinsMessage.messageText("Build triggered").build();
-			} else if (status == 403) {
-				return jenkinsMessage.error(true)
-						.messageText("You do not have permissions to build this job").build();
-			} else if (status == 404) {
-				return jenkinsMessage.error(true).messageText("Job was not found").build();
-			} else if (status == 500) {
-				return jenkinsMessage.error(true)
-						.messageText("Error triggering job, invalid build parameters").build();
-			} else {
-				return jenkinsMessage.error(true).messageText(connection.getResponseMessage())
-						.build();
 			}
 
+			String message = "";
+			if (status == 403) {
+				message = "You do not have permissions to build this job";
+			} else if (status == 404) {
+				message = "Job was not found";
+				return jenkinsMessage.error(true).messageText(message).build();
+			} else if (status == 500) {
+				message = "Error triggering job, invalid build parameters";
+			} else {
+				message = connection.getResponseMessage();
+			}
+			logger.error("Exception for parametized build: " + message);
+			return jenkinsMessage.error(true).messageText(message).build();
 		} catch (MalformedURLException e) {
 			return jenkinsMessage.error(true).messageText("Malformed URL:" + e.getMessage())
 					.build();

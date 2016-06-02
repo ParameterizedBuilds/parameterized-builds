@@ -1,10 +1,9 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
@@ -13,9 +12,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -30,8 +29,10 @@ import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
+import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
 
 @Path(ResourcePatterns.REPOSITORY_URI)
@@ -57,11 +58,12 @@ public class BuildResource extends RestResource {
 	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id,
 			@Context UriInfo uriInfo) {
 		if (authContext.isAuthenticated()) {
-			Map<String, Object> data = new LinkedHashMap<String, Object>();
+			String projectKey = repository.getProject().getKey();
+			Map<String, Object> data = new LinkedHashMap<>();
 			Settings settings = settingsService.getSettings(repository);
 			if (settings == null) {
-				data.put("message", "No hook settings were found for this repository");
-				return Response.status(Response.Status.NOT_FOUND).build();
+				data.put("message", "No build settings were found for this repository");
+				return Response.status(Response.Status.NOT_FOUND).entity(data).build();
 			}
 			List<Job> jobs = settingsService.getJobs(settings.asMap());
 			Job jobToBuild = getJobById(Integer.parseInt(id), jobs);
@@ -71,10 +73,28 @@ public class BuildResource extends RestResource {
 				return Response.status(Response.Status.NOT_FOUND).entity(data).build();
 			} else {
 				ApplicationUser user = authContext.getCurrentUser();
-				String updatedParams = resolveQueryParamsFromMap(uriInfo.getQueryParameters());
-				Map<String, Object> message = jenkins
-						.triggerJob(jobToBuild, updatedParams, user, repository.getProject()
-								.getKey())
+
+				Server jenkinsServer = jenkins.getJenkinsServer(projectKey);
+				String joinedUserToken = jenkins.getJoinedUserToken(user, projectKey);
+				if (jenkinsServer == null) {
+					jenkinsServer = jenkins.getJenkinsServer();
+					joinedUserToken = jenkins.getJoinedUserToken(user);
+				}
+
+				String buildUrl = jobToBuild.buildManualUrl(jenkinsServer, uriInfo
+						.getQueryParameters(), joinedUserToken != null);
+
+				// use default user and token if the user that triggered the
+				// build does not have a token set
+				boolean prompt = false;
+				if (joinedUserToken == null) {
+					prompt = true;
+					if (!jenkinsServer.getUser().isEmpty()) {
+						joinedUserToken = jenkinsServer.getJoinedToken();
+					}
+				}
+
+				Map<String, Object> message = jenkins.triggerJob(buildUrl, joinedUserToken, prompt)
 						.getMessage();
 				return Response.ok(message).build();
 			}
@@ -84,22 +104,21 @@ public class BuildResource extends RestResource {
 
 	@GET
 	@Path(value = "getJobs")
-	public Response getJobs(@Context final Repository repository) {
+	public Response getJobs(@Context final Repository repository,
+			@QueryParam("branch") String branch, @QueryParam("commit") String commit) {
 		if (authContext.isAuthenticated()) {
 			Settings settings = settingsService.getSettings(repository);
-			int count = 0;
-			Map<Integer, Object> data = new LinkedHashMap<Integer, Object>();
 			if (settings == null) {
 				return Response.status(Response.Status.NOT_FOUND).build();
 			}
+
+			BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
+					.commit(commit).build();
+
+			List<Map<String, Object>> data = new ArrayList<>();
 			for (Job job : settingsService.getJobs(settings.asMap())) {
 				if (job.getTriggers().contains(Trigger.MANUAL)) {
-					Map<String, Object> temp = new LinkedHashMap<String, Object>();
-					temp.put("id", job.getJobId());
-					temp.put("jobName", job.getJobName());
-					temp.put("parameters", job.getBuildParameters());
-					data.put(count, temp);
-					count++;
+					data.add(job.asMap(bitbucketVariables));
 				}
 			}
 			return Response.ok(data).build();
@@ -115,16 +134,5 @@ public class BuildResource extends RestResource {
 			}
 		}
 		return null;
-	}
-
-	private String resolveQueryParamsFromMap(MultivaluedMap<String, String> queryParameters) {
-		String queryParams = "";
-		Iterator<Entry<String, List<String>>> it = queryParameters.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, List<String>> pair = it.next();
-			queryParams += pair.getKey() + "=" + pair.getValue().get(0) + (it.hasNext() ? "&" : "");
-			it.remove();
-		}
-		return queryParams;
 	}
 }

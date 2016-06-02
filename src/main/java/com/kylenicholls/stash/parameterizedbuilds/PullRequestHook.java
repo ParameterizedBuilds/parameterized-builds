@@ -21,10 +21,10 @@ import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.event.api.EventListener;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
-import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters;
-import com.kylenicholls.stash.parameterizedbuilds.item.GetQueryStringParameters.Builder;
+import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
 public class PullRequestHook {
 	private final SettingsService settingsService;
@@ -52,7 +52,10 @@ public class PullRequestHook {
 
 	@EventListener
 	public void onPullRequestRescoped(PullRequestRescopedEvent event) throws IOException {
-		final PullRequest pullRequest = event.getPullRequest();
+		PullRequest pullRequest = event.getPullRequest();
+		// Rescoped event is triggered if the source OR destination branch is
+		// updated. We only want to trigger builds if the source commit hash
+		// changes
 		if (!event.getPreviousFromHash().equals(pullRequest.getFromRef().getLatestCommit())) {
 			triggerFromPR(pullRequest, Trigger.PULLREQUEST);
 		}
@@ -66,35 +69,56 @@ public class PullRequestHook {
 
 	@EventListener
 	public void onPullRequestDeclined(PullRequestDeclinedEvent event) throws IOException {
-		final PullRequest pullRequest = event.getPullRequest();
+		PullRequest pullRequest = event.getPullRequest();
 		triggerFromPR(pullRequest, Trigger.PRDECLINED);
 	}
 
 	private void triggerFromPR(PullRequest pullRequest, Trigger trigger) throws IOException {
-		final Repository repository = pullRequest.getFromRef().getRepository();
+		Repository repository = pullRequest.getFromRef().getRepository();
+		ApplicationUser user = pullRequest.getAuthor().getUser();
+		String projectKey = repository.getProject().getKey();
 		String branch = pullRequest.getFromRef().getDisplayId();
 		String commit = pullRequest.getFromRef().getLatestCommit();
 		String prDest = pullRequest.getToRef().getDisplayId();
+		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
+				.commit(commit).prDestination(prDest).repoName(repository.getSlug())
+				.projectName(repository.getProject().getName()).build();
+
 		Settings settings = settingsService.getSettings(repository);
 		if (settings == null) {
 			return;
 		}
-		for (final Job job : settingsService.getJobs(settings.asMap())) {
-			Builder builder = new GetQueryStringParameters.Builder();
-			builder.branch(branch);
-			builder.commit(commit);
-			builder.prDestination(prDest);
-			builder.repoName(repository.getSlug());
-			builder.projectName(repository.getProject().getName());
-			GetQueryStringParameters parameters = builder.build();
 
-			final String queryParams = job.getQueryString(parameters);
+		for (final Job job : settingsService.getJobs(settings.asMap())) {
 			List<Trigger> triggers = job.getTriggers();
 			final String pathRegex = job.getPathRegex();
-			ApplicationUser user = pullRequest.getAuthor().getUser();
+
 			if (triggers.contains(trigger)) {
+				Server jenkinsServer = jenkins.getJenkinsServer(projectKey);
+				String joinedUserToken = jenkins.getJoinedUserToken(user, projectKey);
+				if (jenkinsServer == null) {
+					jenkinsServer = jenkins.getJenkinsServer();
+					joinedUserToken = jenkins.getJoinedUserToken(user);
+				}
+
+				String buildUrl = job
+						.buildUrl(jenkinsServer, bitbucketVariables, joinedUserToken != null);
+
+				// use default user and token if the user that triggered the
+				// build does not have a token set
+				boolean prompt = false;
+				if (joinedUserToken == null) {
+					prompt = true;
+					if (!jenkinsServer.getUser().isEmpty()) {
+						joinedUserToken = jenkinsServer.getJoinedToken();
+					}
+				}
+
+				final String token = joinedUserToken;
+				final boolean finalPrompt = prompt;
+
 				if (pathRegex.trim().isEmpty()) {
-					jenkins.triggerJob(job, queryParams, user, repository.getProject().getKey());
+					jenkins.triggerJob(buildUrl, token, finalPrompt);
 				} else {
 					pullRequestService
 							.streamChanges(new PullRequestChangesRequest.Builder(pullRequest)
@@ -102,8 +126,7 @@ public class PullRequestHook {
 										public boolean onChange(Change change) throws IOException {
 											String changedFile = change.getPath().toString();
 											if (changedFile.matches(pathRegex)) {
-												jenkins.triggerJob(job, queryParams, user, repository
-														.getProject().getKey());
+												jenkins.triggerJob(buildUrl, token, finalPrompt);
 												return false;
 											}
 											return true;

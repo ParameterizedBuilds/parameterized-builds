@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.plugin.PluginParseException;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 
 public class HookIsEnabledCondition extends BaseCondition {
@@ -21,7 +20,7 @@ public class HookIsEnabledCondition extends BaseCondition {
 	@Override
 	public boolean shouldDisplay(Map<String, Object> context) {
 		final Repository repository = getRepository(context);
-		if(repository == null) {
+		if (repository == null) {
 			return false;
 		}
 		RepositoryHook hook = settingsService.getHook(repository);

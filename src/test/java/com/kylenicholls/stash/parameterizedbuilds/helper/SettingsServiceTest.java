@@ -5,11 +5,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,13 +56,12 @@ public class SettingsServiceTest {
 		List<Job> jobs = settingsService.getJobs(jobConfig);
 
 		List<Trigger> triggerList = Arrays.asList(Trigger.ADD, Trigger.PUSH);
-		Map<String, String> paramMap = new HashMap<>();
-		paramMap.put("param1", "value1");
+		Entry<String, String> paramMap = new SimpleEntry<>("param1", "value1");
 		assertEquals(2, jobs.size());
 		assertEquals(0, jobs.get(0).getJobId());
 		assertEquals(jobName, jobs.get(0).getJobName());
 		assertEquals(triggerList, jobs.get(0).getTriggers());
-		assertEquals(paramMap, jobs.get(0).getBuildParameters());
+		assertEquals(paramMap, jobs.get(0).getBuildParameters().get(0));
 		assertEquals(token, jobs.get(0).getToken());
 		assertEquals(branchRegex, jobs.get(0).getBranchRegex());
 		assertEquals(pathRegex, jobs.get(0).getPathRegex());
@@ -70,7 +71,7 @@ public class SettingsServiceTest {
 
 	@Test
 	public void testNoJobsDefined() {
-		Map<String, Object> jobConfig = new HashMap<String, Object>();
+		Map<String, Object> jobConfig = new HashMap<>();
 		List<Job> jobs = settingsService.getJobs(jobConfig);
 
 		assertEquals(null, jobs);

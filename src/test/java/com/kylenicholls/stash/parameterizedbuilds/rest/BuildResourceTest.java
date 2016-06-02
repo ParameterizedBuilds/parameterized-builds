@@ -2,6 +2,7 @@ package com.kylenicholls.stash.parameterizedbuilds.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +29,7 @@ import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class BuildResourceTest {
@@ -39,6 +41,8 @@ public class BuildResourceTest {
 	private Settings settings;
 	private UriInfo uriInfo;
 	private ApplicationUser user;
+	private List<Job> jobs;
+	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
 
 	@Before
 	public void setup() throws Exception {
@@ -48,18 +52,23 @@ public class BuildResourceTest {
 		authContext = mock(AuthenticationContext.class);
 		rest = new BuildResource(i18nService, settingsService, jenkins, authContext);
 
-		when(authContext.isAuthenticated()).thenReturn(true);
-		when(authContext.getCurrentUser()).thenReturn(user);
 		repository = mock(Repository.class);
 		settings = mock(Settings.class);
-		when(settingsService.getSettings(repository)).thenReturn(settings);
 		uriInfo = mock(UriInfo.class);
 		Project project = mock(Project.class);
+
+		when(authContext.isAuthenticated()).thenReturn(true);
+		when(authContext.getCurrentUser()).thenReturn(user);
+		when(settingsService.getSettings(repository)).thenReturn(settings);
 		when(repository.getProject()).thenReturn(project);
+		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
+
+		jobs = new ArrayList<>();
+		when(settingsService.getJobs(any())).thenReturn(jobs);
 	}
 
 	@Test
-	public void testTriggerJob403IfNotAuthed() {
+	public void testTriggerBuildNotAuthed() {
 		when(authContext.isAuthenticated()).thenReturn(false);
 		Response actual = rest.triggerBuild(repository, null, null);
 
@@ -67,7 +76,7 @@ public class BuildResourceTest {
 	}
 
 	@Test
-	public void testTriggerJob404IfNoRepoSettings() {
+	public void testTriggerBuildNoRepoSettings() {
 		when(settingsService.getSettings(repository)).thenReturn(null);
 		Response actual = rest.triggerBuild(repository, null, null);
 
@@ -75,32 +84,27 @@ public class BuildResourceTest {
 	}
 
 	@Test
-	public void testTriggerJobNoMatchingJob() {
-		Job job = new Job.JobBuilder(1).triggers(new String[] { "add" }).createJob();
-		List<Job> jobs = new ArrayList<Job>();
+	public void testTriggerBuildNoMatchingJob() {
+		Job job = new Job.JobBuilder(1).triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
 		Response actual = rest.triggerBuild(repository, "0", null);
 
-		Map<String, Object> expected = new LinkedHashMap<String, Object>();
+		Map<String, Object> expected = new LinkedHashMap<>();
 		expected.put("message", "No settings found for this job");
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), actual.getStatus());
 		assertEquals(expected, actual.getEntity());
 	}
 
 	@Test
-	public void testTriggerJobWithQueryParams() {
+	public void testTriggerBuildWithQueryParams() {
 		JenkinsResponse message = new JenkinsResponse.JenkinsMessage().error(false).build();
-		Job job = new Job.JobBuilder(0).createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = new Job.JobBuilder(0).jobName("job").build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
 		MultivaluedMap<String, String> query = new MultivaluedMapImpl();
 		query.add("param1", "value1");
 		query.add("param2", "value2");
 		when(uriInfo.getQueryParameters()).thenReturn(query);
-		when(jenkins.triggerJob(job, "param1=value1&param2=value2", user, repository.getProject()
-				.getKey())).thenReturn(message);
+		when(jenkins.triggerJob(any(), any(), anyBoolean())).thenReturn(message);
 		Response results = rest.triggerBuild(repository, "0", uriInfo);
 
 		assertEquals(Response.Status.OK.getStatusCode(), results.getStatus());
@@ -108,31 +112,31 @@ public class BuildResourceTest {
 	}
 
 	@Test
-	public void testGetJobs403IfNotAuthed() {
+	public void testGetJobsNotAuthed() {
 		when(authContext.isAuthenticated()).thenReturn(false);
-		Response actual = rest.getJobs(repository);
+		Response actual = rest.getJobs(repository, "branch", "commit");
 
 		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), actual.getStatus());
 	}
 
 	@Test
-	public void testGetJobs404IfNoRepoSettings() {
+	public void testGetJobsNoRepoSettings() {
 		when(settingsService.getSettings(repository)).thenReturn(null);
-		Response actual = rest.getJobs(repository);
+		Response actual = rest.getJobs(repository, "branch", "commit");
 
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), actual.getStatus());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetJobsNoManualJob() {
-		Job job = new Job.JobBuilder(1).triggers(new String[] { "add" }).createJob();
-		List<Job> jobs = new ArrayList<Job>();
+		Job job = new Job.JobBuilder(1).triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
-		Response actual = rest.getJobs(repository);
+		Response actual = rest.getJobs(repository, "branch", "commit");
 
 		assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
-		assertEquals(new HashMap<>(), actual.getEntity());
+		assertEquals(new ArrayList<Map<String, Object>>(), (List<Map<String, Object>>) actual
+				.getEntity());
 	}
 
 	@Test
@@ -140,21 +144,19 @@ public class BuildResourceTest {
 		int jobId = 1;
 		String jobName = "jobname";
 		Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
-				.buildParameters("param1=value1").createJob();
-		List<Job> jobs = new ArrayList<Job>();
+				.buildParameters("param1=$BRANCH").build();
 		jobs.add(job);
-		when(settingsService.getJobs(any())).thenReturn(jobs);
-		Response actual = rest.getJobs(repository);
+		Response actual = rest.getJobs(repository, "branch", "commit");
 
-		Map<String, Object> jobData = new LinkedHashMap<>();
-		jobData.put("id", jobId);
-		jobData.put("jobName", jobName);
-		Map<String, String> jobParams = new LinkedHashMap<>();
-		jobParams.put("param1", "value1");
-		jobData.put("parameters", jobParams);
-		Map<Integer, Object> expected = new LinkedHashMap<>();
-		expected.put(0, jobData);
+		@SuppressWarnings("unchecked")
+		List<Map<String, Object>> jobData = (List<Map<String, Object>>) actual.getEntity();
+		List<Map<String, Object>> parameters = new ArrayList<>();
+		Map<String, Object> parameter = new HashMap<>();
+		parameter.put("param1", "branch");
+		parameters.add(parameter);
 		assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
-		assertEquals(expected, actual.getEntity());
+		assertEquals(jobId, jobData.get(0).get("id"));
+		assertEquals(jobName, jobData.get(0).get("jobName"));
+		assertEquals(parameters, jobData.get(0).get("buildParameters"));
 	}
 }
