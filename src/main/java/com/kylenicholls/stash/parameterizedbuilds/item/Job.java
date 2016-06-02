@@ -107,7 +107,7 @@ public class Job {
 		public JobBuilder buildParameters(String parameterString) {
 			Map<String, String> parameterMap = new LinkedHashMap<String, String>();
 			if (!parameterString.isEmpty()) {
-				String lines[] = parameterString.split("\\r?\\n");
+				String[] lines = parameterString.split("\\r?\\n");
 				for (String line : lines) {
 					String[] pair = line.split("=");
 					String key = pair[0];
@@ -139,7 +139,7 @@ public class Job {
 		String queryParams = "";
 		Iterator<Entry<String, String>> it = buildParameters.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<String, String> pair = (Map.Entry<String, String>) it.next();
+			Map.Entry<String, String> pair = it.next();
 			queryParams += pair.getKey() + "=" + pair.getValue().split(";")[0]
 					+ (it.hasNext() ? "&" : "");
 			it.remove();
