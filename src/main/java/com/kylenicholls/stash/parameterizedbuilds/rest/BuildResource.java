@@ -121,7 +121,7 @@ public class BuildResource extends RestResource {
 		String queryParams = "";
 		Iterator<Entry<String, List<String>>> it = queryParameters.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<String, List<String>> pair = (Map.Entry<String, List<String>>) it.next();
+			Map.Entry<String, List<String>> pair = it.next();
 			queryParams += pair.getKey() + "=" + pair.getValue().get(0) + (it.hasNext() ? "&" : "");
 			it.remove();
 		}

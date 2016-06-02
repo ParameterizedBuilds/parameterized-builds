@@ -70,23 +70,23 @@ public class SettingsService {
 			return null;
 		}
 		List<Job> jobsList = new ArrayList<Job>();
-		for (String key : parameterMap.keySet()) {
-			if (key.startsWith(JOB_PREFIX)) {
+		for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
+			if (entry.getKey().startsWith(JOB_PREFIX)) {
 				boolean isTag = false;
-				Object isTagObj = parameterMap.get(key.replace(JOB_PREFIX, ISTAG_PREFIX));
+				Object isTagObj = parameterMap.get(entry.getKey().replace(JOB_PREFIX, ISTAG_PREFIX));
 				if (isTagObj != null) {
 					isTag = Boolean.parseBoolean(isTagObj.toString());
 				}
 				Job job = new Job.JobBuilder(jobsList.size())
-						.jobName(parameterMap.get(key).toString()).isTag(isTag)
-						.triggers(parameterMap.get(key.replace(JOB_PREFIX, TRIGGER_PREFIX))
+						.jobName(entry.getValue().toString()).isTag(isTag)
+						.triggers(parameterMap.get(entry.getKey().replace(JOB_PREFIX, TRIGGER_PREFIX))
 								.toString().split(";"))
-						.buildParameters(parameterMap.get(key.replace(JOB_PREFIX, PARAM_PREFIX))
+						.buildParameters(parameterMap.get(entry.getKey().replace(JOB_PREFIX, PARAM_PREFIX))
 								.toString())
-						.token(parameterMap.get(key.replace(JOB_PREFIX, TOKEN_PREFIX)).toString())
-						.branchRegex(parameterMap.get(key.replace(JOB_PREFIX, BRANCH_PREFIX))
+						.token(parameterMap.get(entry.getKey().replace(JOB_PREFIX, TOKEN_PREFIX)).toString())
+						.branchRegex(parameterMap.get(entry.getKey().replace(JOB_PREFIX, BRANCH_PREFIX))
 								.toString())
-						.pathRegex(parameterMap.get(key.replace(JOB_PREFIX, PATH_PREFIX))
+						.pathRegex(parameterMap.get(entry.getKey().replace(JOB_PREFIX, PATH_PREFIX))
 								.toString())
 						.createJob();
 
