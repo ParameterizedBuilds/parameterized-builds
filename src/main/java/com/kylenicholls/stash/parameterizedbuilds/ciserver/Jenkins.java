@@ -129,12 +129,10 @@ public class Jenkins {
 	@Nullable
 	public Server getJenkinsServer(String projectKey) {
 		Object settingObj = pluginSettings.get(JENKINS_SETTINGS_PROJECT + projectKey);
-		if (settingObj != null) {
-			if (settingObj instanceof java.util.Map) {
+		if (settingObj != null && settingObj instanceof java.util.Map) {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> serverMap = (Map<String, Object>) settingObj;
 				return new Server(serverMap);
-			}
 		}
 		return null;
 	}

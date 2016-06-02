@@ -9,6 +9,14 @@ public class GetQueryStringParameters {
 	private String repoName;
 	private String projectName;
 
+	private GetQueryStringParameters(Builder builder) {
+		this.branch = builder.branch;
+		this.commit = builder.commit;
+		this.prDestination = builder.prDestination;
+		this.repoName = builder.repoName;
+		this.projectName = builder.projectName;
+	}
+
 	public String getBranch() {
 		return branch;
 	}
@@ -69,13 +77,5 @@ public class GetQueryStringParameters {
 		public GetQueryStringParameters build() {
 			return new GetQueryStringParameters(this);
 		}
-	}
-
-	private GetQueryStringParameters(Builder builder) {
-		this.branch = builder.branch;
-		this.commit = builder.commit;
-		this.prDestination = builder.prDestination;
-		this.repoName = builder.repoName;
-		this.projectName = builder.projectName;
 	}
 }
