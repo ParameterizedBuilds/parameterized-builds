@@ -64,22 +64,24 @@ public class ParameterizedBuildHook
 			}
 			String commit = refChange.getToHash();
 
-			for (Job job : settingsService.getJobs(context.getSettings().asMap())) {
-				Builder builder = new GetQueryStringParameters.Builder();
-				builder.branch(branch);
-				builder.commit(commit);
-				builder.repoName(repository.getSlug());
-				builder.projectName(repository.getProject().getKey());
-				GetQueryStringParameters parameters = builder.build();
-
-				if (job.getIsTag() == isTag) {
-					if (buildBranchCheck(repository, refChange, branch, job, parameters, user)) {
-						jenkins.triggerJob(job, job.getQueryString(parameters), user, repository
-								.getProject().getKey());
-					}
-				}
-			}
+			triggerJenkinsJobs(context, repository, user, refChange, branch, isTag, commit);
 		}
+	}
+
+	private void triggerJenkinsJobs(RepositoryHookContext context, Repository repository, ApplicationUser user, RefChange refChange, String branch, boolean isTag, String commit) {
+		for (Job job : settingsService.getJobs(context.getSettings().asMap())) {
+            Builder builder = new Builder();
+            builder.branch(branch);
+            builder.commit(commit);
+            builder.repoName(repository.getSlug());
+            builder.projectName(repository.getProject().getKey());
+            GetQueryStringParameters parameters = builder.build();
+
+            if (job.getIsTag() == isTag && buildBranchCheck(repository, refChange, branch, job, parameters, user)) {
+                    jenkins.triggerJob(job, job.getQueryString(parameters), user, repository
+                            .getProject().getKey());
+            }
+        }
 	}
 
 	private boolean buildBranchCheck(final Repository repository, RefChange refChange,
