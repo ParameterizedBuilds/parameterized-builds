@@ -30,6 +30,7 @@ import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
+import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables.Builder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
@@ -105,20 +106,23 @@ public class BuildResource extends RestResource {
 	@GET
 	@Path(value = "getJobs")
 	public Response getJobs(@Context final Repository repository,
-			@QueryParam("branch") String branch, @QueryParam("commit") String commit) {
+			@QueryParam("branch") String branch, @QueryParam("commit") String commit, @QueryParam("prdestination") String prDestination) {
 		if (authContext.isAuthenticated()) {
 			Settings settings = settingsService.getSettings(repository);
 			if (settings == null) {
 				return Response.status(Response.Status.NOT_FOUND).build();
 			}
 
-			BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
-					.commit(commit).build();
+			Builder variableBuilder = new BitbucketVariables.Builder().branch(branch)
+					.commit(commit).repoName(repository.getSlug()).projectName(repository.getProject().getKey());
+			if (prDestination != null) {
+				variableBuilder.prDestination(prDestination);
+			}
 
 			List<Map<String, Object>> data = new ArrayList<>();
 			for (Job job : settingsService.getJobs(settings.asMap())) {
 				if (job.getTriggers().contains(Trigger.MANUAL)) {
-					data.add(job.asMap(bitbucketVariables));
+					data.add(job.asMap(variableBuilder.build()));
 				}
 			}
 			return Response.ok(data).build();

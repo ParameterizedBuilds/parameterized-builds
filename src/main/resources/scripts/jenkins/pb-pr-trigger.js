@@ -17,8 +17,9 @@ define('jenkins/parameterized-build-pullrequest', [
 		var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
 		branch = prJSON.fromRef.displayId;
 		commit = prJSON.fromRef.latestCommit;
+		prDest = prJSON.toRef.displayId;
 		
-		var resourceUrl = getResourceUrl("getJobs") + "?branch=" + branch + "&commit=" + commit;
+		var resourceUrl = getResourceUrl("getJobs") + "?branch=" + branch + "&commit=" + commit + "&prdestination=" + prDest;
     	
 		jobs = getJobs(resourceUrl);
     	if (jobs.length == 1){
