@@ -292,7 +292,7 @@ public class Jenkins {
 				return jenkinsMessage.messageText("Build triggered").build();
 			}
 
-			String message = "";
+			String message;
 			if (status == 403) {
 				message = "You do not have permissions to build this job";
 			} else if (status == 404) {

@@ -180,7 +180,7 @@ public class Job {
 
 		for (Entry<String, Object> param : this.buildParameters) {
 			String key = param.getKey();
-			String value = "";
+			String value;
 			if (param.getValue() instanceof String[]) {
 				value = ((String[]) param.getValue())[0];
 			} else {
