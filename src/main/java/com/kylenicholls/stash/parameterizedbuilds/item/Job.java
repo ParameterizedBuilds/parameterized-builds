@@ -1,5 +1,8 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +15,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
 public class Job {
+	private static final Logger logger = LoggerFactory.getLogger(Job.class);
 	private final int jobId;
 	private final String jobName;
 	private final boolean isTag;
@@ -114,6 +118,7 @@ public class Job {
 				try {
 					triggers.add(Trigger.valueOf(trig.toUpperCase()));
 				} catch (IllegalArgumentException e) {
+					logger.error("IllegalArgumentException in Job.triggers: " + e.getMessage(), e);
 					triggers.add(Trigger.NULL);
 				}
 			}

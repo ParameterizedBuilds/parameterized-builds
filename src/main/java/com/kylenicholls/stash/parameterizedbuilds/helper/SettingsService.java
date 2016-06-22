@@ -12,8 +12,11 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.SecurityService;
 import com.atlassian.bitbucket.util.Operation;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SettingsService {
+	private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 	private static final String KEY = "com.kylenicholls.stash.parameterized-builds:parameterized-build-hook";
 	public static final String JOB_PREFIX = "jobName-";
 	public static final String ISTAG_PREFIX = "isTag-";
@@ -43,6 +46,7 @@ public class SettingsService {
 						}
 					});
 		} catch (Exception e) {
+			logger.error("Exception in SettingsService.getSettings: " + e.getMessage(), e);
 			return null;
 		}
 
@@ -60,6 +64,7 @@ public class SettingsService {
 						}
 					});
 		} catch (Exception e1) {
+			logger.error("Exception in SettingsService.getHook: " + e1.getMessage(), e1);
 			return null;
 		}
 		return hook;
