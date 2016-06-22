@@ -89,9 +89,7 @@ public class ParameterizedBuildHook
 				boolean prompt = false;
 				if (joinedUserToken == null) {
 					prompt = true;
-					if (!jenkinsServer.getUser().isEmpty()) {
-						joinedUserToken = jenkinsServer.getJoinedToken();
-					}
+					joinedUserToken = joinUserToken(jenkinsServer, joinedUserToken);
 				}
 
 				if (buildBranchCheck(repository, refChange, branch, job, buildUrl, joinedUserToken, prompt)) {
@@ -99,6 +97,13 @@ public class ParameterizedBuildHook
 				}
 			}
 		}
+	}
+
+	private String joinUserToken(Server jenkinsServer, String joinedUserToken) {
+		if (!jenkinsServer.getUser().isEmpty()) {
+			joinedUserToken = jenkinsServer.getJoinedToken();
+		}
+		return joinedUserToken;
 	}
 
 	private boolean buildBranchCheck(final Repository repository, RefChange refChange,
@@ -114,8 +119,13 @@ public class ParameterizedBuildHook
 					ChangesRequest request = new ChangesRequest.Builder(repository,
 							refChange.getToHash()).sinceId(refChange.getFromHash()).build();
 					commitService.streamChanges(request, new AbstractChangeCallback() {
+
 						@Override
 						public boolean onChange(Change change) throws IOException {
+							return triggerJob(change);
+						}
+
+						private boolean triggerJob(Change change) {
 							if (change.getPath().toString().matches(pathRegex)) {
 								jenkins.triggerJob(buildUrl, token, prompt);
 								return false;
