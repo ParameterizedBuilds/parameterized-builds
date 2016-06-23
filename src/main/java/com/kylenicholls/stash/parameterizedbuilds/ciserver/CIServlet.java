@@ -105,7 +105,7 @@ public class CIServlet extends HttpServlet {
 			} else {
 				Server server = getServerFromMap(req);
 				boolean clearSettings = req.getParameter("clear-settings") != null
-						&& req.getParameter("clear-settings").equals("on") ? true : false;
+						&& "on".equals(req.getParameter("clear-settings")) ? true : false;
 				if (pathInfo.contains("/jenkins/project/")) {
 					String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "")
 							.split("/")[0];
@@ -132,7 +132,7 @@ public class CIServlet extends HttpServlet {
 
 	private Server getServerFromMap(HttpServletRequest req) {
 		boolean jenkinsAltUrl = req.getParameter("jenkinsAltUrl") != null
-				&& req.getParameter("jenkinsAltUrl").equals("on") ? true : false;
+				&& "on".equals(req.getParameter("jenkinsAltUrl")) ? true : false;
 		return new Server(req.getParameter("jenkinsUrl"), req.getParameter("jenkinsUser"),
 				req.getParameter("jenkinsToken"), jenkinsAltUrl);
 	}

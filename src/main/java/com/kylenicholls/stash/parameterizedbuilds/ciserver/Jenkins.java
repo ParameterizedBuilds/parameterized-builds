@@ -115,7 +115,7 @@ public class Jenkins {
 			}
 			// legacy settings
 			String[] serverProps = settingObj.toString().split(";");
-			boolean altUrl = serverProps.length > 3 && serverProps[3].equals("true") ? true : false;
+			boolean altUrl = serverProps.length > 3 && "true".equals(serverProps[3]) ? true : false;
 			return new Server(serverProps[0], serverProps[1], serverProps[2], altUrl);
 		}
 		return null;
