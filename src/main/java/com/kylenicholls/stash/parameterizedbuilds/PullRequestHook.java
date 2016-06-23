@@ -123,6 +123,7 @@ public class PullRequestHook {
 					pullRequestService
 							.streamChanges(new PullRequestChangesRequest.Builder(pullRequest)
 									.build(), new AbstractChangeCallback() {
+										@Override
 										public boolean onChange(Change change) throws IOException {
 											String changedFile = change.getPath().toString();
 											if (changedFile.matches(pathRegex)) {
@@ -132,11 +133,13 @@ public class PullRequestHook {
 											return true;
 										}
 
+										@Override
 										public void onEnd(ChangeSummary summary)
 												throws IOException {
 											// noop
 										}
 
+										@Override
 										public void onStart(ChangeContext context)
 												throws IOException {
 											// noop

@@ -114,6 +114,7 @@ public class ParameterizedBuildHook
 					ChangesRequest request = new ChangesRequest.Builder(repository,
 							refChange.getToHash()).sinceId(refChange.getFromHash()).build();
 					commitService.streamChanges(request, new AbstractChangeCallback() {
+						@Override
 						public boolean onChange(Change change) throws IOException {
 							if (change.getPath().toString().matches(pathRegex)) {
 								jenkins.triggerJob(buildUrl, token, prompt);
@@ -122,10 +123,12 @@ public class ParameterizedBuildHook
 							return true;
 						}
 
+						@Override
 						public void onStart(ChangeContext context) throws IOException {
 							// noop
 						}
 
+						@Override
 						public void onEnd(ChangeSummary summary) throws IOException {
 							// noop
 						}
