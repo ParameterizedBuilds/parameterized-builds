@@ -19,9 +19,6 @@ public abstract class BaseCondition implements Condition {
 		// Nothing to do here
 	}
 
-	@Override
-	public abstract boolean shouldDisplay(Map<String, Object> context);
-
 	protected Repository getRepository(Map<String, Object> context) {
 		final Object obj = context.get(REPOSITORY);
 		// Get current repo, if failure disable button
