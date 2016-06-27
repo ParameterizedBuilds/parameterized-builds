@@ -180,8 +180,7 @@ public class Job {
 			return null;
 		}
 
-		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, this.buildParameters
-				.size() != 0);
+		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty());
 
 		for (Entry<String, Object> param : this.buildParameters) {
 			String key = param.getKey();
