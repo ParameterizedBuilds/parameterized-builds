@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,7 +75,7 @@ public class SettingsServiceTest {
 		Map<String, Object> jobConfig = new HashMap<>();
 		List<Job> jobs = settingsService.getJobs(jobConfig);
 
-		assertEquals(null, jobs);
+		assertEquals(Collections.emptyList(), jobs);
 	}
 
 	@Test

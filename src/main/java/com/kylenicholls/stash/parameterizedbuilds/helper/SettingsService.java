@@ -1,6 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.helper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -72,7 +73,7 @@ public class SettingsService {
 
 	public List<Job> getJobs(final Map<String, Object> parameterMap) {
 		if (parameterMap.keySet().isEmpty()) {
-			return null;
+			return Collections.emptyList();
 		}
 		List<Job> jobsList = new ArrayList<>();
 		for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
