@@ -21,6 +21,7 @@ import com.atlassian.bitbucket.repository.MinimalRef;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.atlassian.bitbucket.user.ApplicationUser;
@@ -29,12 +30,17 @@ import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.JobBuilder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
+import java.net.URI;
+import java.net.URISyntaxException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ParameterizedBuildHookTest {
 	private final String BRANCH_REF = "refs/heads/branch";
 	private final String PROJECT_KEY = "projectkey";
 	private final String COMMIT = "commithash";
 	private final String REPO_SLUG = "reposlug";
+	private final String URI = "http://uri";
 	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
 	private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken",
 			false);
@@ -45,6 +51,7 @@ public class ParameterizedBuildHookTest {
 	private ParameterizedBuildHook buildHook;
 	private SettingsService settingsService;
 	private Jenkins jenkins;
+	private ApplicationPropertiesService propertiesService;
 	private Repository repository;
 	private SettingsValidationErrors validationErrors;
 	private Project project;
@@ -54,13 +61,14 @@ public class ParameterizedBuildHookTest {
 	List<Job> jobs;
 
 	@Before
-	public void setup() {
+	public void setup() throws URISyntaxException {
 		settingsService = mock(SettingsService.class);
 		CommitService commitService = mock(CommitService.class);
 		jenkins = mock(Jenkins.class);
+		propertiesService = mock(ApplicationPropertiesService.class);
 		AuthenticationContext authContext = mock(AuthenticationContext.class);
 		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,
-				authContext);
+				propertiesService, authContext);
 
 		context = mock(RepositoryHookContext.class);
 		settings = mock(Settings.class);
@@ -81,6 +89,7 @@ public class ParameterizedBuildHookTest {
 		when(project.getKey()).thenReturn(PROJECT_KEY);
 		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
 		when(jenkins.getJenkinsServer(project.getKey())).thenReturn(projectServer);
+		when(propertiesService.getBaseUrl()).thenReturn(new URI(URI));
 		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
 
 		refChanges = new ArrayList<>();

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +21,11 @@ import org.junit.Test;
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.i18n.I18nService;
 import com.atlassian.bitbucket.project.Project;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestParticipant;
+import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
@@ -31,15 +34,20 @@ import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import java.net.URI;
+import static org.mockito.Mockito.when;
 
 public class BuildResourceTest {
 	private final String REPO_SLUG = "reposlug";
 	private final String PROJECT_KEY = "projkey";
+	private final String URI = "http://uri";
 	private BuildResource rest;
 	private Jenkins jenkins;
 	private Repository repository;
 	private AuthenticationContext authContext;
 	private SettingsService settingsService;
+	private ApplicationPropertiesService propertiesService;
+	private PullRequestService prService;
 	private Settings settings;
 	private UriInfo uriInfo;
 	private ApplicationUser user;
@@ -52,7 +60,9 @@ public class BuildResourceTest {
 		settingsService = mock(SettingsService.class);
 		jenkins = mock(Jenkins.class);
 		authContext = mock(AuthenticationContext.class);
-		rest = new BuildResource(i18nService, settingsService, jenkins, authContext);
+		propertiesService = mock(ApplicationPropertiesService.class);
+		prService = mock(PullRequestService.class);
+		rest = new BuildResource(i18nService, settingsService, jenkins, propertiesService, prService, authContext);
 
 		repository = mock(Repository.class);
 		settings = mock(Settings.class);
@@ -66,6 +76,7 @@ public class BuildResourceTest {
 		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
 		when(repository.getSlug()).thenReturn(REPO_SLUG);
 		when(project.getKey()).thenReturn(PROJECT_KEY);
+		when(propertiesService.getBaseUrl()).thenReturn(new URI(URI));
 
 		jobs = new ArrayList<>();
 		when(settingsService.getJobs(any())).thenReturn(jobs);
@@ -118,7 +129,7 @@ public class BuildResourceTest {
 	@Test
 	public void testGetJobsNotAuthed() {
 		when(authContext.isAuthenticated()).thenReturn(false);
-		Response actual = rest.getJobs(repository, "branch", "commit", null);
+		Response actual = rest.getJobs(repository, "branch", "commit", null, 0);
 
 		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), actual.getStatus());
 	}
@@ -126,7 +137,7 @@ public class BuildResourceTest {
 	@Test
 	public void testGetJobsNoRepoSettings() {
 		when(settingsService.getSettings(repository)).thenReturn(null);
-		Response actual = rest.getJobs(repository, "branch", "commit", null);
+		Response actual = rest.getJobs(repository, "branch", "commit", null, 0);
 
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), actual.getStatus());
 	}
@@ -136,7 +147,7 @@ public class BuildResourceTest {
 	public void testGetJobsNoManualJob() {
 		Job job = new Job.JobBuilder(1).triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		Response actual = rest.getJobs(repository, "branch", "commit", null);
+		Response actual = rest.getJobs(repository, "branch", "commit", null, 0);
 
 		assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
 		assertEquals(new ArrayList<Map<String, Object>>(), (List<Map<String, Object>>) actual
@@ -147,10 +158,23 @@ public class BuildResourceTest {
 	public void testGetJobsWithPR() {
 		int jobId = 1;
 		String jobName = "jobname";
+		long prId = 101L;
+		String authorName = "prauthorname";
+		String title = "prtitle";
+		String description = "prdescription";
 		Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
-				.buildParameters("param1=$BRANCH\r\nparam2=$PRDESTINATION").build();
+				.buildParameters("param1=$BRANCH\r\nparam2=$PRDESTINATION\r\nparam3=$PRURL\r\nparam4=$PRAUTHOR\r\nparam5=$PRTITLE\r\nparam6=$PRDESCRIPTION\r\nparam7=$PRID").build();
 		jobs.add(job);
-		Response actual = rest.getJobs(repository, "branch", "commit", "prbranch");
+		PullRequest pr = mock(PullRequest.class);
+		PullRequestParticipant author = mock(PullRequestParticipant.class);
+		when(pr.getAuthor()).thenReturn(author);
+		ApplicationUser prUser = mock(ApplicationUser.class);
+		when(author.getUser()).thenReturn(prUser);
+		when(prUser.getDisplayName()).thenReturn(authorName);
+		when(pr.getTitle()).thenReturn(title);
+		when(pr.getDescription()).thenReturn(description);
+		when(prService.getById(repository.getId(), prId)).thenReturn(pr);
+		Response actual = rest.getJobs(repository, "branch", "commit", "prbranch", prId);
 
 		@SuppressWarnings("unchecked")
 		List<Map<String, Object>> jobData = (List<Map<String, Object>>) actual.getEntity();
@@ -159,11 +183,28 @@ public class BuildResourceTest {
 		parameter1.put("param1", "branch");
 		Map<String, Object> parameter2 = new HashMap<>();
 		parameter2.put("param2", "prbranch");
+		Map<String, Object> parameter3 = new HashMap<>();
+		parameter3.put("param3", URI + "/projects/" + PROJECT_KEY + "/repos/" + REPO_SLUG + "/pull-requests/" + prId);
+		Map<String, Object> parameter4 = new HashMap<>();
+		parameter4.put("param4", authorName);
+		Map<String, Object> parameter5 = new HashMap<>();
+		parameter5.put("param5", title);
+		Map<String, Object> parameter6 = new HashMap<>();
+		parameter6.put("param6", description);
+		Map<String, Object> parameter7 = new HashMap<>();
+		parameter7.put("param7", Long.toString(prId));
 		parameters.add(parameter1);
 		parameters.add(parameter2);
+		parameters.add(parameter3);
+		parameters.add(parameter4);
+		parameters.add(parameter5);
+		parameters.add(parameter6);
+		parameters.add(parameter7);
 		assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
 		assertEquals(jobId, jobData.get(0).get("id"));
 		assertEquals(jobName, jobData.get(0).get("jobName"));
+		System.out.println(parameters);
+		System.out.println(jobData.get(0).get("buildParameters"));
 		assertEquals(parameters, jobData.get(0).get("buildParameters"));
 	}
 
@@ -173,7 +214,7 @@ public class BuildResourceTest {
 		Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
 				.buildParameters("param2=$PRDESTINATION").build();
 		jobs.add(job);
-		Response actual = rest.getJobs(repository, "branch", "commit", null);
+		Response actual = rest.getJobs(repository, "branch", "commit", null, 0);
 
 		@SuppressWarnings("unchecked")
 		List<Map<String, Object>> jobData = (List<Map<String, Object>>) actual.getEntity();

@@ -96,9 +96,15 @@ For example `branch=$BRANCH` will replace $BRANCH with the branch name that trig
 Built-in variables: 
 * $BRANCH: the branch name or tag name that triggered the build (without refs/heads/ or refs/tags/)
 * $COMMIT: the commit hash that triggered the build 
-* $PRDESTINATION: if using a PR trigger this will be the name of the destination branch in the PR
 * $REPOSITORY: the repository slug
 * $PROJECT: the project key
+* PR-specific variables (only availably when using a PR trigger)
+ * $PRID: bitbucket id of the PR
+ * $PRDESTINATION: name of the destination branch in the PR
+ * $PRTITLE: title of the PR
+ * $PRDESCRIPTION: description of the PR (may be empty)
+ * $PRAUTHOR: display name of the author of the PR
+ * $PRURL: bitbucket URL of the PR
 
 Parameter Types:
 * string: `key=value`

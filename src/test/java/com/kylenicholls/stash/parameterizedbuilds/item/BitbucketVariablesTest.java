@@ -34,11 +34,66 @@ public class BitbucketVariablesTest {
 
 	@Test
 	public void testAddPRDestination() {
-		String pr = "pr";
-		BitbucketVariables actual = new BitbucketVariables.Builder().prDestination(pr).build();
+		String prDestination = "prdest";
+		BitbucketVariables actual = new BitbucketVariables.Builder().prDestination(prDestination).build();
 
 		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$PRDESTINATION", pr));
+		expected.add(new SimpleEntry<>("$PRDESTINATION", prDestination));
+		assertEquals(1, actual.getVariables().size());
+		assertEquals(expected, actual.getVariables());
+	}
+
+	@Test
+	public void testAddPRId() {
+		int prId = 5;
+		BitbucketVariables actual = new BitbucketVariables.Builder().prId(prId).build();
+
+		List<Entry<String, String>> expected = new ArrayList<>();
+		expected.add(new SimpleEntry<>("$PRID", Integer.toString(prId)));
+		assertEquals(1, actual.getVariables().size());
+		assertEquals(expected, actual.getVariables());
+	}
+
+	@Test
+	public void testAddPRAuthor() {
+		String prAuthor = "prauthor";
+		BitbucketVariables actual = new BitbucketVariables.Builder().prAuthor(prAuthor).build();
+
+		List<Entry<String, String>> expected = new ArrayList<>();
+		expected.add(new SimpleEntry<>("$PRAUTHOR", prAuthor));
+		assertEquals(1, actual.getVariables().size());
+		assertEquals(expected, actual.getVariables());
+	}
+
+	@Test
+	public void testAddPRTitle() {
+		String prTitle = "prtitle";
+		BitbucketVariables actual = new BitbucketVariables.Builder().prTitle(prTitle).build();
+
+		List<Entry<String, String>> expected = new ArrayList<>();
+		expected.add(new SimpleEntry<>("$PRTITLE", prTitle));
+		assertEquals(1, actual.getVariables().size());
+		assertEquals(expected, actual.getVariables());
+	}
+
+	@Test
+	public void testAddPRDescription() {
+		String prDescription = "prdesc";
+		BitbucketVariables actual = new BitbucketVariables.Builder().prDescription(prDescription).build();
+
+		List<Entry<String, String>> expected = new ArrayList<>();
+		expected.add(new SimpleEntry<>("$PRDESCRIPTION", prDescription));
+		assertEquals(1, actual.getVariables().size());
+		assertEquals(expected, actual.getVariables());
+	}
+
+	@Test
+	public void testAddPRUrl() {
+		String prUrl = "prurl";
+		BitbucketVariables actual = new BitbucketVariables.Builder().prUrl(prUrl).build();
+
+		List<Entry<String, String>> expected = new ArrayList<>();
+		expected.add(new SimpleEntry<>("$PRURL", prUrl));
 		assertEquals(1, actual.getVariables().size());
 		assertEquals(expected, actual.getVariables());
 	}

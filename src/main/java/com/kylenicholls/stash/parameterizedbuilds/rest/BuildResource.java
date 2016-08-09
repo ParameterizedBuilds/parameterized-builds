@@ -20,10 +20,13 @@ import javax.ws.rs.core.UriInfo;
 
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.i18n.I18nService;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.rest.RestResource;
 import com.atlassian.bitbucket.rest.util.ResourcePatterns;
 import com.atlassian.bitbucket.rest.util.RestUtils;
+import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
@@ -35,6 +38,7 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
+import java.util.Optional;
 
 @Path(ResourcePatterns.REPOSITORY_URI)
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -44,13 +48,19 @@ import com.sun.jersey.spi.resource.Singleton;
 public class BuildResource extends RestResource {
 	private SettingsService settingsService;
 	private Jenkins jenkins;
+	private final ApplicationPropertiesService applicationPropertiesService;
+	private final PullRequestService prService;
 	private final AuthenticationContext authContext;
 
 	public BuildResource(I18nService i18nService, SettingsService settingsService, Jenkins jenkins,
+			ApplicationPropertiesService applicationPropertiesService,
+			PullRequestService prService,
 			AuthenticationContext authContext) {
 		super(i18nService);
 		this.settingsService = settingsService;
 		this.jenkins = jenkins;
+		this.applicationPropertiesService = applicationPropertiesService;
+		this.prService = prService;
 		this.authContext = authContext;
 	}
 
@@ -106,16 +116,31 @@ public class BuildResource extends RestResource {
 	@GET
 	@Path(value = "getJobs")
 	public Response getJobs(@Context final Repository repository,
-			@QueryParam("branch") String branch, @QueryParam("commit") String commit, @QueryParam("prdestination") String prDestination) {
+			@QueryParam("branch") String branch, @QueryParam("commit") String commit, @QueryParam("prdestination") String prDestination, @QueryParam("prid") long prId) {
 		if (authContext.isAuthenticated()) {
 			Settings settings = settingsService.getSettings(repository);
 			if (settings == null) {
 				return Response.status(Response.Status.NOT_FOUND).build();
 			}
 
+			String projectKey = repository.getProject().getKey();
+			String url = applicationPropertiesService.getBaseUrl().toString();
 			Builder variableBuilder = new BitbucketVariables.Builder().branch(branch)
-					.commit(commit).repoName(repository.getSlug()).projectName(repository.getProject().getKey());
+					.commit(commit).url(url).repoName(repository.getSlug())
+					.projectName(projectKey);
 			if (prDestination != null) {
+
+				PullRequest pullRequest = prService.getById(repository.getId(), prId);
+				if (pullRequest != null) {
+					String prAuthor = pullRequest.getAuthor().getUser().getDisplayName();
+					String prTitle = pullRequest.getTitle();
+					String prDescription = pullRequest.getDescription();
+					String prUrl = url + "/projects/" + projectKey + "/repos/" + repository.getSlug() + "/pull-requests/" + prId;
+
+					variableBuilder.prId(prId).prAuthor(prAuthor).prTitle(prTitle)
+							.prDescription(Optional.ofNullable(prDescription).orElse(""))
+                            .prUrl(prUrl);
+				}
 				variableBuilder.prDestination(prDestination);
 			}
 
