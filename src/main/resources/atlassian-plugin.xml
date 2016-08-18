@@ -16,7 +16,10 @@
   <!-- add our components resources -->
   <component-import key="soyTemplateRenderer" interface="com.atlassian.soy.renderer.SoyTemplateRenderer"/>
   <component-import key="i18nService" interface="com.atlassian.bitbucket.i18n.I18nService"/>
+  <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
+  <component-import key="prService" interface="com.atlassian.bitbucket.pull.PullRequestService" />
   <component key="SettingsService" class="com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService"/>
+  <component key="ParameterizedBuildHook" class="com.kylenicholls.stash.parameterizedbuilds.ParameterizedBuildHook"/>
   <component key="PullRequestHook" class="com.kylenicholls.stash.parameterizedbuilds.PullRequestHook"/>
   <component key="Jenkins" class="com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins"/>
   

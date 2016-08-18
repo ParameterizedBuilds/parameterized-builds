@@ -15,12 +15,12 @@ define('jenkins/parameterized-build-pullrequest', [
 
 	$(".parameterized-build-pullrequest").click(function() {
 		var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
-		branch = prJSON.fromRef.displayId;
-		commit = prJSON.fromRef.latestCommit;
-		prDest = prJSON.toRef.displayId;
-		
-		var resourceUrl = getResourceUrl("getJobs") + "?branch=" + branch + "&commit=" + commit + "&prdestination=" + prDest;
-    	
+		var branch = prJSON.fromRef.displayId;
+		var commit = prJSON.fromRef.latestCommit;
+		var prDest = prJSON.toRef.displayId;
+
+		var resourceUrl = getResourceUrl("getJobs") + "?branch=" + branch + "&commit=" + commit + "&prdestination=" + prDest + "&prid=" + prJSON.id;
+
 		jobs = getJobs(resourceUrl);
     	if (jobs.length == 1){
         	if (jobs[0].buildParameters.length == 0){
@@ -33,7 +33,7 @@ define('jenkins/parameterized-build-pullrequest', [
     	showManualBuildDialog(buildUrl);
     	return false;
 	});
-	
+
 	function getResourceUrl(resourceType){
 		return _aui.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().getKey() + '/repos/'
         + pageState.getRepository().getSlug() + '/' + resourceType;
@@ -52,7 +52,7 @@ define('jenkins/parameterized-build-pullrequest', [
 		});
 		return results;
 	}
-	
+
     function showManualBuildDialog(buildUrl) {
         var dialog = _aui.dialog2(aui.dialog.dialog2({
             titleText: AJS.I18n.getText('Build with Parameters'),
@@ -62,11 +62,11 @@ define('jenkins/parameterized-build-pullrequest', [
             footerActionContent: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildButton(),
             removeOnHide: true
         })).show();
-        
+
         var jobSelector = document.getElementById("job");
         var selectedValue = jobSelector.options[jobSelector.selectedIndex].value;
         setupJobForm(jobs[selectedValue]);
-        
+
         dialog.$el.find('form').on('submit', function(e) { e.preventDefault(); });
         dialog.$el.find('#start-build').on('click', function() {
             _.defer(function() {
@@ -89,15 +89,15 @@ define('jenkins/parameterized-build-pullrequest', [
             });
         }).focus().select();
     }
-	
+
 	$(document).on('change', '#job', function(e) {
     	e.preventDefault();
     	setupJobForm(jobs[this.value]);
     });
-	
+
 	function setupJobForm(job) {
 		var $container = $('.job-params');
-		
+
 		var html = '<div class="job-params">';
 		var parameters = job.buildParameters;
 		if (parameters) {
@@ -129,7 +129,7 @@ define('jenkins/parameterized-build-pullrequest', [
 		}
 		$container.replaceWith(html + "</div>");
 	}
-	
+
 	function triggerBuild(buildUrl){
 		var successFlag = flag({
             type: 'success',
@@ -155,22 +155,22 @@ define('jenkins/parameterized-build-pullrequest', [
     			if (promptCookie !== "ignore") {
 	    			flag({
 	                    type: 'info',
-	                    body: '<p>Optional: <a href="' + settingsPath + 
-	                    '" target="_blank">You can link your Jenkins account to your Bitbucket account.</a></p>' + 
+	                    body: '<p>Optional: <a href="' + settingsPath +
+	                    '" target="_blank">You can link your Jenkins account to your Bitbucket account.</a></p>' +
 	                    '<br/><label><input id="prompt-cookie" type="checkbox" /><span>Don\'t show again</span></label>'
 	                });
     			}
     		}
 		});
 	};
-	
+
 	$(document).on('change', '#prompt-cookie', function(e) {
 		var d = new Date();
 	    d.setTime(d.getTime() + (365*24*60*60*1000));
 	    var expires = "expires="+ d.toUTCString();
 		document.cookie = "jenkinsPrompt=ignore;" + expires + ";path=/";
     });
-	
+
 	function getCookie(cname) {
 	    var name = cname + "=";
 	    var ca = document.cookie.split(';');

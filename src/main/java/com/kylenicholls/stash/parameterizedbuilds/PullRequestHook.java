@@ -16,6 +16,7 @@ import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.event.api.EventListener;
@@ -30,12 +31,14 @@ public class PullRequestHook {
 	private final SettingsService settingsService;
 	private final PullRequestService pullRequestService;
 	private final Jenkins jenkins;
+	private final ApplicationPropertiesService applicationPropertiesService;
 
 	public PullRequestHook(SettingsService settingsService, PullRequestService pullRequestService,
-			Jenkins jenkins) {
+			Jenkins jenkins, ApplicationPropertiesService applicationPropertiesService) {
 		this.settingsService = settingsService;
 		this.pullRequestService = pullRequestService;
 		this.jenkins = jenkins;
+		this.applicationPropertiesService = applicationPropertiesService;
 	}
 
 	@EventListener
@@ -79,10 +82,22 @@ public class PullRequestHook {
 		String projectKey = repository.getProject().getKey();
 		String branch = pullRequest.getFromRef().getDisplayId();
 		String commit = pullRequest.getFromRef().getLatestCommit();
+		String url = applicationPropertiesService.getBaseUrl().toString();
+		long prId = pullRequest.getId();
+		String prAuthor = pullRequest.getAuthor().getUser().getDisplayName();
+		String prTitle = pullRequest.getTitle();
+		String prDescription = pullRequest.getDescription();
 		String prDest = pullRequest.getToRef().getDisplayId();
-		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
-				.commit(commit).prDestination(prDest).repoName(repository.getSlug())
-				.projectName(repository.getProject().getName()).build();
+		String prUrl = url + "/projects/" + projectKey + "/repos/" + repository.getSlug() + "/pull-requests/" + prId;
+		BitbucketVariables.Builder builder = new BitbucketVariables.Builder().branch(branch)
+				.commit(commit).url(url).prId(prId).prAuthor(prAuthor).prTitle(prTitle)
+				.prDestination(prDest).prUrl(prUrl)
+				.repoName(repository.getSlug())
+				.projectName(repository.getProject().getName());
+		if (prDescription != null) {
+			builder.prDescription(prDescription);
+		}
+		BitbucketVariables bitbucketVariables = builder.build();
 
 		Settings settings = settingsService.getSettings(repository);
 		if (settings == null) {

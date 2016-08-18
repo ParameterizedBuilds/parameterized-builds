@@ -25,6 +25,7 @@ import com.atlassian.bitbucket.pull.PullRequestParticipant;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
@@ -32,6 +33,8 @@ import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.JobBuilder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class PullRequestHookTest {
 	private final String PROJECT_KEY = "projectkey";
@@ -40,11 +43,16 @@ public class PullRequestHookTest {
 	private final String COMMIT = "commithash";
 	private final String REPO_SLUG = "reposlug";
 	private final String PROJECT_NAME = "projectname";
+	private final String USER_DISPLAY_NAME = "userdisplayname";
+	private final String PR_TITLE = "prtitle";
+	private final Long PR_ID = 15L;
+	private final String PR_URI = "http://pruri";
 	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
 	private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken",
 			false);
 	private SettingsService settingsService;
 	private Jenkins jenkins;
+	private ApplicationPropertiesService propertiesService;
 	private PullRequestHook hook;
 	private PullRequestOpenedEvent openedEvent;
 	private PullRequestReopenedEvent reopenedEvent;
@@ -57,11 +65,12 @@ public class PullRequestHookTest {
 	private List<Job> jobs;
 
 	@Before
-	public void setup() {
+	public void setup() throws URISyntaxException {
 		settingsService = mock(SettingsService.class);
 		PullRequestService pullRequestService = mock(PullRequestService.class);
 		jenkins = mock(Jenkins.class);
-		hook = new PullRequestHook(settingsService, pullRequestService, jenkins);
+		propertiesService = mock(ApplicationPropertiesService.class);
+		hook = new PullRequestHook(settingsService, pullRequestService, jenkins, propertiesService);
 
 		PullRequest pullRequest = mock(PullRequest.class);
 		Project project = mock(Project.class);
@@ -89,13 +98,18 @@ public class PullRequestHookTest {
 		when(pullRequest.getFromRef()).thenReturn(prFromRef);
 		when(pullRequest.getToRef()).thenReturn(prToRef);
 		when(pullRequest.getAuthor()).thenReturn(author);
+		when(pullRequest.getDescription()).thenReturn(null);
+		when(pullRequest.getTitle()).thenReturn(PR_TITLE);
+		when(pullRequest.getId()).thenReturn(PR_ID);
 		when(author.getUser()).thenReturn(user);
+		when(user.getDisplayName()).thenReturn(USER_DISPLAY_NAME);
 		when(prFromRef.getRepository()).thenReturn(repository);
 		when(prFromRef.getDisplayId()).thenReturn(SOURCE_BRANCH);
 		when(prFromRef.getLatestCommit()).thenReturn(COMMIT);
 		when(prToRef.getDisplayId()).thenReturn(DEST_BRANCH);
 		when(settingsService.getSettings(repository)).thenReturn(settings);
 		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
+		when(propertiesService.getBaseUrl()).thenReturn(new URI(PR_URI));
 
 		jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
 				.pathRegex("");

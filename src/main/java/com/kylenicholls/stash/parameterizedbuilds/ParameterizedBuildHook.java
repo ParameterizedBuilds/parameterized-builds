@@ -18,6 +18,7 @@ import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
@@ -38,13 +39,15 @@ public class ParameterizedBuildHook
 	private final SettingsService settingsService;
 	private final CommitService commitService;
 	private final Jenkins jenkins;
+	private final ApplicationPropertiesService applicationPropertiesService;
 	private AuthenticationContext actx;
 
 	public ParameterizedBuildHook(SettingsService settingsService, CommitService commitService,
-			Jenkins jenkins, AuthenticationContext actx) {
+			Jenkins jenkins, ApplicationPropertiesService applicationPropertiesService, AuthenticationContext actx) {
 		this.settingsService = settingsService;
 		this.commitService = commitService;
 		this.jenkins = jenkins;
+		this.applicationPropertiesService = applicationPropertiesService;
 		this.actx = actx;
 	}
 
@@ -69,8 +72,9 @@ public class ParameterizedBuildHook
 			ApplicationUser user, RefChange refChange, String branch, boolean isTag) {
 		String projectKey = repository.getProject().getKey();
 		String commit = refChange.getToHash();
+		String url = applicationPropertiesService.getBaseUrl().toString();
 		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
-				.commit(commit).repoName(repository.getSlug()).projectName(projectKey).build();
+				.commit(commit).url(url).repoName(repository.getSlug()).projectName(projectKey).build();
 
 		for (Job job : settingsService.getJobs(context.getSettings().asMap())) {
 			if (job.getIsTag() == isTag) {
