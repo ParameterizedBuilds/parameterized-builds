@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
@@ -38,7 +39,6 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
-import java.util.Optional;
 
 @Path(ResourcePatterns.REPOSITORY_URI)
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -142,6 +142,9 @@ public class BuildResource extends RestResource {
                             .prUrl(prUrl);
 				}
 				variableBuilder.prDestination(prDestination);
+			} else {
+				variableBuilder.prId(prId).prAuthor("").prTitle("")
+						.prDescription("").prUrl("");
 			}
 
 			List<Map<String, Object>> data = new ArrayList<>();
