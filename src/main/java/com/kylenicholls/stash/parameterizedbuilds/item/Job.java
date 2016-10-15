@@ -1,8 +1,5 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +10,9 @@ import java.util.Map.Entry;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Job {
 	private static final Logger logger = LoggerFactory.getLogger(Job.class);
@@ -136,7 +136,7 @@ public class Job {
 			if (!parameterString.isEmpty()) {
 				String[] lines = parameterString.split("\\r?\\n");
 				for (String line : lines) {
-					String[] pair = line.split("=");
+					String[] pair = line.split("=", 2);
 					String key = pair[0];
 					if (pair.length > 1) {
 						if (pair[1].split(";").length > 1) {
