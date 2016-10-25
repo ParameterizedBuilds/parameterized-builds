@@ -19,7 +19,7 @@ define('jenkins/parameterized-build-pullrequest', [
 		var commit = prJSON.fromRef.latestCommit;
 		var prDest = prJSON.toRef.displayId;
 
-		var resourceUrl = getResourceUrl("getJobs") + "?branch=" + branch + "&commit=" + commit + "&prdestination=" + prDest + "&prid=" + prJSON.id;
+		var resourceUrl = getResourceUrl("getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + prJSON.id;
 
 		jobs = getJobs(resourceUrl);
     	if (jobs.length == 1){
@@ -82,7 +82,7 @@ define('jenkins/parameterized-build-pullrequest', [
             		if (type.indexOf("checkbox") > -1) {
             			value = dialog.$el.find('#build-param-value-' + index)[0].checked;
             		}
-            		buildUrl += key + "=" + value + "&";
+            		buildUrl += key + "=" + encodeURIComponent(value) + "&";
             	});
             	triggerBuild(buildUrl.slice(0,-1));
                 dialog.hide();

@@ -1,5 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -196,7 +198,11 @@ public class Job {
 		String buildUrl = builder.build().toString();
 
 		for (Entry<String, String> variable : bitbucketVariables.getVariables()) {
-			buildUrl = buildUrl.replace(variable.getKey(), variable.getValue());
+			try {
+				buildUrl = buildUrl.replace(variable.getKey(), URLEncoder.encode(variable.getValue(), "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				buildUrl = buildUrl.replace(variable.getKey(), variable.getValue());
+			}
 		}
 
 		return buildUrl;

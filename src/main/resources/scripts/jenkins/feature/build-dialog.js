@@ -24,7 +24,7 @@ define('trigger/build-dialog', [
             var commit = branchInfo[1];
 
             var triggerBuildSetup = function() {
-            	var resourceUrl = getResourceUrl("getJobs") + "?branch=" + branch + "&commit=" + commit;
+            	var resourceUrl = getResourceUrl("getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit;
             	
             	jobs = getJobs(resourceUrl);
             	if (jobs.length == 1){
@@ -95,7 +95,7 @@ define('trigger/build-dialog', [
             		if (type.indexOf("checkbox") > -1) {
             			value = dialog.$el.find('#build-param-value-' + index)[0].checked;
             		}
-            		buildUrl += key + "=" + value + "&";
+            		buildUrl += key + "=" + encodeURIComponent(value) + "&";
             	});
             	triggerBuild(buildUrl.slice(0,-1));
                 dialog.hide();
