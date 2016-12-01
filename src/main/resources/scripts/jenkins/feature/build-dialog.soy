@@ -7,7 +7,7 @@
     {call aui.form.form}
     	{param action: '' /}
         {param content}
-	    <select class="select" id="job" name="job" style="max-width:150px;">
+	    <select class="select" id="job" name="job" style="max-width:initial;width:auto">
 	        {for $i in range(length($jobs))}
             	<option value="{$i}">{$jobs[$i]['jobName']}</option>
             {/for}

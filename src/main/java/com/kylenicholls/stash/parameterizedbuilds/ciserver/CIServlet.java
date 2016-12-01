@@ -55,7 +55,7 @@ public class CIServlet extends HttpServlet {
 		try {
 			String pathInfo = req.getPathInfo();
 			if (authContext.isAuthenticated()) {
-				if (pathInfo.contains("/account/")) {
+				if (pathInfo.contains("/jenkins/account")) {
 					renderForAccount(res);
 				} else if (pathInfo.contains("/jenkins/project/")) {
 					renderForProject(res, pathInfo);
@@ -99,7 +99,7 @@ public class CIServlet extends HttpServlet {
 			throws ServletException, IOException {
 		try {
 			String pathInfo = req.getPathInfo();
-			if (pathInfo.contains("/account/")) {
+			if (pathInfo.contains("/jenkins/account")) {
 				postAccountSettings(req.getParameterMap());
 				doGet(req, res);
 			} else {

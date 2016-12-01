@@ -39,7 +39,7 @@ public class CIServletTest {
 	private final String USER_SLUG = "userslug";
 	private final String GLOBAL_PATH = "/plugins/servlet/jenkins";
 	private final String PROJECT_PATH = "/plugins/servlet/jenkins/project/";
-	private final String ACCOUNT_PATH = "/plugins/servlet/account/jenkins";
+	private final String ACCOUNT_PATH = "/plugins/servlet/jenkins/account";
 	private CIServlet servlet;
 	private SoyTemplateRenderer renderer;
 	private Jenkins jenkins;

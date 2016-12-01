@@ -135,10 +135,12 @@
     <dependency>com.atlassian.bitbucket.server.bitbucket-web:global</dependency>
     <dependency>com.atlassian.bitbucket.server.bitbucket-web:server-soy-templates</dependency>
   </client-resource>
+
   <web-item name="Jenkins Admin Settings" key="jenkins-admin-tab" section="atl.admin/admin-plugins-section" weight="30">
     <label>Jenkins Settings</label>
      <link linkId="reminder-config-link">/plugins/servlet/jenkins</link>
   </web-item>
+
   <web-item name="Jenkins Admin Settings" key="jenkins-admin-project-tab" section="bitbucket.project.settings.panel/project-settings-addons-section" weight="30">
     <label>Jenkins Settings</label>
      <link linkId="reminder-config-link">/plugins/servlet/jenkins/project/${project.key}</link>
@@ -146,11 +148,12 @@
 
   <web-item name="Jenkins User Settings" key="jenkins-user-tab" section="bitbucket.user.account.nav" weight="200">
     <label>Jenkins Settings</label>
-    <link>/plugins/servlet/account/jenkins</link>
+    <link>/plugins/servlet/jenkins/account</link>
     <tooltip>Jenkins Settings</tooltip>
   </web-item>
+
   <servlet name="CI Servlet" i18n-name-key="ci-servlet.name" key="ci-servlet" class="com.kylenicholls.stash.parameterizedbuilds.ciserver.CIServlet">
     <description key="ci-servlet.description">The CI Servlet Plugin</description>
-    <url-pattern>*/jenkins*</url-pattern>
+    <url-pattern>/jenkins*</url-pattern>
   </servlet>
 </atlassian-plugin>
