@@ -9,7 +9,7 @@ define('jenkins/parameterized-build-layout', [
 ) {
     exports.onReady = function () {
         branchBuild.bindToDropdownLink('.parameterized-build-layout', '#branch-actions-menu', function () {
-            return [pageState.getRevisionRef().getDisplayId(), pageState.getRevisionRef().getLatestCommit()];
+            return [pageState.getRevisionRef().getId(), pageState.getRevisionRef().getLatestCommit()];
         });
     };
 });

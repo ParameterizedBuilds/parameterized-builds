@@ -70,6 +70,7 @@
     <dependency>com.atlassian.bitbucket.server.bitbucket-web:global</dependency>
     <dependency>com.atlassian.auiplugin:aui-flag</dependency>
     <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.bitbucket.server.bitbucket-web-api:branch-selector-field</dependency>
   </web-resource>
   
   <!-- Hook -->

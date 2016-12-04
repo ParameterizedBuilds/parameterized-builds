@@ -9,7 +9,7 @@ define('jenkins/parameterized-build-branchlist', [
 ) {
     exports.onReady = function () {
     	branchBuild.bindToDropdownLink('.parameterized-build-branchlist', '.branch-list-action-dropdown', function (element) {
-            return [$(element).closest('[data-display-id]').attr('data-display-id'), $(element).closest('[data-latest-commit]').attr('data-latest-commit')];
+            return [$(element).closest('[data-id]').attr('data-id'), $(element).closest('[data-latest-commit]').attr('data-latest-commit')];
         });
     };
 });

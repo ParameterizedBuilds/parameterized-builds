@@ -95,7 +95,7 @@ define('trigger/build-dialog', [
             		if (type.indexOf("checkbox") > -1) {
             			value = dialog.$el.find('#build-param-value-' + index)[0].checked;
             		}
-            		buildUrl += key + "=" + encodeURIComponent(value) + "&";
+            		buildUrl += key + "=" + encodeURIComponent(value.replace('refs/heads/','')) + "&";
             	});
             	triggerBuild(buildUrl.slice(0,-1));
                 dialog.hide();
@@ -120,6 +120,12 @@ define('trigger/build-dialog', [
 					var value = keyValue[key];
 					if (value === 'true' || value === 'false') {
 						html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addBooleanParameter({
+				            count: i,
+				            key: key,
+				            value: value
+				        });
+					} else if (value.startsWith('refs/heads/')) {
+						html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addBranchParameter({
 				            count: i,
 				            key: key,
 				            value: value
