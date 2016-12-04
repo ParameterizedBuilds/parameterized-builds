@@ -46,6 +46,21 @@
  * @param key
  * @param value
  */
+{template .addBranchParameter}
+    <div id="jenkins-form-{$count}" class="jenkins-form">
+		{call bitbucket.component.branchSelector.field}
+			{param id: 'build-param-value-' + $count /}
+			{param labelText: $key /}
+			{param initialValue: $value /}
+		{/call}
+	</div>
+{/template}
+
+/**
+ * @param count
+ * @param key
+ * @param value
+ */
 {template .addBooleanParameter}
     <div id="jenkins-form-{$count}" class="field-group jenkins-form">
 	    <div class="checkbox">

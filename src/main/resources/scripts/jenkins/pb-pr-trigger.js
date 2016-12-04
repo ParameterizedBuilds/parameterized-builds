@@ -15,7 +15,7 @@ define('jenkins/parameterized-build-pullrequest', [
 
 	$(".parameterized-build-pullrequest").click(function() {
 		var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
-		var branch = prJSON.fromRef.displayId;
+		var branch = prJSON.fromRef.id;
 		var commit = prJSON.fromRef.latestCommit;
 		var prDest = prJSON.toRef.displayId;
 
@@ -82,7 +82,7 @@ define('jenkins/parameterized-build-pullrequest', [
             		if (type.indexOf("checkbox") > -1) {
             			value = dialog.$el.find('#build-param-value-' + index)[0].checked;
             		}
-            		buildUrl += key + "=" + encodeURIComponent(value) + "&";
+            		buildUrl += key + "=" + encodeURIComponent(value.replace('refs/heads/','')) + "&";
             	});
             	triggerBuild(buildUrl.slice(0,-1));
                 dialog.hide();
@@ -107,6 +107,12 @@ define('jenkins/parameterized-build-pullrequest', [
 					var value = keyValue[key];
 					if (value === 'true' || value === 'false') {
 						html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addBooleanParameter({
+				            count: i,
+				            key: key,
+				            value: value
+				        });
+					} else if (value.startsWith('refs/heads/')) {
+						html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addBranchParameter({
 				            count: i,
 				            key: key,
 				            value: value
