@@ -280,6 +280,6 @@ public class PullRequestHookTest {
 		hook.onPullRequestDeclined(declinedEvent);
 
 		verify(jenkins, times(1)).triggerJob("globalurl/job/buildWithParameters?param="
-				+ PROJECT_NAME, globalServer.getJoinedToken(), true);
+				+ PROJECT_KEY, globalServer.getJoinedToken(), true);
 	}
 }

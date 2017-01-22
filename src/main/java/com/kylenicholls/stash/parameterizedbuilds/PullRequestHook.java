@@ -93,7 +93,7 @@ public class PullRequestHook {
 				.commit(commit).url(url).prId(prId).prAuthor(prAuthor).prTitle(prTitle)
 				.prDestination(prDest).prUrl(prUrl)
 				.repoName(repository.getSlug())
-				.projectName(repository.getProject().getName());
+				.projectName(projectKey);
 		if (prDescription != null) {
 			builder.prDescription(prDescription);
 		}
