@@ -94,8 +94,10 @@ define('trigger/build-dialog', [
             		var type = $(dialog.$el.find('#build-param-value-' + index)[0]).attr('class');
             		if (type.indexOf("checkbox") > -1) {
             			value = dialog.$el.find('#build-param-value-' + index)[0].checked;
-            		}
-            		buildUrl += key + "=" + encodeURIComponent(value.replace('refs/heads/','')) + "&";
+            		} else if (type.indexOf("hidden") > -1) {
+            			value = value.replace('refs/heads/','');
+					}
+            		buildUrl += key + "=" + encodeURIComponent(value) + "&";
             	});
             	triggerBuild(buildUrl.slice(0,-1));
                 dialog.hide();
