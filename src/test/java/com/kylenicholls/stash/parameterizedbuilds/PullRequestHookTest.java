@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,6 +64,7 @@ public class PullRequestHookTest {
 	private ApplicationUser user;
 	private JobBuilder jobBuilder;
 	private List<Job> jobs;
+	private RepositoryHook repoHook;
 
 	@Before
 	public void setup() throws URISyntaxException {
@@ -85,6 +87,7 @@ public class PullRequestHookTest {
 		rescopedEvent = mock(PullRequestRescopedEvent.class);
 		mergedEvent = mock(PullRequestMergedEvent.class);
 		declinedEvent = mock(PullRequestDeclinedEvent.class);
+		repoHook = mock(RepositoryHook.class);
 
 		when(openedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(reopenedEvent.getPullRequest()).thenReturn(pullRequest);
@@ -110,6 +113,8 @@ public class PullRequestHookTest {
 		when(settingsService.getSettings(repository)).thenReturn(settings);
 		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
 		when(propertiesService.getBaseUrl()).thenReturn(new URI(PR_URI));
+		when(settingsService.getHook(any())).thenReturn(repoHook);
+		when(repoHook.isEnabled()).thenReturn(true);
 
 		jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
 				.pathRegex("");
@@ -183,6 +188,15 @@ public class PullRequestHookTest {
 		hook.onPullRequestOpened(openedEvent);
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
+	}
+
+	@Test
+	public void testPROpenedAndHookIsDisabled() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
+		jobs.add(job);
+		when(repoHook.isEnabled()).thenReturn(false);
+		hook.onPullRequestOpened(openedEvent);
+		verify(jenkins, times(0)).triggerJob(any(),any(), anyBoolean());
 	}
 
 	@Test

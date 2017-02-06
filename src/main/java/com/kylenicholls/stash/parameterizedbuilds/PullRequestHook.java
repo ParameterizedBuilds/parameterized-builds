@@ -78,6 +78,9 @@ public class PullRequestHook {
 
 	private void triggerFromPR(PullRequest pullRequest, Trigger trigger) throws IOException {
 		Repository repository = pullRequest.getFromRef().getRepository();
+		if (!settingsService.getHook(repository).isEnabled()) {
+			return;
+		}
 		ApplicationUser user = pullRequest.getAuthor().getUser();
 		String projectKey = repository.getProject().getKey();
 		String branch = pullRequest.getFromRef().getDisplayId();
