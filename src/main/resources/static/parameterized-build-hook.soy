@@ -10,7 +10,7 @@
 				<div class="field-group"><div class="error">{$errors['jenkins-admin-error']}</div></div>
 		{/if}
 		{let $configKeys: $config ? keys($config) : [] /}
-		{let $visibleInputsCount: $configKeys.length > 0 ? ($configKeys.length / 7) : 1 /}
+		{let $visibleInputsCount: $configKeys.length > 0 ? ($configKeys.length / 8) : 1 /}
 		{for $i in range($visibleInputsCount)}
 			{call .addJob}
 				{param canDelete: $visibleInputsCount > 1 /}
@@ -22,6 +22,7 @@
 				{param buildParameters: $config and $config['buildParameters-' + $i] ? $config['buildParameters-' + $i] : null /}
 				{param branchRegex: $config and $config['branchRegex-' + $i] ? $config['branchRegex-' + $i] : null /}
 				{param pathRegex: $config and $config['pathRegex-' + $i] ? $config['pathRegex-' + $i] : null /}
+				{param requirePermission: $config and $config['requirePermission-' + $i] ? $config['requirePermission-' + $i] : null /}
               	{param errors: $errors ? $errors : null /}
               	{param collapsed: not $errors and $configKeys.length > 0 /}
 			{/call}
@@ -46,6 +47,7 @@
  * @param buildParameters
  * @param branchRegex
  * @param pathRegex
+ * @param requirePermission
  * @param errors
  * @param collapsed
  */
@@ -168,6 +170,35 @@
         	Supported triggers: AUTO MERGE, PUSH EVENT, PR OPENED, PR MERGED, PR DECLINED' /}
         	{param extraClasses: $pathClasses /}
 	    {/call}
+	    {let $permissionsClasses}
+        	{if $collapsed and not strContains($triggers, 'manual;')}
+        		hidden hide-permissions
+        	{elseif $collapsed and  strContains($triggers, 'manual;')}
+        		hidden
+        	{elseif not $collapsed and not  strContains($triggers, 'manual;')}
+        		hide-permissions
+        	{/if}
+        {/let}
+	    {call aui.form.selectField}
+        	{param id: 'requirePermission-' + $count /}
+        	{param value: $requirePermission /}
+        	{param labelContent: 'Required Build Permission' /}
+            {param options: [[
+                    'text': 'Any',
+                    'value': 'LICENSED_USER'
+                ],[
+                    'text': 'Read',
+                    'value': 'REPO_READ'
+                ],[
+                    'text': 'Write',
+                    'value': 'REPO_WRITE'
+                ],[
+                    'text': 'Admin',
+                    'value': 'REPO_ADMIN'
+                ]] /}
+        	{param descriptionText: 'Only allow users with the given repository permission or higher to trigger this job.' /}
+            {param extraClasses: $permissionsClasses /}
+        {/call}
 		<hr>
     </div>
 {/template}

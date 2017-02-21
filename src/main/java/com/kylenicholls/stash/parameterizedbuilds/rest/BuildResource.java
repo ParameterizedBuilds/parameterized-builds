@@ -33,6 +33,7 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables.Builder;
@@ -52,17 +53,19 @@ public class BuildResource extends RestResource {
 	private final ApplicationPropertiesService applicationPropertiesService;
 	private final PullRequestService prService;
 	private final AuthenticationContext authContext;
+	private final BuildPermissionsCondition permissionsCheck;
 
 	public BuildResource(I18nService i18nService, SettingsService settingsService, Jenkins jenkins,
 			ApplicationPropertiesService applicationPropertiesService,
 			PullRequestService prService,
-			AuthenticationContext authContext) {
+			AuthenticationContext authContext, BuildPermissionsCondition permissionsCheck) {
 		super(i18nService);
 		this.settingsService = settingsService;
 		this.jenkins = jenkins;
 		this.applicationPropertiesService = applicationPropertiesService;
 		this.prService = prService;
 		this.authContext = authContext;
+		this.permissionsCheck = permissionsCheck;
 	}
 
 	@POST
@@ -150,7 +153,8 @@ public class BuildResource extends RestResource {
 
 			List<Map<String, Object>> data = new ArrayList<>();
 			for (Job job : settingsService.getJobs(settings.asMap())) {
-				if (job.getTriggers().contains(Trigger.MANUAL)) {
+				if (job.getTriggers().contains(Trigger.MANUAL) &&
+						permissionsCheck.checkPermissions(job, repository, authContext.getCurrentUser())) {
 					data.add(job.asMap(variableBuilder.build()));
 				}
 			}

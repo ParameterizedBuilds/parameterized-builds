@@ -31,11 +31,13 @@ they will be triggered in the order they are added.
 * [Build Parameters](#build-parameters)
 * `Ref Filter` uses java regex syntax to only trigger a 
 build for branches/tags that match the filter
- * the filter will only be used for branch/tag creation, branch pushes, and branch/tag deletion
- * leave blank to match all branches
+  * the filter will only be used for branch/tag creation, branch pushes, and branch/tag deletion
+  * leave blank to match all branches
 * `Monitored Paths` will only trigger a build if a file in the diff matches the filter
- * the filter will only be used for branch pushes and PR events
- * leave blank to match all changes
+  * the filter will only be used for branch pushes and PR events
+  * leave blank to match all changes
+* `Required Build Permission` will restrict who can trigger a Jenkins job using the repository permissions
+  * This is only available on manual triggers
 
 #### Link your bitbucket server account to Jenkins
 ![Jenkins user settings](readme/img/jenkins_user.png)  
