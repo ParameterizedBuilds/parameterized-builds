@@ -15,6 +15,7 @@ import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
+import com.atlassian.bitbucket.repository.Branch;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
@@ -26,6 +27,7 @@ import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
+import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
 
 public class PullRequestHook {
 	private final SettingsService settingsService;
@@ -71,9 +73,37 @@ public class PullRequestHook {
 	}
 
 	@EventListener
+	public void onPullRequestAutomaticMerged(AutomaticMergeEvent event) throws IOException {
+		Iterable<Branch> branches = event.getMergePath();
+		for (Branch branch : branches){
+			triggerFromPR(branch, event, Trigger.PRAUTOMERGED);
+		}
+	}
+
+	@EventListener
 	public void onPullRequestDeclined(PullRequestDeclinedEvent event) throws IOException {
 		PullRequest pullRequest = event.getPullRequest();
 		triggerFromPR(pullRequest, Trigger.PRDECLINED);
+
+	}
+
+	private void triggerFromPR(Branch branch, AutomaticMergeEvent event, Trigger trigger){
+		Repository repository = event.getRepository();
+		if (!settingsService.getHook(repository).isEnabled()) {
+			return;
+		}
+		ApplicationUser user = event.getUser();
+		String projectKey = repository.getProject().getKey();
+		String commit = branch.getLatestCommit();
+		String branch_name = branch.getDisplayId();
+		String url = applicationPropertiesService.getBaseUrl().toString();
+		BitbucketVariables.Builder builder = new BitbucketVariables.Builder().branch(branch_name)
+				.commit(commit).url(url)
+				.repoName(repository.getSlug())
+				.projectName(projectKey);
+
+		BitbucketVariables bitbucketVariables = builder.build();
+		triggerJenkinsJobs(bitbucketVariables, repository, trigger, projectKey, user, null);
 	}
 
 	private void triggerFromPR(PullRequest pullRequest, Trigger trigger) throws IOException {
@@ -101,7 +131,10 @@ public class PullRequestHook {
 			builder.prDescription(prDescription);
 		}
 		BitbucketVariables bitbucketVariables = builder.build();
+		triggerJenkinsJobs(bitbucketVariables, repository, trigger, projectKey, user, pullRequest);
+	}
 
+	private void triggerJenkinsJobs(BitbucketVariables bitbucketVariables, Repository repository, Trigger trigger, String projectKey, ApplicationUser user, PullRequest pullRequest){
 		Settings settings = settingsService.getSettings(repository);
 		if (settings == null) {
 			return;
@@ -137,7 +170,7 @@ public class PullRequestHook {
 
 				if (pathRegex.trim().isEmpty()) {
 					jenkins.triggerJob(buildUrl, token, finalPrompt);
-				} else {
+				} else if (pullRequest != null){
 					pullRequestService
 							.streamChanges(new PullRequestChangesRequest.Builder(pullRequest)
 									.build(), new AbstractChangeCallback() {
