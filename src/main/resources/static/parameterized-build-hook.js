@@ -17,6 +17,17 @@
 			}
 			trigger.val(existing);
         }
+
+        function showPath (existing, trigger) {
+            var relevantTriggers = ["push;", "pullrequest;", "prdeclined;", "prmerged;", "prautomerged;"]
+            var shouldDisplay = false
+            for (var i = 0; i < relevantTriggers.length; i++) {
+                if (existing.indexOf(relevantTriggers[i]) != -1 && relevantTriggers[i] != trigger){
+                    shouldDisplay = true
+                }
+            }
+            return shouldDisplay
+        }
         
         //
         // event bindings
@@ -132,7 +143,7 @@
             	updateTrigger($(this).parent().parent(), "push;", false);
 				var trigger = $(this).parent().parent().find('#triggers-' + id);
 				var existing = trigger.val();
-            	if (existing.indexOf("prmerged;") == -1 && existing.indexOf("pullrequest;") == -1) {
+            	if (!showPath(existing, 'push;')) {
     				$(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
             	}
             	if (existing.indexOf("add;") == -1 && existing.indexOf("delete;") == -1) {
@@ -183,7 +194,7 @@
             	updateTrigger($(this).parent().parent(), "pullrequest;", false);
 				var trigger = $(this).parent().parent().find('#triggers-' + id);
 				var existing = trigger.val();
-            	if (existing.indexOf("push;") == -1 && existing.indexOf("prmerged;") == -1 && existing.indexOf("prdeclined;") == -1) {
+            	if (!showPath(existing, 'pullrequest;')) {
     				$(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
             	}
             } else {
@@ -201,12 +212,30 @@
             	updateTrigger($(this).parent().parent(), "prmerged;", false);
 				var trigger = $(this).parent().parent().find('#triggers-' + id);
 				var existing = trigger.val();
-            	if (existing.indexOf("push;") == -1 && existing.indexOf("pullrequest;") == -1 && existing.indexOf("prdeclined;") == -1) {
+				if (!showPath(existing, 'prmerged;')) {
     				$(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
             	}
             } else {
             	updateTrigger($(this).parent().parent(), "prmerged;", true);
 				$(this).parent().parent().find('#pathRegex-' + id).parent().removeClass('hide-paths');
+            }
+            $(this).find('span').toggleClass("aui-lozenge-success");
+        });
+
+        $(document).on('click', '.pr-auto-merged', function(e) {
+            e.preventDefault();
+            var classes = $(this).find('span').attr('class');
+            var id = $(this).parent().parent().get(0).id.replace("job-", "");
+            if (classes.indexOf("aui-lozenge-success") > -1) {
+                updateTrigger($(this).parent().parent(), "prautomerged;", false);
+                var trigger = $(this).parent().parent().find('#triggers-' + id);
+                var existing = trigger.val();
+                if (!showPath(existing, 'prautomerged;')) {
+                    $(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
+                }
+            } else {
+                updateTrigger($(this).parent().parent(), "prautomerged;", true);
+                $(this).parent().parent().find('#pathRegex-' + id).parent().removeClass('hide-paths');
             }
             $(this).find('span').toggleClass("aui-lozenge-success");
         });
@@ -219,7 +248,7 @@
             	updateTrigger($(this).parent().parent(), "prdeclined;", false);
 				var trigger = $(this).parent().parent().find('#triggers-' + id);
 				var existing = trigger.val();
-            	if (existing.indexOf("push;") == -1 && existing.indexOf("pullrequest;") == -1 && existing.indexOf("prmerged;") == -1) {
+            	if (!showPath(existing, 'prdeclined;')) {
     				$(this).parent().parent().find('#pathRegex-' + id).parent().addClass('hide-paths');
             	}
             } else {

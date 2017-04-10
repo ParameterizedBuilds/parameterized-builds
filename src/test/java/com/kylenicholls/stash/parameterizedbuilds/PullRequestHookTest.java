@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.repository.Branch;
+import org.bouncycastle.jcajce.provider.symmetric.DES;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,6 +63,7 @@ public class PullRequestHookTest {
 	private PullRequestRescopedEvent rescopedEvent;
 	private PullRequestMergedEvent mergedEvent;
 	private PullRequestDeclinedEvent declinedEvent;
+	private AutomaticMergeEvent autoMergeEvent;
 	private Repository repository;
 	private ApplicationUser user;
 	private JobBuilder jobBuilder;
@@ -75,6 +79,9 @@ public class PullRequestHookTest {
 		hook = new PullRequestHook(settingsService, pullRequestService, jenkins, propertiesService);
 
 		PullRequest pullRequest = mock(PullRequest.class);
+		ArrayList<Branch> branches =  new ArrayList<Branch>(1);
+		Branch branch = mock(Branch.class);
+		branches.add(branch);
 		Project project = mock(Project.class);
 		Settings settings = mock(Settings.class);
 		PullRequestRef prFromRef = mock(PullRequestRef.class);
@@ -86,6 +93,7 @@ public class PullRequestHookTest {
 		reopenedEvent = mock(PullRequestReopenedEvent.class);
 		rescopedEvent = mock(PullRequestRescopedEvent.class);
 		mergedEvent = mock(PullRequestMergedEvent.class);
+		autoMergeEvent = mock(AutomaticMergeEvent.class);
 		declinedEvent = mock(PullRequestDeclinedEvent.class);
 		repoHook = mock(RepositoryHook.class);
 
@@ -93,6 +101,10 @@ public class PullRequestHookTest {
 		when(reopenedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(rescopedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(mergedEvent.getPullRequest()).thenReturn(pullRequest);
+		when(autoMergeEvent.getMergePath()).thenReturn(branches);
+		when(autoMergeEvent.getRepository()).thenReturn(repository);
+		when(branch.getLatestCommit()).thenReturn(COMMIT);
+		when(branch.getDisplayId()).thenReturn(DEST_BRANCH);
 		when(declinedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(repository.getSlug()).thenReturn(REPO_SLUG);
 		when(repository.getProject()).thenReturn(project);
@@ -167,6 +179,16 @@ public class PullRequestHookTest {
 		Job job = jobBuilder.triggers(new String[] { "PRMERGED" }).build();
 		jobs.add(job);
 		hook.onPullRequestMerged(mergedEvent);
+
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+	}
+
+	@Test
+	public void testPRAutoMergedAndTriggerIsPRAUTOMERGED() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRAUTOMERGED" }).build();
+		jobs.add(job);
+		hook.onPullRequestAutomaticMerged(autoMergeEvent);
 
 		verify(jenkins, times(1))
 				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);

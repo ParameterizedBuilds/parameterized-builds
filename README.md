@@ -72,6 +72,9 @@ You can use any combination of triggers.
 * `REF DELETED`
  * triggers a build for branch or tag deletion events
  * the branch or tag name must match the `Ref Filter` parameter (leave blank to match all)
+* `AUTO MERGED`
+ * triggers a build for automatic merge events
+ * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
 * `PR OPENED`
  * triggers a build for pull request creation events
  * triggers a build if the pull request is re-opened
@@ -98,7 +101,7 @@ Built-in variables:
 * $COMMIT: the commit hash that triggered the build 
 * $REPOSITORY: the repository slug
 * $PROJECT: the project key
-* PR-specific variables (only availably when using a PR trigger)
+* PR-specific variables (only availably when using a 'PR' prefixed trigger)
  * $PRID: bitbucket id of the PR
  * $PRDESTINATION: name of the destination branch in the PR
  * $PRTITLE: title of the PR
