@@ -1,6 +1,8 @@
 package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -216,7 +218,6 @@ public class Jenkins {
 	 *         that have a Jenkins server set.
 	 * @param user
 	 *            the user to get the token for
-	 * @param globalUrl
 	 * @param projectKeys
 	 *            all the project keys in the bitbucket server instance
 	 * @param projectService
@@ -267,24 +268,45 @@ public class Jenkins {
 		return httpPost(buildUrl.replace(" ", "%20"), joinedToken, promptUser);
 	}
 
+	private HttpURLConnection setupConnection(String baseUrl, String userToken) throws Exception{
+		URL url = new URL(baseUrl);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		if (userToken != null && !userToken.isEmpty()) {
+			byte[] authEncBytes = Base64.encodeBase64(userToken.getBytes());
+			String authStringEnc = new String(authEncBytes);
+			connection.setRequestProperty("Authorization", "Basic " + authStringEnc);
+		}
+		connection.setReadTimeout(45000);
+		connection.setInstanceFollowRedirects(true);
+		connection.setDoOutput(true);
+		HttpURLConnection.setFollowRedirects(true);
+		return connection;
+	}
+
+	private String getCrumb(String buildUrl, String token) throws Exception{
+		String crumbUrl = buildUrl.split("/job/")[0]  + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)";
+		HttpURLConnection connection = setupConnection(crumbUrl, token);
+		connection.connect();
+		int status = connection.getResponseCode();
+		if (status == 200) {
+			return new BufferedReader(new InputStreamReader((connection.getInputStream()))).readLine();
+		} else {
+			return null;
+		}
+	}
+
 	private JenkinsResponse httpPost(String buildUrl, String token, boolean prompt) {
 		JenkinsMessage jenkinsMessage = new JenkinsResponse.JenkinsMessage().prompt(prompt);
 		try {
-			URL url = new URL(buildUrl);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			HttpURLConnection connection = setupConnection(buildUrl, token);
 			connection.setRequestMethod("POST");
-			if (token != null && !token.isEmpty()) {
-				byte[] authEncBytes = Base64.encodeBase64(token.getBytes());
-				String authStringEnc = new String(authEncBytes);
-				connection.setRequestProperty("Authorization", "Basic " + authStringEnc);
-			}
-
-			connection.setReadTimeout(45000);
-			connection.setInstanceFollowRedirects(true);
-			connection.setDoOutput(true);
 			connection.setFixedLengthStreamingMode(0);
-			HttpURLConnection.setFollowRedirects(true);
 
+			String crumb = getCrumb(buildUrl, token);
+			if (crumb != null){
+				String[] header = crumb.split(":");
+				connection.setRequestProperty(header[0], header[1]);
+			}
 			connection.connect();
 
 			int status = connection.getResponseCode();
