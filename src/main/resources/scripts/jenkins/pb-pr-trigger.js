@@ -107,30 +107,32 @@ define('jenkins/parameterized-build-pullrequest', [
 				var keyValue = parameters[i];
 				for (var key in keyValue){
 					var value = keyValue[key];
-					if (value === 'true' || value === 'false') {
+					if (typeof value === "boolean") {
 						html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addBooleanParameter({
-				            count: i,
-				            key: key,
-				            value: value
-				        });
-					} else if (value.startsWith('refs/heads/')) {
-						html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addBranchParameter({
-				            count: i,
-				            key: key,
-				            value: value
-				        });
+							count: i,
+							key: key,
+							value: value
+						});
 					} else if (typeof value === 'string') {
-						html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addStringParameter({
-				            count: i,
-				            key: key,
-				            value: value
-				        });
+						if (value.startsWith('refs/heads/')) {
+							html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addBranchParameter({
+								count: i,
+								key: key,
+								value: value
+							});
+						} else {
+							html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addStringParameter({
+								count: i,
+								key: key,
+								value: value
+							});
+						}
 					} else {
 						html += com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.addArrayParameter({
-				            count: i,
-				            key: key,
-				            value: value
-				        });
+							count: i,
+							key: key,
+							value: value
+						});
 					}
 				}
 			}
