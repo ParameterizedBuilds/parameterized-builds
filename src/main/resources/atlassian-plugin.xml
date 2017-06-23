@@ -46,6 +46,13 @@
     <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
     <context>bitbucket.page.pullRequest.view</context>
   </web-resource>
+
+  <!-- Pullrequest condition resource -->
+  <web-resource key="pb-pr-condition-resource">
+    <resource type="download" name="pb-pr-conditions.js" location="/scripts/jenkins/pb-pr-conditions.js"/>
+    <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
+    <context>bitbucket.page.pullRequest.view</context>
+  </web-resource>
   
   <!-- Layout trigger button resource -->
   <web-resource key="pb-blayout-trigger-resource" name="Jenkins branch build layout resource">
@@ -96,11 +103,12 @@
   
   <!-- web items -->
   <client-web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="50" section="bitbucket.pullrequest.action">
-    <client-condition>require('jenkins/parameterized-build-pullrequest').prConditions</client-condition>
+    <client-condition>require('jenkins/parameterized-condition-pullrequest').prConditions</client-condition>
     <label>Build in Jenkins</label>
     <tooltip>Build branch in Jenkins</tooltip>
     <styleClass>parameterized-build-pullrequest</styleClass>
     <dependency>${project.groupId}-${project.artifactId}:pb-pr-trigger-resource</dependency>
+    <dependency>${project.groupId}-${project.artifactId}:pb-pr-condition-resource</dependency>
   </client-web-item>
   <client-web-item key="blayout-trigger-jenkins" name="Trigger Jenkins Builds From Branch Layout" section="bitbucket.branch.layout.actions.dropdown" weight="1000">
     <label>Build in Jenkins</label>
