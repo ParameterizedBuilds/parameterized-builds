@@ -239,8 +239,8 @@
 		</plugins>
 	</build>
 	<properties>
-		<bitbucket.server.version>4.11.1</bitbucket.server.version>
-		<bitbucket.data.version>4.11.1</bitbucket.data.version>
+		<bitbucket.server.version>5.1.0</bitbucket.server.version>
+		<bitbucket.data.version>5.1.0</bitbucket.data.version>
 		<amps.version>6.1.0</amps.version>
 		<plugin.testrunner.version>1.2.0</plugin.testrunner.version>
 	</properties>

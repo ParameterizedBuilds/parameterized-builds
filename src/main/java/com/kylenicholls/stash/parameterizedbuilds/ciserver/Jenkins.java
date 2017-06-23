@@ -328,11 +328,11 @@ public class Jenkins {
 			logger.error("Exception for parametized build: " + message);
 			return jenkinsMessage.error(true).messageText(message).build();
 		} catch (MalformedURLException e) {
-			return jenkinsMessage.error(true).messageText("Malformed URL:" + e.getMessage())
+			return jenkinsMessage.error(true).messageText("Malformed URL: " + e.getMessage())
 					.build();
 		} catch (IOException e) {
 			logger.error("IOException in Jenkins.httpPost: " + e.getMessage(), e);
-			return jenkinsMessage.error(true).messageText("IO exception occurred" + e.getMessage())
+			return jenkinsMessage.error(true).messageText("IO exception occurred: " + e.getMessage())
 					.build();
 		} catch (Exception e) {
 			logger.error("Exception in Jenkins.httpPost: " + e.getMessage(), e);
