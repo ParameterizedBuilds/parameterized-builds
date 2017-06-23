@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.atlassian.bitbucket.auth.AuthenticationContext;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.i18n.I18nService;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
@@ -153,6 +154,22 @@ public class BuildResource extends RestResource {
 					data.add(job.asMap(variableBuilder.build()));
 				}
 			}
+			return Response.ok(data).build();
+		}
+		return Response.status(Response.Status.FORBIDDEN).build();
+	}
+
+
+	@GET
+	@Path(value = "getHookEnabled")
+	public Response getHookEnabled(@Context final Repository repository) {
+		if (authContext.isAuthenticated()) {
+			RepositoryHook hook = settingsService.getHook(repository);
+			if (hook == null) {
+				return Response.status(Response.Status.NOT_FOUND).build();
+			}
+
+			boolean data = hook.isEnabled();
 			return Response.ok(data).build();
 		}
 		return Response.status(Response.Status.FORBIDDEN).build();
