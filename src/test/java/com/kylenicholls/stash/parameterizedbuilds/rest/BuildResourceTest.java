@@ -15,6 +15,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.atlassian.bitbucket.hook.HookService;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,6 +54,7 @@ public class BuildResourceTest {
 	private UriInfo uriInfo;
 	private ApplicationUser user;
 	private List<Job> jobs;
+	private RepositoryHook hook;
 	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
 
 	@Before
@@ -80,6 +83,8 @@ public class BuildResourceTest {
 
 		jobs = new ArrayList<>();
 		when(settingsService.getJobs(any())).thenReturn(jobs);
+		hook = mock(RepositoryHook.class);
+		when(settingsService.getHook(any())).thenReturn(hook);
 	}
 
 	@Test
@@ -223,5 +228,40 @@ public class BuildResourceTest {
 		parameter.put("param2", "$PRDESTINATION");
 		parameters.add(parameter);
 		assertEquals(parameters, jobData.get(0).get("buildParameters"));
+	}
+
+
+	@Test
+	public void testGetHookEnabled() {
+		when(hook.isEnabled()).thenReturn(true);
+		Response actual = rest.getHookEnabled(repository);
+
+		assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
+		assert (boolean) actual.getEntity();
+	}
+
+	@Test
+	public void testGetHookNotEnabled() {
+		when(hook.isEnabled()).thenReturn(false);
+		Response actual = rest.getHookEnabled(repository);
+
+		assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
+		assert  !(boolean) actual.getEntity();
+	}
+
+	@Test
+	public void testGetHookEnabledNull() {
+		when(settingsService.getHook(any())).thenReturn(null);
+		Response actual = rest.getHookEnabled(repository);
+
+		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), actual.getStatus());
+	}
+
+	@Test
+	public void testGetHookEnabledNotAuthed() {
+		when(authContext.isAuthenticated()).thenReturn(false);
+		Response actual = rest.getHookEnabled(repository);
+
+		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), actual.getStatus());
 	}
 }

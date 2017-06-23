@@ -3,15 +3,38 @@ define('jenkins/parameterized-build-pullrequest', [
   'jquery',
   'bitbucket/internal/model/page-state',
   'bitbucket/internal/util/ajax',
-  'aui/flag'
+  'aui/flag',
+  'exports'
 ], function(
    _aui,
    $,
    pageState,
    ajax,
-   flag
+   flag,
+   exports
 ) {
 	var jobs;
+
+	exports.prConditions = function (context) {
+
+		var willDisplay = true;
+		var prJSON = context['pullRequest'];
+		var branch = prJSON.fromRef.id;
+		var commit = prJSON.fromRef.latestCommit;
+		var prDest = prJSON.toRef.displayId;
+
+		willDisplay = willDisplay && prJSON.state === 'OPEN';
+
+		var jobsUrl = getResourceUrl("getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + prJSON.id;
+		var localJobs = getData(jobsUrl);
+
+		willDisplay = willDisplay && localJobs.length > 0;
+
+		var hookUrl = getResourceUrl("getHookEnabled");
+		var hookEnabled = getData(hookUrl);
+
+		return willDisplay && hookEnabled;
+	};
 
 	$(".parameterized-build-pullrequest").click(function() {
 		var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
@@ -19,9 +42,9 @@ define('jenkins/parameterized-build-pullrequest', [
 		var commit = prJSON.fromRef.latestCommit;
 		var prDest = prJSON.toRef.displayId;
 
-		var resourceUrl = getResourceUrl("getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + prJSON.id;
+		var jobsUrl = getResourceUrl("getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + prJSON.id;
 
-		jobs = getJobs(resourceUrl);
+		jobs = getData(jobsUrl);
     	if (jobs.length == 1){
         	if (jobs[0].buildParameters.length == 0){
         		var buildUrl = getResourceUrl("triggerBuild/0");
@@ -39,7 +62,7 @@ define('jenkins/parameterized-build-pullrequest', [
         + pageState.getRepository().getSlug() + '/' + resourceType;
 	}
 
-	function getJobs(resourceUrl){
+	function getData(resourceUrl){
 		var results;
 		$.ajax({
 		  type: "GET",
