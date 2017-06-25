@@ -22,6 +22,7 @@
   <component key="ParameterizedBuildHook" class="com.kylenicholls.stash.parameterizedbuilds.ParameterizedBuildHook"/>
   <component key="PullRequestHook" class="com.kylenicholls.stash.parameterizedbuilds.PullRequestHook"/>
   <component key="Jenkins" class="com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins"/>
+  <component key="PermissionsCondition" class="com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition"/>
   
   <!-- add our web resources -->
   <web-resource key="parameterized-builds-resources" name="Parameterized Builds Web Resources">
@@ -120,6 +121,7 @@
     <conditions type="AND">
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.ManualButtonCondition"/>
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition"/>
     </conditions>
   </client-web-item>
   <client-web-item key="blist-trigger-jenkins" name="Trigger Jenkins Builds From Branch List" section="bitbucket.branch.list.actions.dropdown" weight="1000">
@@ -130,6 +132,7 @@
     <conditions type="AND">
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.ManualButtonCondition"/>
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition"/>
     </conditions>
   </client-web-item>
   

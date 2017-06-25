@@ -26,6 +26,7 @@ public class SettingsService {
 	public static final String PARAM_PREFIX = "buildParameters-";
 	public static final String BRANCH_PREFIX = "branchRegex-";
 	public static final String PATH_PREFIX = "pathRegex-";
+	public static final String PERMISSIONS_PREFIX = "requirePermission-";
 
 	private RepositoryHookService hookService;
 	private SecurityService securityService;
@@ -78,14 +79,9 @@ public class SettingsService {
 		List<Job> jobsList = new ArrayList<>();
 		for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
 			if (entry.getKey().startsWith(JOB_PREFIX)) {
-				boolean isTag = false;
-				Object isTagObj = parameterMap
-						.get(entry.getKey().replace(JOB_PREFIX, ISTAG_PREFIX));
-				if (isTagObj != null) {
-					isTag = Boolean.parseBoolean(isTagObj.toString());
-				}
 				Job job = new Job.JobBuilder(jobsList.size()).jobName(entry.getValue().toString())
-						.isTag(isTag)
+						.isTag(fetchValue(entry.getKey().replace(JOB_PREFIX, ISTAG_PREFIX),
+								parameterMap, false))
 						.triggers(parameterMap
 								.get(entry.getKey().replace(JOB_PREFIX, TRIGGER_PREFIX)).toString()
 								.split(";"))
@@ -97,11 +93,31 @@ public class SettingsService {
 								.get(entry.getKey().replace(JOB_PREFIX, BRANCH_PREFIX)).toString())
 						.pathRegex(parameterMap.get(entry.getKey().replace(JOB_PREFIX, PATH_PREFIX))
 								.toString())
+						.permissions(fetchValue(entry.getKey().replace(JOB_PREFIX, PERMISSIONS_PREFIX),
+								parameterMap, "REPO_READ"))
 						.build();
 
 				jobsList.add(job);
 			}
 		}
 		return jobsList;
+	}
+
+	public boolean fetchValue(String attr, Map parameterMap, boolean defaultVal){
+		boolean val = defaultVal;
+		Object fetchedVal = parameterMap.get(attr);
+		if (fetchedVal != null) {
+			val = Boolean.parseBoolean(fetchedVal.toString());
+		}
+		return val;
+	}
+
+	public String fetchValue(String attr, Map parameterMap, String defaultVal){
+		String val = defaultVal;
+		Object fetchedVal = parameterMap.get(attr);
+		if (fetchedVal != null) {
+			val = fetchedVal.toString();
+		}
+		return val;
 	}
 }

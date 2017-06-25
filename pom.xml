@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.kylenicholls.stash</groupId>
 	<artifactId>parameterized-builds</artifactId>
-	<version>3.0.1</version>
+	<version>3.1.0</version>
 
 	<organization>
 		<name>Kyle Nicholls</name>
@@ -135,6 +135,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.atlassian.plugin</groupId>
+			<artifactId>atlassian-spring-scanner-annotation</artifactId>
+			<version>${atlassian.spring.scanner.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
@@ -236,11 +242,34 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.atlassian.plugin</groupId>
+				<artifactId>atlassian-spring-scanner-maven-plugin</artifactId>
+				<version>${atlassian.spring.scanner.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>atlassian-spring-scanner</goal>
+						</goals>
+						<phase>process-classes</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<scannedDependencies>
+						<dependency>
+							<groupId>com.atlassian.plugin</groupId>
+							<artifactId>atlassian-spring-scanner-external-jar</artifactId>
+						</dependency>
+					</scannedDependencies>
+					<verbose>false</verbose>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<properties>
 		<bitbucket.server.version>5.1.0</bitbucket.server.version>
 		<bitbucket.data.version>5.1.0</bitbucket.data.version>
+		<atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
 		<amps.version>6.1.0</amps.version>
 		<plugin.testrunner.version>1.2.0</plugin.testrunner.version>
 	</properties>

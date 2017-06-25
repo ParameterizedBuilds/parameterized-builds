@@ -26,6 +26,7 @@ public class Job {
 	private final List<Entry<String, Object>> buildParameters;
 	private final String branchRegex;
 	private final String pathRegex;
+	private final String permissions;
 
 	private Job(JobBuilder builder) {
 		this.jobId = builder.jobId;
@@ -36,6 +37,7 @@ public class Job {
 		this.buildParameters = builder.buildParameters;
 		this.branchRegex = builder.branchRegex;
 		this.pathRegex = builder.pathRegex;
+		this.permissions = builder.permissions;
 	}
 
 	public int getJobId() {
@@ -70,6 +72,10 @@ public class Job {
 		return pathRegex;
 	}
 
+	public String getPermissions() {
+		return permissions;
+	}
+
 	public Map<String, Object> asMap(BitbucketVariables bitbucketVariables) {
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.put("id", jobId);
@@ -99,6 +105,7 @@ public class Job {
 		private List<Entry<String, Object>> buildParameters;
 		private String branchRegex;
 		private String pathRegex;
+		private String permissions;
 
 		public JobBuilder(int jobId) {
 			this.jobId = jobId;
@@ -168,6 +175,11 @@ public class Job {
 
 		public JobBuilder pathRegex(String pathRegex) {
 			this.pathRegex = pathRegex;
+			return this;
+		}
+
+		public JobBuilder permissions(String permissions) {
+			this.permissions = permissions;
 			return this;
 		}
 
