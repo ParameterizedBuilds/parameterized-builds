@@ -94,7 +94,7 @@ public class SettingsService {
 						.pathRegex(parameterMap.get(entry.getKey().replace(JOB_PREFIX, PATH_PREFIX))
 								.toString())
 						.permissions(fetchValue(entry.getKey().replace(JOB_PREFIX, PERMISSIONS_PREFIX),
-								parameterMap, "LICENSED_USER"))
+								parameterMap, "REPO_READ"))
 						.build();
 
 				jobsList.add(job);

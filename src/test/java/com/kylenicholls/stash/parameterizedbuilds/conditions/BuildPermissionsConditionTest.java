@@ -87,13 +87,4 @@ public class BuildPermissionsConditionTest {
         assertTrue(condition.shouldDisplay(context));
     }
 
-    @Test
-    public void testShouldDisplayBadPermission() {
-        when(settingsService.getSettings(repository)).thenReturn(settings);
-        Job job = new Job.JobBuilder(1).permissions("None").build();
-        List<Job> jobs = new ArrayList<>();
-        jobs.add(job);
-        when(settingsService.getJobs(any())).thenReturn(jobs);
-        assertTrue(condition.shouldDisplay(context));
-    }
 }

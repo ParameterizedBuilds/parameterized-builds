@@ -26,12 +26,8 @@ public class BuildPermissionsCondition extends BaseCondition{
     }
 
     public boolean checkPermissions(Job job, Repository repository, ApplicationUser user){
-        try {
-            Permission permissionRequired = Permission.valueOf(job.getPermissions());
-            return this.permissionService.hasRepositoryPermission(user, repository, permissionRequired);
-        } catch (IllegalArgumentException ex) {
-            return true;
-        }
+        Permission permissionRequired = Permission.valueOf(job.getPermissions());
+        return this.permissionService.hasRepositoryPermission(user, repository, permissionRequired);
     }
 
     @Override
