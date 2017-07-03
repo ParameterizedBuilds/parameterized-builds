@@ -36,6 +36,11 @@ public class BitbucketVariables {
 			variables.add(new SimpleEntry<>("$COMMIT", commit));
 			return this;
 		}
+		public Builder fromCommit(String commit) {
+			Preconditions.checkNotNull(commit);
+			variables.add(new SimpleEntry<>("$FROMCOMMIT", commit));
+			return this;
+		}
 
 		public Builder prDestination(String prDestination) {
 			Preconditions.checkNotNull(prDestination);

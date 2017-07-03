@@ -75,6 +75,7 @@ public class ParameterizedBuildHook
 		String url = applicationPropertiesService.getBaseUrl().toString();
 		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
 				.commit(commit).url(url).repoName(repository.getSlug()).projectName(projectKey)
+				.fromCommit(refChange.getFromHash())
 				.prId(0).prAuthor("").prTitle("").prDescription("").prUrl("").build();
 
 		for (Job job : settingsService.getJobs(context.getSettings().asMap())) {
