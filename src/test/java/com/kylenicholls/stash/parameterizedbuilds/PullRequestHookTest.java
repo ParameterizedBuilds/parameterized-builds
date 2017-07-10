@@ -45,6 +45,7 @@ public class PullRequestHookTest {
 	private final String SOURCE_BRANCH = "sourcebranch";
 	private final String DEST_BRANCH = "destbranch";
 	private final String COMMIT = "commithash";
+	private final String COMMITFROM = "commithashfrom";
 	private final String REPO_SLUG = "reposlug";
 	private final String PROJECT_NAME = "projectname";
 	private final String USER_DISPLAY_NAME = "userdisplayname";
@@ -122,6 +123,7 @@ public class PullRequestHookTest {
 		when(prFromRef.getDisplayId()).thenReturn(SOURCE_BRANCH);
 		when(prFromRef.getLatestCommit()).thenReturn(COMMIT);
 		when(prToRef.getDisplayId()).thenReturn(DEST_BRANCH);
+		when(prToRef.getLatestCommit()).thenReturn(COMMITFROM);
 		when(settingsService.getSettings(repository)).thenReturn(settings);
 		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
 		when(propertiesService.getBaseUrl()).thenReturn(new URI(PR_URI));

@@ -39,6 +39,7 @@ public class ParameterizedBuildHookTest {
 	private final String BRANCH_REF = "refs/heads/branch";
 	private final String PROJECT_KEY = "projectkey";
 	private final String COMMIT = "commithash";
+	private final String COMMITFROM = "commithashfrom";
 	private final String REPO_SLUG = "reposlug";
 	private final String URI = "http://uri";
 	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
@@ -83,6 +84,7 @@ public class ParameterizedBuildHookTest {
 		when(context.getRepository()).thenReturn(repository);
 		when(refChange.getRef()).thenReturn(minimalRef);
 		when(refChange.getToHash()).thenReturn(COMMIT);
+		when(refChange.getFromHash()).thenReturn(COMMITFROM);
 		when(context.getSettings()).thenReturn(settings);
 		when(repository.getSlug()).thenReturn(REPO_SLUG);
 		when(repository.getProject()).thenReturn(project);
