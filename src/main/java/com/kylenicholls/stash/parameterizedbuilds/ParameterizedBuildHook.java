@@ -73,9 +73,6 @@ public class ParameterizedBuildHook
 		String projectKey = repository.getProject().getKey();
 		String commit = refChange.getToHash();
 		String url = applicationPropertiesService.getBaseUrl().toString();
-		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
-				.commit(commit).url(url).repoName(repository.getSlug()).projectName(projectKey)
-				.prId(0).prAuthor("").prTitle("").prDescription("").prUrl("").build();
 
 		for (Job job : settingsService.getJobs(context.getSettings().asMap())) {
 			if (job.getIsTag() == isTag) {
@@ -85,6 +82,13 @@ public class ParameterizedBuildHook
 					jenkinsServer = jenkins.getJenkinsServer();
 					joinedUserToken = jenkins.getJoinedUserToken(user);
 				}
+
+				Trigger activeTrigger = parseTrigger(refChange);
+
+				BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
+						.commit(commit).url(url).repoName(repository.getSlug()).projectName(projectKey)
+						.prId(0).prAuthor("").prTitle("").prDescription("").prUrl("")
+						.trigger(activeTrigger).build();
 
 				String buildUrl = job
 						.buildUrl(jenkinsServer, bitbucketVariables, joinedUserToken != null);
@@ -101,6 +105,15 @@ public class ParameterizedBuildHook
 					jenkins.triggerJob(buildUrl, joinedUserToken, prompt);
 				}
 			}
+		}
+	}
+
+	private Trigger parseTrigger(RefChange refChange){
+		switch (refChange.getType()) {
+			case ADD: return Trigger.ADD;
+			case DELETE: return Trigger.DELETE;
+			case UPDATE: return Trigger.PUSH;
+			default: return Trigger.NULL;
 		}
 	}
 

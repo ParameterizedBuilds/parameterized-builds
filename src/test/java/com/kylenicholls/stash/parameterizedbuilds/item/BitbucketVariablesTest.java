@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+
 import org.junit.Test;
 
 public class BitbucketVariablesTest {
@@ -28,6 +30,17 @@ public class BitbucketVariablesTest {
 
 		List<Entry<String, String>> expected = new ArrayList<>();
 		expected.add(new SimpleEntry<>("$COMMIT", commit));
+		assertEquals(1, actual.getVariables().size());
+		assertEquals(expected, actual.getVariables());
+	}
+
+	@Test
+	public void testAddTrigger() {
+		Trigger trigger = Trigger.NULL;
+		BitbucketVariables actual = new BitbucketVariables.Builder().trigger(trigger).build();
+
+		List<Entry<String, String>> expected = new ArrayList<>();
+		expected.add(new SimpleEntry<>("$TRIGGER", trigger.toString()));
 		assertEquals(1, actual.getVariables().size());
 		assertEquals(expected, actual.getVariables());
 	}

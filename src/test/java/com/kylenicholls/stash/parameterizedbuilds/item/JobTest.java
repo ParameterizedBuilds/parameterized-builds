@@ -284,4 +284,18 @@ public class JobTest {
 		assertEquals(server.getBaseUrl() + "/job/" + jobName
 				+ "/buildWithParameters?param1=value1&param2=value2", actual);
 	}
+
+	@Test
+	public void testTriggerSpecialToString() {
+		String expected = "REF CREATED";
+		String actual = Trigger.ADD.toString();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testTriggerDefaultToString() {
+		String expected = "NULL";
+		String actual = Trigger.NULL.toString();
+		assertEquals(expected, actual);
+	}
 }
