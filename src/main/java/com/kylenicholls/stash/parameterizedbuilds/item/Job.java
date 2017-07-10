@@ -258,5 +258,19 @@ public class Job {
 
 	public enum Trigger {
 		ADD, PUSH, PULLREQUEST, MANUAL, DELETE, PRMERGED, PRAUTOMERGED, PRDECLINED, NULL;
+
+		@Override
+		public String toString() {
+			switch(this) {
+				case ADD: return "REF CREATED";
+				case PUSH: return "PUSH EVENT";
+				case PULLREQUEST: return "PR OPENED";
+				case DELETE: return "REF DELETED";
+				case PRMERGED: return "PR MERGED";
+				case PRAUTOMERGED: return "AUTO MERGED";
+				case PRDECLINED: return "PR DECLINED";
+				default: return super.toString();
+			}
+		}
 	}
 }

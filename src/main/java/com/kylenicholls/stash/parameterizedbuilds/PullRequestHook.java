@@ -98,7 +98,7 @@ public class PullRequestHook {
 		String branch_name = branch.getDisplayId();
 		String url = applicationPropertiesService.getBaseUrl().toString();
 		BitbucketVariables.Builder builder = new BitbucketVariables.Builder().branch(branch_name)
-				.commit(commit).url(url)
+				.commit(commit).url(url).trigger(trigger)
 				.repoName(repository.getSlug())
 				.projectName(projectKey);
 
@@ -124,7 +124,7 @@ public class PullRequestHook {
 		String prUrl = url + "/projects/" + projectKey + "/repos/" + repository.getSlug() + "/pull-requests/" + prId;
 		BitbucketVariables.Builder builder = new BitbucketVariables.Builder().branch(branch)
 				.commit(commit).url(url).prId(prId).prAuthor(prAuthor).prTitle(prTitle)
-				.prDestination(prDest).prUrl(prUrl)
+				.prDestination(prDest).prUrl(prUrl).trigger(trigger)
 				.repoName(repository.getSlug())
 				.projectName(projectKey);
 		if (prDescription != null) {

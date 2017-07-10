@@ -37,6 +37,12 @@ public class BitbucketVariables {
 			return this;
 		}
 
+		public Builder trigger(Job.Trigger trigger) {
+			Preconditions.checkNotNull(trigger);
+			variables.add(new SimpleEntry<>("$TRIGGER", trigger.toString()));
+			return this;
+		}
+
 		public Builder prDestination(String prDestination) {
 			Preconditions.checkNotNull(prDestination);
 			variables.add(new SimpleEntry<>("$PRDESTINATION", prDestination));

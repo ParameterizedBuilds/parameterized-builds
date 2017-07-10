@@ -131,7 +131,7 @@ public class BuildResource extends RestResource {
 			String url = applicationPropertiesService.getBaseUrl().toString();
 			Builder variableBuilder = new BitbucketVariables.Builder().branch(branch)
 					.commit(commit).url(url).repoName(repository.getSlug())
-					.projectName(projectKey);
+					.trigger(Trigger.MANUAL).projectName(projectKey);
 			if (prDestination != null) {
 
 				PullRequest pullRequest = prService.getById(repository.getId(), prId);
