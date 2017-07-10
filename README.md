@@ -57,37 +57,38 @@ server settings page will be used.
 ![Triggers](readme/img/triggers.png)  
 You can use any combination of triggers.
 * `REF CREATED`
- * triggers a build for branch or tag creation events
- * the branch or tag name must match the `Ref Filter` parameter (leave blank to match all)
+  * triggers a build for branch or tag creation events
+  * the branch or tag name must match the `Ref Filter` parameter (leave blank to match all)
 * `PUSH EVENT`
- * triggers a build for branch push events to the repository
- * the branch must match the `Ref Filter` parameter (leave blank to match all)
- * the files modified in the commits must match the `Monitored Paths` parameter (leave blank to match all)
+  * triggers a build for branch push events to the repository
+  * the branch must match the `Ref Filter` parameter (leave blank to match all)
+  * the files modified in the commits must match the `Monitored Paths` parameter (leave blank to match all)
 * `MANUAL`
- * will add a "Build in Jenkins" button in the branch context menu and pull request page in bitbucket server  
+  * will add a "Build in Jenkins" button in the branch context menu and pull request page in bitbucket server  
 ![build from the source page](readme/img/build1.png) 
 ![build from the branch listings page](readme/img/build3.png)
 ![build from a pull request](readme/img/build2.png) 
- * if you have multiple jobs with the `MANUAL` trigger then the user will be prompted to choose which job to trigger  
+  * if you have multiple jobs with the `MANUAL` trigger then the user will be prompted to choose which job to trigger  
 ![build from a pull request](readme/img/build_dialog.png) 
- * the user can also edit the build parameters before triggering the job
+  * the user can also edit the build parameters before triggering the job
 * `REF DELETED`
- * triggers a build for branch or tag deletion events
- * the branch or tag name must match the `Ref Filter` parameter (leave blank to match all)
+  * triggers a build for branch or tag deletion events
+  * the branch or tag name must match the `Ref Filter` parameter (leave blank to match all)
 * `AUTO MERGED`
- * triggers a build for automatic merge events
- * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+  * triggers a build for automatic merge events
+  * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
 * `PR OPENED`
- * triggers a build for pull request creation events
- * triggers a build if the pull request is re-opened
- * triggers a build if the pull request is pushed to
- * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+  * triggers a build for pull request creation events
+  * triggers a build if the pull request is re-opened
+  * triggers a build if the pull request is pushed to
+  * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
 * `PR MERGED`
- * triggers a build for pull request merge events
- * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+  * triggers a build for pull request merge events
+  * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
 * `PR DECLINED`
- * triggers a build for pull request declined events
- * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+  * triggers a build for pull request declined events
+  * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+
 
 ## Build Parameters
 ```
@@ -103,26 +104,27 @@ Built-in variables:
 * $COMMIT: the commit hash that triggered the build 
 * $REPOSITORY: the repository slug
 * $PROJECT: the project key
+* $TRIGGER: the trigger that triggered the build
 * PR-specific variables (only availably when using a 'PR' prefixed trigger)
- * $PRID: bitbucket id of the PR
- * $PRDESTINATION: name of the destination branch in the PR
- * $PRTITLE: title of the PR
- * $PRDESCRIPTION: description of the PR (may be empty)
- * $PRAUTHOR: display name of the author of the PR
- * $PRURL: bitbucket URL of the PR
+  * $PRID: bitbucket id of the PR
+  * $PRDESTINATION: name of the destination branch in the PR
+  * $PRTITLE: title of the PR
+  * $PRDESCRIPTION: description of the PR (may be empty)
+  * $PRAUTHOR: display name of the author of the PR
+  * $PRURL: bitbucket URL of the PR
 
 Parameter Types:
 * string: `key=value`
 * choice: `key=option1;option2;option3`
- * when using the `MANUAL` trigger users will be prompted with a dropdown list of the choices
- * separate each choice with a semicolon
- * `option1` will be the default for push events
+  * when using the `MANUAL` trigger users will be prompted with a dropdown list of the choices
+  * separate each choice with a semicolon
+  * `option1` will be the default for push events
 * boolean: `key=true`
- * when using the `MANUAL` trigger users will be prompted with a checkbox
- * `true` will be the default, use `key=false` to make false the default  
+  * when using the `MANUAL` trigger users will be prompted with a checkbox
+  * `true` will be the default, use `key=false` to make false the default  
  
  
- # Contributing
- * Pull requests should be opened against master
- * Write unit tests for any changes you make
- * A passing [Travis CI](https://travis-ci.org/KyleLNicholls/parameterized-builds) build is required
+# Contributing
+* Pull requests should be opened against master
+* Write unit tests for any changes you make
+* A passing [Travis CI](https://travis-ci.org/KyleLNicholls/parameterized-builds) build is required
