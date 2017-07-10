@@ -25,15 +25,21 @@ define('jenkins/parameterized-condition-pullrequest', [
 
         willDisplay = willDisplay && prJSON.state === 'OPEN';
 
+        //check if hook enabled, to avoid 404 on non existing jobs
+        var hookUrl = getResourceUrl("getHookEnabled");
+        var hookEnabled = getData(hookUrl);
+        if(!hookEnabled){
+            return false;
+        }
+
+        //retrieve jobs
         var jobsUrl = getResourceUrl("getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + prJSON.id;
         var localJobs = getData(jobsUrl);
 
-        willDisplay = willDisplay && localJobs.length > 0;
+        //pull request open and more than one job available
+        willDisplay = willDisplay && localJobs != null && localJobs.length > 0;
 
-        var hookUrl = getResourceUrl("getHookEnabled");
-        var hookEnabled = getData(hookUrl);
-
-        return willDisplay && hookEnabled;
+        return willDisplay;
     };
 
     function getResourceUrl(resourceType){
