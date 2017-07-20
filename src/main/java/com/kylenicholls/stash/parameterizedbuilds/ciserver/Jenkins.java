@@ -284,7 +284,10 @@ public class Jenkins {
 	}
 
 	private String getCrumb(String buildUrl, String token) throws Exception{
-		String crumbUrl = buildUrl.split("/job/")[0]  + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)";
+		URL url = new URL(buildUrl);
+		String port = url.getPort() == -1 ? "" : ":" + Integer.toString(url.getPort());
+		String jenkins_url = url.getProtocol() + "://" + url.getHost() + port;
+		String crumbUrl = jenkins_url  + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)";
 		HttpURLConnection connection = setupConnection(crumbUrl, token);
 		connection.connect();
 		int status = connection.getResponseCode();
