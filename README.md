@@ -89,6 +89,9 @@ You can use any combination of triggers.
 * `PR DECLINED`
   * triggers a build for pull request declined events
   * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+* `PR DELETED`
+  * triggers a build for pull request declined events
+  * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
 
 
 ## Build Parameters

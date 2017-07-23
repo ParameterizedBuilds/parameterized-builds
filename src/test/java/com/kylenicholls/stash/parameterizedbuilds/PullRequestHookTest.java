@@ -12,17 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
+import com.atlassian.bitbucket.event.pull.*;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.repository.Branch;
 import org.bouncycastle.jcajce.provider.symmetric.DES;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.bitbucket.event.pull.PullRequestDeclinedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestMergedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestReopenedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 import com.atlassian.bitbucket.project.Project;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestParticipant;
@@ -63,6 +59,7 @@ public class PullRequestHookTest {
 	private PullRequestRescopedEvent rescopedEvent;
 	private PullRequestMergedEvent mergedEvent;
 	private PullRequestDeclinedEvent declinedEvent;
+	private PullRequestDeletedEvent deletedEvent;
 	private AutomaticMergeEvent autoMergeEvent;
 	private Repository repository;
 	private ApplicationUser user;
@@ -95,6 +92,7 @@ public class PullRequestHookTest {
 		mergedEvent = mock(PullRequestMergedEvent.class);
 		autoMergeEvent = mock(AutomaticMergeEvent.class);
 		declinedEvent = mock(PullRequestDeclinedEvent.class);
+		deletedEvent = mock(PullRequestDeletedEvent.class);
 		repoHook = mock(RepositoryHook.class);
 
 		when(openedEvent.getPullRequest()).thenReturn(pullRequest);
@@ -106,6 +104,7 @@ public class PullRequestHookTest {
 		when(branch.getLatestCommit()).thenReturn(COMMIT);
 		when(branch.getDisplayId()).thenReturn(DEST_BRANCH);
 		when(declinedEvent.getPullRequest()).thenReturn(pullRequest);
+		when(deletedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(repository.getSlug()).thenReturn(REPO_SLUG);
 		when(repository.getProject()).thenReturn(project);
 		when(project.getName()).thenReturn(PROJECT_NAME);
@@ -202,6 +201,26 @@ public class PullRequestHookTest {
 
 		verify(jenkins, times(1))
 				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+	}
+
+	@Test
+	public void testPRDeletedAndTriggerIsPRDELETED() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRDELETED" }).build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(deletedEvent);
+
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+	}
+
+	@Test
+	public void testPRDeletedAndTriggerIsPRDECLINED() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(deletedEvent);
+
+		verify(jenkins, times(0))
+				.triggerJob(any(), any(), anyBoolean());
 	}
 
 	@Test
