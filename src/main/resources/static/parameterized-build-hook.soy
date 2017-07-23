@@ -181,7 +181,7 @@
             {call .setHideClasses}
                 {param collapsed: $collapsed /}
                 {param triggers: $triggers /}
-                {param valid_triggers: ['push;', 'pullrequest;', 'prmerged;', 'prdeclined;', 'prautomerged;'] /}
+                {param valid_triggers: ['push;', 'pullrequest;', 'prmerged;', 'prdeclined;'] /}
                 {param class: 'hide-paths' /}
             {/call}
         {/let}
@@ -223,7 +223,7 @@
             {call .setHideClasses}
                 {param collapsed: $collapsed /}
                 {param triggers: $triggers /}
-                {param valid_triggers: ['pullrequest;', 'prmerged;', 'prdeclined;', 'prautomerged;'] /}
+                {param valid_triggers: ['pullrequest;', 'prmerged;', 'prdeclined;'] /}
                 {param class: 'hide-pr-dest' /}
             {/call}
         {/let}

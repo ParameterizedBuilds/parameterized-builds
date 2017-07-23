@@ -37,7 +37,7 @@
             '.pr-auto-merged':
                 {
                     'trigger': 'prautomerged;',
-                    'extraFields': ['#pathRegex-', '#prDestinationRegex-']
+                    'extraFields': []
                 },
             '.pr-declined':
                 {
