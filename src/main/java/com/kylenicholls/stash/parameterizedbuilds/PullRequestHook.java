@@ -143,6 +143,7 @@ public class PullRequestHook {
 		for (final Job job : settingsService.getJobs(settings.asMap())) {
 			List<Trigger> triggers = job.getTriggers();
 			final String pathRegex = job.getPathRegex();
+			final String prDestRegex = job.getPrDestRegex();
 
 			if (triggers.contains(trigger)) {
 				Server jenkinsServer = jenkins.getJenkinsServer(projectKey);
@@ -167,6 +168,11 @@ public class PullRequestHook {
 
 				final String token = joinedUserToken;
 				final boolean finalPrompt = prompt;
+				String prDest = pullRequest != null ? pullRequest.getToRef().getDisplayId() : "";
+
+				if (!(prDestRegex.trim().isEmpty() || prDest.toLowerCase().matches(prDestRegex.toLowerCase()))) {
+					return;
+				}
 
 				if (pathRegex.trim().isEmpty()) {
 					jenkins.triggerJob(buildUrl, token, finalPrompt);

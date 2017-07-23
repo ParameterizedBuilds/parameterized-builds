@@ -129,7 +129,7 @@ public class PullRequestHookTest {
 		when(repoHook.isEnabled()).thenReturn(true);
 
 		jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
-				.pathRegex("");
+				.pathRegex("").prDestRegex("");
 		jobs = new ArrayList<>();
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 	}
@@ -208,6 +208,27 @@ public class PullRequestHookTest {
 	public void testPROpenedAndNoSettings() throws IOException {
 		when(settingsService.getSettings(repository)).thenReturn(null);
 		hook.onPullRequestOpened(openedEvent);
+
+		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
+	}
+
+	@Test
+	public void testPrDestRegexMatches() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).prDestRegex("test_branch").build();
+		jobs.add(job);
+		when(declinedEvent.getPullRequest().getToRef().getDisplayId()).thenReturn("test_branch");
+		hook.onPullRequestDeclined(declinedEvent);
+
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+	}
+
+	@Test
+	public void testPrDestRegexDoesNotMatch() throws IOException {
+		Job job = jobBuilder.triggers(new String[]{"PRDECLINED"}).prDestRegex("test_branch").build();
+		jobs.add(job);
+		hook.onPullRequestDeclined(declinedEvent);
+		when(declinedEvent.getPullRequest().getToRef().getDisplayId()).thenReturn("not_desired_branch");
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}

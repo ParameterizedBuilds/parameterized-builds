@@ -27,6 +27,7 @@ public class SettingsService {
 	public static final String BRANCH_PREFIX = "branchRegex-";
 	public static final String PATH_PREFIX = "pathRegex-";
 	public static final String PERMISSIONS_PREFIX = "requirePermission-";
+	public static final String PRDEST_PREFIX = "prDestinationRegex-";
 
 	private RepositoryHookService hookService;
 	private SecurityService securityService;
@@ -95,6 +96,8 @@ public class SettingsService {
 								.toString())
 						.permissions(fetchValue(entry.getKey().replace(JOB_PREFIX, PERMISSIONS_PREFIX),
 								parameterMap, "REPO_READ"))
+						.prDestRegex(parameterMap.get(entry.getKey().replace(JOB_PREFIX, PRDEST_PREFIX))
+								.toString())
 						.build();
 
 				jobsList.add(job);

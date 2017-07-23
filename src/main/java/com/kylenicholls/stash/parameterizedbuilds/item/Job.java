@@ -27,6 +27,7 @@ public class Job {
 	private final String branchRegex;
 	private final String pathRegex;
 	private final String permissions;
+	private final String prDestRegex;
 
 	private Job(JobBuilder builder) {
 		this.jobId = builder.jobId;
@@ -38,6 +39,7 @@ public class Job {
 		this.branchRegex = builder.branchRegex;
 		this.pathRegex = builder.pathRegex;
 		this.permissions = builder.permissions;
+		this.prDestRegex = builder.prDestRegex;
 	}
 
 	public int getJobId() {
@@ -76,6 +78,10 @@ public class Job {
 		return permissions;
 	}
 
+	public String getPrDestRegex() {
+		return prDestRegex;
+	}
+
 	public Map<String, Object> asMap(BitbucketVariables bitbucketVariables) {
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.put("id", jobId);
@@ -106,6 +112,7 @@ public class Job {
 		private String branchRegex;
 		private String pathRegex;
 		private String permissions;
+		private String prDestRegex;
 
 		public JobBuilder(int jobId) {
 			this.jobId = jobId;
@@ -180,6 +187,11 @@ public class Job {
 
 		public JobBuilder permissions(String permissions) {
 			this.permissions = permissions;
+			return this;
+		}
+
+		public JobBuilder prDestRegex(String prDestRegex) {
+			this.prDestRegex = prDestRegex;
 			return this;
 		}
 
