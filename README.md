@@ -55,7 +55,8 @@ server settings page will be used.
 
 
 ## Triggers
-![Triggers](readme/img/triggers.png)  
+![Triggers](readme/img/triggers.png) 
+
 You can use any combination of triggers.
 * `REF CREATED`
   * triggers a build for branch or tag creation events
@@ -68,9 +69,9 @@ You can use any combination of triggers.
   * will add a "Build in Jenkins" button in the branch context menu and pull request page in bitbucket server  
 ![build from the source page](readme/img/build1.png) 
 ![build from the branch listings page](readme/img/build3.png)
-![build from a pull request](readme/img/build2.png) 
+![build from a pull request](readme/img/build2.png)
   * if you have multiple jobs with the `MANUAL` trigger then the user will be prompted to choose which job to trigger  
-![build from a pull request](readme/img/build_dialog.png) 
+![build from a pull request](readme/img/build_dialog.png)
   * the user can also edit the build parameters before triggering the job
 * `REF DELETED`
   * triggers a build for branch or tag deletion events
