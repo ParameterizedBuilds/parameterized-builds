@@ -27,22 +27,22 @@
             '.pr-opened':
                 {
                     'trigger': 'pullrequest;',
-                    'extraFields': ['#pathRegex-']
+                    'extraFields': ['#pathRegex-', '#prDestinationRegex-']
                 },
             '.pr-merged':
                 {
                     'trigger': 'prmerged;',
-                    'extraFields': ['#pathRegex-']
+                    'extraFields': ['#pathRegex-', '#prDestinationRegex-']
                 },
             '.pr-auto-merged':
                 {
                     'trigger': 'prautomerged;',
-                    'extraFields': ['#pathRegex-']
+                    'extraFields': []
                 },
             '.pr-declined':
                 {
                     'trigger': 'prdeclined;',
-                    'extraFields': ['#pathRegex-']
+                    'extraFields': ['#pathRegex-', '#prDestinationRegex-']
                 }
         };
 
@@ -60,6 +60,10 @@
             },
             '#requirePermission-': {
                 'class' : 'hide-permissions',
+                'triggers' : []
+            },
+            '#prDestinationRegex-': {
+                'class' : 'hide-pr-dest',
                 'triggers' : []
             }
         };
@@ -149,6 +153,7 @@
             'path' : '',
             'param' : '',
             'permissions' : '',
+            'prDestinationRegex': '',
             'collapsed' : false
         });
         $(html).insertBefore($(this));
@@ -220,6 +225,10 @@
                 if (index2 === 8) {
                     $(currentField).find('label').attr('for', 'requirePermission-' + index);
                     $(currentField).find('select').attr('id', 'requirePermission-' + index).attr('name', 'requirePermission-' + index);
+                }
+                if (index2 === 9) {
+                    $(currentField).find('label').attr('for', 'prDestinationRegex-' + index);
+                    $(currentField).find('select').attr('id', 'prDestinationRegex-' + index).attr('name', 'prDestinationRegex-' + index);
                 }
             });
         });

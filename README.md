@@ -38,6 +38,7 @@ build for branches/tags that match the filter
   * leave blank to match all changes
 * `Required Build Permission` will restrict who can trigger a Jenkins job using the repository permissions
   * This is only available on manual triggers
+* `PR Destination Filter` functions identically to `Ref Filter` but on the branch being merged into
 
 #### Link your bitbucket server account to Jenkins
 ![Jenkins user settings](readme/img/jenkins_user.png)  
