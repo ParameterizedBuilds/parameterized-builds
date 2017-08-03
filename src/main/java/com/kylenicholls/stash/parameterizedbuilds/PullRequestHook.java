@@ -83,9 +83,18 @@ public class PullRequestHook {
 	}
 
 	@EventListener
-	public void onPullRequestDeclined(PullRequestDeletedEvent event) throws IOException {
-		PullRequest pullRequest = event.getPullRequest();
-		triggerFromPR(pullRequest, Trigger.PRDELETED);
+	public void onPullRequestDeleted(PullRequestEvent event) throws IOException {
+
+
+		try {
+			Class PRDeletedEvent = Class.forName("com.atlassian.bitbucket.event.pull.PullRequestDeletedEvent");
+			if (PRDeletedEvent.isInstance(event)) {
+				PullRequest pullRequest = event.getPullRequest();
+				triggerFromPR(pullRequest, Trigger.PRDELETED);
+			}
+		} catch (ClassNotFoundException e) {
+			return;
+		}
 	}
 
 	private void triggerFromPR(Branch branch, AutomaticMergeEvent event, Trigger trigger){

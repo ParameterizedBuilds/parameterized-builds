@@ -2,10 +2,7 @@ package com.kylenicholls.stash.parameterizedbuilds;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -207,7 +204,7 @@ public class PullRequestHookTest {
 	public void testPRDeletedAndTriggerIsPRDELETED() throws IOException {
 		Job job = jobBuilder.triggers(new String[] { "PRDELETED" }).build();
 		jobs.add(job);
-		hook.onPullRequestDeclined(deletedEvent);
+		hook.onPullRequestDeleted(deletedEvent);
 
 		verify(jenkins, times(1))
 				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
@@ -217,7 +214,7 @@ public class PullRequestHookTest {
 	public void testPRDeletedAndTriggerIsPRDECLINED() throws IOException {
 		Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
 		jobs.add(job);
-		hook.onPullRequestDeclined(deletedEvent);
+		hook.onPullRequestDeleted(deletedEvent);
 
 		verify(jenkins, times(0))
 				.triggerJob(any(), any(), anyBoolean());
