@@ -37,6 +37,12 @@ public class BitbucketVariables {
 			return this;
 		}
 
+		public Builder mergeCommit(String mergeCommit) {
+			Preconditions.checkNotNull(mergeCommit);
+			variables.add(new SimpleEntry<>("$MERGECOMMIT", mergeCommit));
+			return this;
+		}
+
 		public Builder trigger(Job.Trigger trigger) {
 			Preconditions.checkNotNull(trigger);
 			variables.add(new SimpleEntry<>("$TRIGGER", trigger.toString()));

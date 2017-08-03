@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
+import com.atlassian.bitbucket.commit.MinimalCommit;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.repository.Branch;
 import org.bouncycastle.jcajce.provider.symmetric.DES;
@@ -45,6 +46,7 @@ public class PullRequestHookTest {
 	private final String SOURCE_BRANCH = "sourcebranch";
 	private final String DEST_BRANCH = "destbranch";
 	private final String COMMIT = "commithash";
+	private final String MERGECOMMIT = "mergecommithash";
 	private final String REPO_SLUG = "reposlug";
 	private final String PROJECT_NAME = "projectname";
 	private final String USER_DISPLAY_NAME = "userdisplayname";
@@ -69,6 +71,7 @@ public class PullRequestHookTest {
 	private JobBuilder jobBuilder;
 	private List<Job> jobs;
 	private RepositoryHook repoHook;
+	private MinimalCommit minimalMergeCommit;
 
 	@Before
 	public void setup() throws URISyntaxException {
@@ -96,11 +99,14 @@ public class PullRequestHookTest {
 		autoMergeEvent = mock(AutomaticMergeEvent.class);
 		declinedEvent = mock(PullRequestDeclinedEvent.class);
 		repoHook = mock(RepositoryHook.class);
+		minimalMergeCommit = mock(MinimalCommit.class);
 
 		when(openedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(reopenedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(rescopedEvent.getPullRequest()).thenReturn(pullRequest);
 		when(mergedEvent.getPullRequest()).thenReturn(pullRequest);
+		when(mergedEvent.getCommit()).thenReturn(minimalMergeCommit);
+		when(minimalMergeCommit.getDisplayId()).thenReturn(MERGECOMMIT);
 		when(autoMergeEvent.getMergePath()).thenReturn(branches);
 		when(autoMergeEvent.getRepository()).thenReturn(repository);
 		when(branch.getLatestCommit()).thenReturn(COMMIT);
@@ -339,4 +345,17 @@ public class PullRequestHookTest {
 		verify(jenkins, times(1)).triggerJob("globalurl/job/buildWithParameters?param="
 				+ PROJECT_KEY, globalServer.getJoinedToken(), true);
 	}
+
+
+	@Test
+	public void testPRMergedAndMergeCommit() throws IOException {
+		Job job = jobBuilder.triggers(new String[] { "PRMERGED" })
+				.buildParameters("param=$MERGECOMMIT").build();
+		jobs.add(job);
+		hook.onPullRequestMerged(mergedEvent);
+
+		verify(jenkins, times(1))
+				.triggerJob("globalurl/job/buildWithParameters?param="+ MERGECOMMIT, globalServer.getJoinedToken(), true);
+	}
+
 }
