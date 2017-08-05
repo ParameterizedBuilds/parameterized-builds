@@ -96,8 +96,8 @@ public class SettingsService {
 								.toString())
 						.permissions(fetchValue(entry.getKey().replace(JOB_PREFIX, PERMISSIONS_PREFIX),
 								parameterMap, "REPO_READ"))
-						.prDestRegex(parameterMap.get(entry.getKey().replace(JOB_PREFIX, PRDEST_PREFIX))
-								.toString())
+						.prDestRegex(fetchValue(entry.getKey().replace(JOB_PREFIX, PRDEST_PREFIX),
+								parameterMap, ""))
 						.build();
 
 				jobsList.add(job);

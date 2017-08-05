@@ -7,11 +7,7 @@ import com.atlassian.bitbucket.content.AbstractChangeCallback;
 import com.atlassian.bitbucket.content.Change;
 import com.atlassian.bitbucket.content.ChangeContext;
 import com.atlassian.bitbucket.content.ChangeSummary;
-import com.atlassian.bitbucket.event.pull.PullRequestDeclinedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestMergedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestReopenedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
+import com.atlassian.bitbucket.event.pull.*;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
@@ -84,7 +80,21 @@ public class PullRequestHook {
 	public void onPullRequestDeclined(PullRequestDeclinedEvent event) throws IOException {
 		PullRequest pullRequest = event.getPullRequest();
 		triggerFromPR(pullRequest, Trigger.PRDECLINED);
+	}
 
+	@EventListener
+	public void onPullRequestDeleted(PullRequestEvent event) throws IOException {
+
+
+		try {
+			Class PRDeletedEvent = Class.forName("com.atlassian.bitbucket.event.pull.PullRequestDeletedEvent");
+			if (PRDeletedEvent.isInstance(event)) {
+				PullRequest pullRequest = event.getPullRequest();
+				triggerFromPR(pullRequest, Trigger.PRDELETED);
+			}
+		} catch (ClassNotFoundException e) {
+			return;
+		}
 	}
 
 	private void triggerFromPR(Branch branch, AutomaticMergeEvent event, Trigger trigger){
