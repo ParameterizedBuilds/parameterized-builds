@@ -74,8 +74,6 @@ public class ParameterizedBuildHook
 	private void triggerJenkinsJobs(Repository repository,
 			ApplicationUser user, RefChange refChange, String branch, boolean isTag) {
 		String projectKey = repository.getProject().getKey();
-		String commit = refChange.getToHash();
-		String url = applicationPropertiesService.getBaseUrl().toString();
 		Settings settings = settingsService.getSettings(repository);
 		if (settings == null) {
 			return;
@@ -92,10 +90,14 @@ public class ParameterizedBuildHook
 
 				Trigger activeTrigger = parseTrigger(refChange);
 
-				BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().branch(branch)
-						.commit(commit).url(url).repoName(repository.getSlug()).projectName(projectKey)
-						.prId(0).prAuthor("").prTitle("").prDescription("").prUrl("")
-						.trigger(activeTrigger).build();
+				BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
+						.add("$BRANCH", () -> branch)
+						.add("$COMMIT", () -> refChange.getToHash())
+						.add("$URL", () -> applicationPropertiesService.getBaseUrl().toString())
+						.add("$REPOSITORY", () -> repository.getSlug())
+						.add("$PROJECT", () -> projectKey)
+						.add("$TRIGGER", () -> activeTrigger.toString())
+						.build();
 
 				String buildUrl = job
 						.buildUrl(jenkinsServer, bitbucketVariables, joinedUserToken != null);

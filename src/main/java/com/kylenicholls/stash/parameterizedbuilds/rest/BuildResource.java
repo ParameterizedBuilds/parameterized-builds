@@ -129,26 +129,26 @@ public class BuildResource extends RestResource {
 
 			String projectKey = repository.getProject().getKey();
 			String url = applicationPropertiesService.getBaseUrl().toString();
-			Builder variableBuilder = new BitbucketVariables.Builder().branch(branch)
-					.commit(commit).url(url).repoName(repository.getSlug())
-					.trigger(Trigger.MANUAL).projectName(projectKey);
+			Builder variableBuilder = new BitbucketVariables.Builder()
+					.add("$BRANCH", () -> branch)
+					.add("$COMMIT", () -> commit)
+					.add("$URL", () -> url)
+					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$PROJECT", () -> projectKey)
+					.add("$TRIGGER", () -> Trigger.MANUAL.toString());
 			if (prDestination != null) {
 
 				PullRequest pullRequest = prService.getById(repository.getId(), prId);
 				if (pullRequest != null) {
-					String prAuthor = pullRequest.getAuthor().getUser().getDisplayName();
-					String prTitle = pullRequest.getTitle();
-					String prDescription = pullRequest.getDescription();
-					String prUrl = url + "/projects/" + projectKey + "/repos/" + repository.getSlug() + "/pull-requests/" + prId;
 
-					variableBuilder.prId(prId).prAuthor(prAuthor).prTitle(prTitle)
-							.prDescription(Optional.ofNullable(prDescription).orElse(""))
-                            .prUrl(prUrl);
+					variableBuilder.add("$PRID", () -> Long.toString(prId))
+							.add("$PRAUTHOR", () -> pullRequest.getAuthor().getUser().getDisplayName())
+							.add("$PRTITLE", () ->  pullRequest.getTitle())
+							.add("$PRDESCRIPTION", () -> pullRequest.getDescription())
+							.add("$PRDESTINATION", () ->  prDestination)
+							.add("$PRURL", () -> url + "/projects/" + projectKey + "/repos/"
+									+ repository.getSlug() + "/pull-requests/" + prId);
 				}
-				variableBuilder.prDestination(prDestination);
-			} else {
-				variableBuilder.prId(prId).prAuthor("").prTitle("")
-						.prDescription("").prUrl("");
 			}
 
 			List<Map<String, Object>> data = new ArrayList<>();

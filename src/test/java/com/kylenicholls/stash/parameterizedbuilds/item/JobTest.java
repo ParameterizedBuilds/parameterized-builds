@@ -221,7 +221,7 @@ public class JobTest {
 		String jobName = "jobname";
 		String params = "param1=$BRANCH";
 		String branch = "branchname";
-		BitbucketVariables vars = new BitbucketVariables.Builder().branch(branch).build();
+		BitbucketVariables vars = new BitbucketVariables.Builder().add("$BRANCH", () -> branch).build();
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
 		String actual = job.buildUrl(server, vars, false);
@@ -237,7 +237,7 @@ public class JobTest {
 		String branch = "branchname";
 		String commit = "commithash";
 		String params = "branch=$BRANCH\r\ncommit=$COMMIT\r\nchoice=1;2;3";
-		BitbucketVariables vars = new BitbucketVariables.Builder().branch(branch).commit(commit)
+		BitbucketVariables vars = new BitbucketVariables.Builder().add("$BRANCH", () -> branch).add("$COMMIT", () -> commit)
 				.build();
 		Job job = new Job.JobBuilder(id).jobName(jobName).buildParameters(params).build();
 		Map<String, Object> actual = job.asMap(vars);

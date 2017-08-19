@@ -6,99 +6,35 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.google.common.base.Preconditions;
+import java.util.function.Supplier;
 
 public class BitbucketVariables {
-	private List<Entry<String, String>> variables;
+	private List<Entry<String, BitbucketVariable<String>>> variables;
 
 	private BitbucketVariables(Builder builder) {
 		this.variables = builder.variables;
 	}
 
-	public List<Entry<String, String>> getVariables() {
+	public List<Entry<String, BitbucketVariable<String>>> getVariables() {
 		return variables;
 	}
 
 	public static class Builder {
-		private List<Entry<String, String>> variables;
+		private List<Entry<String, BitbucketVariable<String>>> variables;
 
 		public Builder() {
 			this.variables = new ArrayList<>();
 		}
 
-		public Builder branch(String branch) {
-			Preconditions.checkNotNull(branch);
-			variables.add(new SimpleEntry<>("$BRANCH", branch));
-			return this;
-		}
-
-		public Builder commit(String commit) {
-			Preconditions.checkNotNull(commit);
-			variables.add(new SimpleEntry<>("$COMMIT", commit));
-			return this;
-		}
-
-		public Builder trigger(Job.Trigger trigger) {
-			Preconditions.checkNotNull(trigger);
-			variables.add(new SimpleEntry<>("$TRIGGER", trigger.toString()));
-			return this;
-		}
-
-		public Builder prDestination(String prDestination) {
-			Preconditions.checkNotNull(prDestination);
-			variables.add(new SimpleEntry<>("$PRDESTINATION", prDestination));
-			return this;
-		}
-
-		public Builder repoName(String repoName) {
-			Preconditions.checkNotNull(repoName);
-			variables.add(new SimpleEntry<>("$REPOSITORY", repoName));
-			return this;
-		}
-
-		public Builder projectName(String projectName) {
-			Preconditions.checkNotNull(projectName);
-			variables.add(new SimpleEntry<>("$PROJECT", projectName));
+		public Builder add(String key, Supplier<String> supplier) {
+			Preconditions.checkNotNull(key);
+			BitbucketVariable<String> variable = new BitbucketVariable<>(supplier);
+			variables.add(new SimpleEntry<String, BitbucketVariable<String>>(key, variable));
 			return this;
 		}
 
 		public BitbucketVariables build() {
 			return new BitbucketVariables(this);
-		}
-
-		public Builder prId(long prId) {
-		    Preconditions.checkNotNull(prId);
-		    variables.add(new SimpleEntry<>("$PRID", Long.toString(prId)));
-		    return this;
-		}
-
-		public Builder prAuthor(String prAuthor) {
-		    Preconditions.checkNotNull(prAuthor);
-		    variables.add(new SimpleEntry<>("$PRAUTHOR", prAuthor));
-		    return this;
-		}
-
-		public Builder prTitle(String prTitle) {
-		    Preconditions.checkNotNull(prTitle);
-		    variables.add(new SimpleEntry<>("$PRTITLE", prTitle));
-		    return this;
-		}
-
-		public Builder prDescription(String prDescription) {
-		    Preconditions.checkNotNull(prDescription);
-		    variables.add(new SimpleEntry<>("$PRDESCRIPTION", prDescription));
-		    return this;
-		}
-
-		public Builder prUrl(String prUrl) {
-		    Preconditions.checkNotNull(prUrl);
-		    variables.add(new SimpleEntry<>("$PRURL", prUrl));
-		    return this;
-		}
-
-		public Builder url(String url) {
-		    Preconditions.checkNotNull(url);
-		    variables.add(new SimpleEntry<>("$URL", url));
-		    return this;
 		}
 	}
 }

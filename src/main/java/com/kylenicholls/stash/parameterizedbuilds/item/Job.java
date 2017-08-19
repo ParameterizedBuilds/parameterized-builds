@@ -89,9 +89,10 @@ public class Job {
 		List<Map<String, Object>> parameterMap = new ArrayList<>();
 		for (Entry<String, Object> parameter : buildParameters) {
 			Object value = parameter.getValue();
-			for (Entry<String, String> variable : bitbucketVariables.getVariables()) {
-				if (parameter.getValue() instanceof String) {
-					value = value.toString().replace(variable.getKey(), variable.getValue());
+			for (Entry<String, BitbucketVariable<String>> variable : bitbucketVariables.getVariables()) {
+				if (parameter.getValue() instanceof String && value.toString().contains(variable.getKey())
+						&& variable.getValue().getOrCompute() != null) {
+					value = value.toString().replace(variable.getKey(), variable.getValue().getOrCompute());
 				}
 			}
 			Map<String, Object> mapped = new HashMap<>();
@@ -221,11 +222,14 @@ public class Job {
 
 		String buildUrl = builder.build().toString();
 
-		for (Entry<String, String> variable : bitbucketVariables.getVariables()) {
-			try {
-				buildUrl = buildUrl.replace(variable.getKey(), URLEncoder.encode(variable.getValue(), "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
-				buildUrl = buildUrl.replace(variable.getKey(), variable.getValue());
+		for (Entry<String, BitbucketVariable<String>> variable : bitbucketVariables.getVariables()) {
+			// only try to replace a variable if it is in the params. This allows optimal use of java 8 lazy initialization
+			if (buildUrl.contains(variable.getKey()) && variable.getValue().getOrCompute() != null) {
+				try {
+					buildUrl = buildUrl.replace(variable.getKey(), URLEncoder.encode(variable.getValue().getOrCompute(), "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					buildUrl = buildUrl.replace(variable.getKey(), variable.getValue().getOrCompute());
+				}
 			}
 		}
 

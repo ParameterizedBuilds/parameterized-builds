@@ -15,7 +15,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.atlassian.bitbucket.hook.HookService;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import org.junit.Before;
 import org.junit.Test;

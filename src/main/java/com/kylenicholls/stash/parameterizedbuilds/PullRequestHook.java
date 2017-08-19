@@ -104,15 +104,15 @@ public class PullRequestHook {
 		}
 		ApplicationUser user = event.getUser();
 		String projectKey = repository.getProject().getKey();
-		String commit = branch.getLatestCommit();
-		String branch_name = branch.getDisplayId();
-		String url = applicationPropertiesService.getBaseUrl().toString();
-		BitbucketVariables.Builder builder = new BitbucketVariables.Builder().branch(branch_name)
-				.commit(commit).url(url).trigger(trigger)
-				.repoName(repository.getSlug())
-				.projectName(projectKey);
+		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
+				.add("$BRANCH", () -> branch.getDisplayId())
+				.add("$COMMIT", () -> branch.getLatestCommit())
+				.add("$URL", () -> applicationPropertiesService.getBaseUrl().toString())
+				.add("$REPOSITORY", () -> repository.getSlug())
+				.add("$PROJECT", () -> projectKey)
+				.add("$TRIGGER", () -> trigger.toString())
+				.build();
 
-		BitbucketVariables bitbucketVariables = builder.build();
 		triggerJenkinsJobs(bitbucketVariables, repository, trigger, projectKey, user, null);
 	}
 
@@ -123,24 +123,23 @@ public class PullRequestHook {
 		}
 		ApplicationUser user = pullRequest.getAuthor().getUser();
 		String projectKey = repository.getProject().getKey();
-		String branch = pullRequest.getFromRef().getDisplayId();
-		String commit = pullRequest.getFromRef().getLatestCommit();
 		String url = applicationPropertiesService.getBaseUrl().toString();
-		long prId = pullRequest.getId();
-		String prAuthor = pullRequest.getAuthor().getUser().getDisplayName();
-		String prTitle = pullRequest.getTitle();
-		String prDescription = pullRequest.getDescription();
-		String prDest = pullRequest.getToRef().getDisplayId();
-		String prUrl = url + "/projects/" + projectKey + "/repos/" + repository.getSlug() + "/pull-requests/" + prId;
-		BitbucketVariables.Builder builder = new BitbucketVariables.Builder().branch(branch)
-				.commit(commit).url(url).prId(prId).prAuthor(prAuthor).prTitle(prTitle)
-				.prDestination(prDest).prUrl(prUrl).trigger(trigger)
-				.repoName(repository.getSlug())
-				.projectName(projectKey);
-		if (prDescription != null) {
-			builder.prDescription(prDescription);
-		}
-		BitbucketVariables bitbucketVariables = builder.build();
+		String prId = Long.toString(pullRequest.getId());
+		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
+				.add("$BRANCH", () -> pullRequest.getFromRef().getDisplayId())
+				.add("$COMMIT", () -> pullRequest.getFromRef().getLatestCommit())
+				.add("$URL", () -> url)
+				.add("$REPOSITORY", () -> repository.getSlug())
+				.add("$PROJECT", () -> projectKey)
+				.add("$PRID", () -> prId)
+				.add("$PRAUTHOR", () -> pullRequest.getAuthor().getUser().getDisplayName())
+				.add("$PRTITLE", () ->  pullRequest.getTitle())
+				.add("$PRDESCRIPTION", () -> pullRequest.getDescription())
+				.add("$PRDESTINATION", () ->  pullRequest.getToRef().getDisplayId())
+				.add("$PRURL", () -> url + "/projects/" + projectKey + "/repos/" +
+						repository.getSlug() + "/pull-requests/" + prId)
+				.add("$TRIGGER", () -> trigger.toString())
+				.build();
 		triggerJenkinsJobs(bitbucketVariables, repository, trigger, projectKey, user, pullRequest);
 	}
 
