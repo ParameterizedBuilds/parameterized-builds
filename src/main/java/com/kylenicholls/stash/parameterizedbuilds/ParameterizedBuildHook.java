@@ -13,8 +13,9 @@ import com.atlassian.bitbucket.content.Change;
 import com.atlassian.bitbucket.content.ChangeContext;
 import com.atlassian.bitbucket.content.ChangeSummary;
 import com.atlassian.bitbucket.content.ChangesRequest;
-import com.atlassian.bitbucket.hook.repository.AsyncPostReceiveRepositoryHook;
-import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
+import com.atlassian.bitbucket.hook.repository.PostRepositoryHook;
+import com.atlassian.bitbucket.hook.repository.PostRepositoryHookContext;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookRequest;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
@@ -31,7 +32,7 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
 public class ParameterizedBuildHook
-		implements AsyncPostReceiveRepositoryHook, RepositorySettingsValidator {
+		implements PostRepositoryHook, RepositorySettingsValidator {
 
 	private static final String REFS_HEADS = "refs/heads/";
 	private static final String REFS_TAGS = "refs/tags/";
@@ -52,8 +53,10 @@ public class ParameterizedBuildHook
 	}
 
 	@Override
-	public void postReceive(RepositoryHookContext context, Collection<RefChange> refChanges) {
-		Repository repository = context.getRepository();
+	public void postUpdate(PostRepositoryHookContext context, RepositoryHookRequest request) {
+
+		Repository repository = request.getRepository();
+		Collection<RefChange> refChanges = request.getRefChanges();
 		ApplicationUser user = actx.getCurrentUser();
 
 		for (RefChange refChange : refChanges) {
@@ -64,17 +67,21 @@ public class ParameterizedBuildHook
 				isTag = true;
 			}
 
-			triggerJenkinsJobs(context, repository, user, refChange, branch, isTag);
+			triggerJenkinsJobs(repository, user, refChange, branch, isTag);
 		}
 	}
 
-	private void triggerJenkinsJobs(RepositoryHookContext context, Repository repository,
+	private void triggerJenkinsJobs(Repository repository,
 			ApplicationUser user, RefChange refChange, String branch, boolean isTag) {
 		String projectKey = repository.getProject().getKey();
 		String commit = refChange.getToHash();
 		String url = applicationPropertiesService.getBaseUrl().toString();
+		Settings settings = settingsService.getSettings(repository);
+		if (settings == null) {
+			return;
+		}
 
-		for (Job job : settingsService.getJobs(context.getSettings().asMap())) {
+		for (Job job : settingsService.getJobs(settings.asMap())) {
 			if (job.getIsTag() == isTag) {
 				Server jenkinsServer = jenkins.getJenkinsServer(projectKey);
 				String joinedUserToken = jenkins.getJoinedUserToken(user, projectKey);

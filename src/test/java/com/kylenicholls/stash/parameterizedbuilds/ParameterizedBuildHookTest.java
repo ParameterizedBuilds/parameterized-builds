@@ -10,12 +10,13 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.atlassian.bitbucket.hook.repository.PostRepositoryHookContext;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookRequest;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.commit.CommitService;
-import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.project.Project;
 import com.atlassian.bitbucket.repository.MinimalRef;
 import com.atlassian.bitbucket.repository.RefChange;
@@ -32,8 +33,7 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.JobBuilder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import java.net.URI;
 import java.net.URISyntaxException;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+
 
 public class ParameterizedBuildHookTest {
 	private final String BRANCH_REF = "refs/heads/branch";
@@ -44,7 +44,8 @@ public class ParameterizedBuildHookTest {
 	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
 	private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken",
 			false);
-	private RepositoryHookContext context;
+	private PostRepositoryHookContext context;
+	private RepositoryHookRequest request;
 	private Settings settings;
 	private RefChange refChange;
 	private MinimalRef minimalRef;
@@ -70,7 +71,8 @@ public class ParameterizedBuildHookTest {
 		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,
 				propertiesService, authContext);
 
-		context = mock(RepositoryHookContext.class);
+		context = mock(PostRepositoryHookContext.class);
+		request = mock(RepositoryHookRequest.class);
 		settings = mock(Settings.class);
 		refChange = mock(RefChange.class);
 		minimalRef = mock(MinimalRef.class);
@@ -80,10 +82,10 @@ public class ParameterizedBuildHookTest {
 		user = mock(ApplicationUser.class);
 
 		when(authContext.getCurrentUser()).thenReturn(user);
-		when(context.getRepository()).thenReturn(repository);
+		when(request.getRepository()).thenReturn(repository);
 		when(refChange.getRef()).thenReturn(minimalRef);
 		when(refChange.getToHash()).thenReturn(COMMIT);
-		when(context.getSettings()).thenReturn(settings);
+		when(settingsService.getSettings(any())).thenReturn(settings);
 		when(repository.getSlug()).thenReturn(REPO_SLUG);
 		when(repository.getProject()).thenReturn(project);
 		when(project.getKey()).thenReturn(PROJECT_KEY);
@@ -94,6 +96,7 @@ public class ParameterizedBuildHookTest {
 
 		refChanges = new ArrayList<>();
 		refChanges.add(refChange);
+		when(request.getRefChanges()).thenReturn(refChanges);
 		when(minimalRef.getId()).thenReturn(BRANCH_REF);
 		jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
 				.pathRegex("");
@@ -105,7 +108,7 @@ public class ParameterizedBuildHookTest {
 	public void testBranchRegexDoesNotMatch() {
 		Job job = jobBuilder.triggers(new String[] { "push" }).branchRegex("foobar").build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
@@ -114,7 +117,7 @@ public class ParameterizedBuildHookTest {
 	public void testBranchRegexEmpty() {
 		Job job = jobBuilder.triggers(new String[] { "push" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1))
 				.triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
@@ -124,7 +127,7 @@ public class ParameterizedBuildHookTest {
 	public void testBranchRegexMatches() {
 		Job job = jobBuilder.triggers(new String[] { "push" }).branchRegex("bran.*").build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1))
 				.triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
@@ -135,7 +138,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
 		Job job = jobBuilder.triggers(new String[] { "push" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1))
 				.triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
@@ -146,7 +149,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
 		Job job = jobBuilder.triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
@@ -156,7 +159,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
 		Job job = jobBuilder.triggers(new String[] { "push" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1))
 				.triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
@@ -167,7 +170,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		Job job = jobBuilder.triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1))
 				.triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
@@ -178,7 +181,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		Job job = jobBuilder.triggers(new String[] { "push" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
@@ -188,7 +191,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.DELETE);
 		Job job = jobBuilder.triggers(new String[] { "delete" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1))
 				.triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
@@ -199,7 +202,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.DELETE);
 		Job job = jobBuilder.triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
@@ -210,7 +213,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		Job job = jobBuilder.isTag(true).triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1))
 				.triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
@@ -222,7 +225,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		Job job = jobBuilder.isTag(false).triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
@@ -233,7 +236,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		Job job = jobBuilder.isTag(false).triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1))
 				.triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
@@ -244,7 +247,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		Job job = jobBuilder.isTag(true).triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
@@ -254,7 +257,7 @@ public class ParameterizedBuildHookTest {
 		when(refChange.getType()).thenReturn(RefChangeType.ADD);
 		Job job = jobBuilder.isTag(false).triggers(new String[] { "push" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
 	}
@@ -266,7 +269,7 @@ public class ParameterizedBuildHookTest {
 		when(jenkins.getJoinedUserToken(user, PROJECT_KEY)).thenReturn(userToken);
 		Job job = jobBuilder.triggers(new String[] { "push" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1)).triggerJob("projecturl/job/build", userToken, false);
 	}
@@ -278,7 +281,7 @@ public class ParameterizedBuildHookTest {
 		when(jenkins.getJoinedUserToken(user)).thenReturn(userToken);
 		Job job = jobBuilder.triggers(new String[] { "push" }).build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1)).triggerJob("globalurl/job/build", userToken, false);
 	}
@@ -288,7 +291,7 @@ public class ParameterizedBuildHookTest {
 		Job job = jobBuilder.triggers(new String[] { "push" }).buildParameters("param=$BRANCH")
 				.build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1)).triggerJob("projecturl/job/buildWithParameters?param="
 				+ BRANCH_REF.replace("refs/heads/", ""), projectServer.getJoinedToken(), true);
@@ -299,7 +302,7 @@ public class ParameterizedBuildHookTest {
 		Job job = jobBuilder.triggers(new String[] { "push" }).buildParameters("param=$COMMIT")
 				.build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1)).triggerJob("projecturl/job/buildWithParameters?param="
 				+ COMMIT, projectServer.getJoinedToken(), true);
@@ -310,7 +313,7 @@ public class ParameterizedBuildHookTest {
 		Job job = jobBuilder.triggers(new String[] { "push" }).buildParameters("param=$REPOSITORY")
 				.build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1)).triggerJob("projecturl/job/buildWithParameters?param="
 				+ REPO_SLUG, projectServer.getJoinedToken(), true);
@@ -321,7 +324,7 @@ public class ParameterizedBuildHookTest {
 		Job job = jobBuilder.triggers(new String[] { "push" }).buildParameters("param=$PROJECT")
 				.build();
 		jobs.add(job);
-		buildHook.postReceive(context, refChanges);
+		buildHook.postUpdate(context, request);
 
 		verify(jenkins, times(1)).triggerJob("projecturl/job/buildWithParameters?param="
 				+ PROJECT_KEY, projectServer.getJoinedToken(), true);
