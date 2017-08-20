@@ -130,24 +130,11 @@ public class BuildResource extends RestResource {
 			String projectKey = repository.getProject().getKey();
 			String url = applicationPropertiesService.getBaseUrl().toString();
 			Builder variableBuilder = new BitbucketVariables.Builder()
-					.add("$BRANCH", () -> branch)
-					.add("$COMMIT", () -> commit)
-					.add("$URL", () -> url)
-					.add("$REPOSITORY", () -> repository.getSlug())
-					.add("$PROJECT", () -> projectKey)
-					.add("$TRIGGER", () -> Trigger.MANUAL.toString());
+					.populateFromStrings(branch, commit, repository, projectKey, Trigger.MANUAL, url);
 			if (prDestination != null) {
-
 				PullRequest pullRequest = prService.getById(repository.getId(), prId);
 				if (pullRequest != null) {
-
-					variableBuilder.add("$PRID", () -> Long.toString(prId))
-							.add("$PRAUTHOR", () -> pullRequest.getAuthor().getUser().getDisplayName())
-							.add("$PRTITLE", () ->  pullRequest.getTitle())
-							.add("$PRDESCRIPTION", () -> pullRequest.getDescription())
-							.add("$PRDESTINATION", () ->  prDestination)
-							.add("$PRURL", () -> url + "/projects/" + projectKey + "/repos/"
-									+ repository.getSlug() + "/pull-requests/" + prId);
+					variableBuilder.populateFromPR(pullRequest, repository, projectKey, Trigger.MANUAL, url);
 				}
 			}
 

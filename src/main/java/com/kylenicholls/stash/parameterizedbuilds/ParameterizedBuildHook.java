@@ -89,14 +89,10 @@ public class ParameterizedBuildHook
 				}
 
 				Trigger activeTrigger = parseTrigger(refChange);
+				String url = applicationPropertiesService.getBaseUrl().toString();
 
 				BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
-						.add("$BRANCH", () -> branch)
-						.add("$COMMIT", () -> refChange.getToHash())
-						.add("$URL", () -> applicationPropertiesService.getBaseUrl().toString())
-						.add("$REPOSITORY", () -> repository.getSlug())
-						.add("$PROJECT", () -> projectKey)
-						.add("$TRIGGER", () -> activeTrigger.toString())
+						.populateFromRef(branch, refChange, repository, projectKey, activeTrigger, url)
 						.build();
 
 				String buildUrl = job

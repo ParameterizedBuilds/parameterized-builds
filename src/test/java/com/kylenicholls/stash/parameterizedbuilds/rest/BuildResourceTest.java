@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.pull.PullRequestRef;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -170,6 +171,7 @@ public class BuildResourceTest {
 		String authorName = "prauthorname";
 		String title = "prtitle";
 		String description = "prdescription";
+		String prDest = "prbranch";
 		Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
 				.buildParameters("param1=$BRANCH\r\nparam2=$PRDESTINATION\r\nparam3=$PRURL\r\nparam4=$PRAUTHOR\r\n" +
 						"param5=$PRTITLE\r\nparam6=$PRDESCRIPTION\r\nparam7=$PRID").permissions("REPO_ADMIN").build();
@@ -179,11 +181,15 @@ public class BuildResourceTest {
 		when(pr.getAuthor()).thenReturn(author);
 		ApplicationUser prUser = mock(ApplicationUser.class);
 		when(author.getUser()).thenReturn(prUser);
+		when(pr.getId()).thenReturn(prId);
+		PullRequestRef toRef = mock(PullRequestRef.class);
+		when(pr.getToRef()).thenReturn(toRef);
+		when(toRef.getDisplayId()).thenReturn(prDest);
 		when(prUser.getDisplayName()).thenReturn(authorName);
 		when(pr.getTitle()).thenReturn(title);
 		when(pr.getDescription()).thenReturn(description);
 		when(prService.getById(repository.getId(), prId)).thenReturn(pr);
-		Response actual = rest.getJobs(repository, "branch", "commit", "prbranch", prId);
+		Response actual = rest.getJobs(repository, "branch", "commit", prDest, prId);
 
 		@SuppressWarnings("unchecked")
 		List<Map<String, Object>> jobData = (List<Map<String, Object>>) actual.getEntity();
@@ -191,7 +197,7 @@ public class BuildResourceTest {
 		Map<String, Object> parameter1 = new HashMap<>();
 		parameter1.put("param1", "branch");
 		Map<String, Object> parameter2 = new HashMap<>();
-		parameter2.put("param2", "prbranch");
+		parameter2.put("param2", prDest);
 		Map<String, Object> parameter3 = new HashMap<>();
 		parameter3.put("param3", URI + "/projects/" + PROJECT_KEY + "/repos/" + REPO_SLUG + "/pull-requests/" + prId);
 		Map<String, Object> parameter4 = new HashMap<>();

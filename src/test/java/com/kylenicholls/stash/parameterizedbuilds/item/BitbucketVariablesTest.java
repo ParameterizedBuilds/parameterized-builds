@@ -18,6 +18,6 @@ public class BitbucketVariablesTest {
 		BitbucketVariables actual = new BitbucketVariables.Builder().add("$BRANCH", () -> branch).build();
 
 		assertEquals(1, actual.getVariables().size());
-		assertEquals(branch, actual.getVariables().get(0).getValue().getOrCompute());
+		assertEquals(branch, actual.fetch("$BRANCH"));
 	}
 }

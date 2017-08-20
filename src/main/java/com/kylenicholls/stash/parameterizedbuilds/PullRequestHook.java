@@ -104,13 +104,9 @@ public class PullRequestHook {
 		}
 		ApplicationUser user = event.getUser();
 		String projectKey = repository.getProject().getKey();
+		String url = applicationPropertiesService.getBaseUrl().toString();
 		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
-				.add("$BRANCH", () -> branch.getDisplayId())
-				.add("$COMMIT", () -> branch.getLatestCommit())
-				.add("$URL", () -> applicationPropertiesService.getBaseUrl().toString())
-				.add("$REPOSITORY", () -> repository.getSlug())
-				.add("$PROJECT", () -> projectKey)
-				.add("$TRIGGER", () -> trigger.toString())
+				.populateFromBranch(branch, repository, projectKey, trigger, url)
 				.build();
 
 		triggerJenkinsJobs(bitbucketVariables, repository, trigger, projectKey, user, null);
@@ -124,21 +120,8 @@ public class PullRequestHook {
 		ApplicationUser user = pullRequest.getAuthor().getUser();
 		String projectKey = repository.getProject().getKey();
 		String url = applicationPropertiesService.getBaseUrl().toString();
-		String prId = Long.toString(pullRequest.getId());
 		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
-				.add("$BRANCH", () -> pullRequest.getFromRef().getDisplayId())
-				.add("$COMMIT", () -> pullRequest.getFromRef().getLatestCommit())
-				.add("$URL", () -> url)
-				.add("$REPOSITORY", () -> repository.getSlug())
-				.add("$PROJECT", () -> projectKey)
-				.add("$PRID", () -> prId)
-				.add("$PRAUTHOR", () -> pullRequest.getAuthor().getUser().getDisplayName())
-				.add("$PRTITLE", () ->  pullRequest.getTitle())
-				.add("$PRDESCRIPTION", () -> pullRequest.getDescription())
-				.add("$PRDESTINATION", () ->  pullRequest.getToRef().getDisplayId())
-				.add("$PRURL", () -> url + "/projects/" + projectKey + "/repos/" +
-						repository.getSlug() + "/pull-requests/" + prId)
-				.add("$TRIGGER", () -> trigger.toString())
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url)
 				.build();
 		triggerJenkinsJobs(bitbucketVariables, repository, trigger, projectKey, user, pullRequest);
 	}

@@ -2,12 +2,8 @@ package com.kylenicholls.stash.parameterizedbuilds.item;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -89,10 +85,10 @@ public class Job {
 		List<Map<String, Object>> parameterMap = new ArrayList<>();
 		for (Entry<String, Object> parameter : buildParameters) {
 			Object value = parameter.getValue();
-			for (Entry<String, BitbucketVariable<String>> variable : bitbucketVariables.getVariables()) {
-				if (parameter.getValue() instanceof String && value.toString().contains(variable.getKey())
-						&& variable.getValue().getOrCompute() != null) {
-					value = value.toString().replace(variable.getKey(), variable.getValue().getOrCompute());
+			for (String variable : bitbucketVariables.getVariables().keySet()) {
+				if (parameter.getValue() instanceof String && value.toString().contains(variable)
+						&& bitbucketVariables.fetch(variable) != null) {
+					value = value.toString().replace(variable, bitbucketVariables.fetch(variable));
 				}
 			}
 			Map<String, Object> mapped = new HashMap<>();
@@ -222,13 +218,13 @@ public class Job {
 
 		String buildUrl = builder.build().toString();
 
-		for (Entry<String, BitbucketVariable<String>> variable : bitbucketVariables.getVariables()) {
+		for (String variable : bitbucketVariables.getVariables().keySet()) {
 			// only try to replace a variable if it is in the params. This allows optimal use of java 8 lazy initialization
-			if (buildUrl.contains(variable.getKey()) && variable.getValue().getOrCompute() != null) {
+			if (buildUrl.contains(variable) && bitbucketVariables.fetch(variable) != null) {
 				try {
-					buildUrl = buildUrl.replace(variable.getKey(), URLEncoder.encode(variable.getValue().getOrCompute(), "UTF-8"));
+					buildUrl = buildUrl.replace(variable, URLEncoder.encode(bitbucketVariables.fetch(variable), "UTF-8"));
 				} catch (UnsupportedEncodingException e) {
-					buildUrl = buildUrl.replace(variable.getKey(), variable.getValue().getOrCompute());
+					buildUrl = buildUrl.replace(variable, bitbucketVariables.fetch(variable));
 				}
 			}
 		}
