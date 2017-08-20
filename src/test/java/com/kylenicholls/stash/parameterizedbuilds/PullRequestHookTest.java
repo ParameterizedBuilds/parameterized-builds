@@ -70,6 +70,7 @@ public class PullRequestHookTest {
 		PullRequestService pullRequestService = mock(PullRequestService.class);
 		jenkins = mock(Jenkins.class);
 		propertiesService = mock(ApplicationPropertiesService.class);
+		when(propertiesService.getBaseUrl()).thenReturn(new URI(PR_URI));
 		hook = new PullRequestHook(settingsService, pullRequestService, jenkins, propertiesService);
 
 		PullRequest pullRequest = mock(PullRequest.class);
@@ -120,7 +121,6 @@ public class PullRequestHookTest {
 		when(prToRef.getDisplayId()).thenReturn(DEST_BRANCH);
 		when(settingsService.getSettings(repository)).thenReturn(settings);
 		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
-		when(propertiesService.getBaseUrl()).thenReturn(new URI(PR_URI));
 		when(settingsService.getHook(any())).thenReturn(repoHook);
 		when(repoHook.isEnabled()).thenReturn(true);
 

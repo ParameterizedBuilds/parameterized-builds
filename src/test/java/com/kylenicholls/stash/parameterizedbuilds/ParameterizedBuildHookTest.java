@@ -68,8 +68,6 @@ public class ParameterizedBuildHookTest {
 		jenkins = mock(Jenkins.class);
 		propertiesService = mock(ApplicationPropertiesService.class);
 		AuthenticationContext authContext = mock(AuthenticationContext.class);
-		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,
-				propertiesService, authContext);
 
 		context = mock(PostRepositoryHookContext.class);
 		request = mock(RepositoryHookRequest.class);
@@ -102,6 +100,9 @@ public class ParameterizedBuildHookTest {
 				.pathRegex("");
 		jobs = new ArrayList<>();
 		when(settingsService.getJobs(any())).thenReturn(jobs);
+
+		buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,
+				propertiesService, authContext);
 	}
 
 	@Test
