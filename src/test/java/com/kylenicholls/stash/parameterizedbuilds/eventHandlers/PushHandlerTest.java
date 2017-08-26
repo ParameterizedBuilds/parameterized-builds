@@ -75,10 +75,10 @@ public class PushHandlerTest {
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        PushHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
 }

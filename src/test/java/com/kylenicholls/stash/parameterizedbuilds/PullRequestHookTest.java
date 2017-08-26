@@ -85,7 +85,7 @@ public class PullRequestHookTest {
 		hook.onPullRequestRescoped(rescopedEvent);
 
 		verify(jenkins, times(1))
-				.triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+				.triggerJob(any(), any(), any(), any());
 	}
 
 	//TODO: validate handler creation, not jenkins trigger
@@ -97,6 +97,6 @@ public class PullRequestHookTest {
 		when(rescopedEvent.getPreviousFromHash()).thenReturn(COMMIT);
 		hook.onPullRequestRescoped(rescopedEvent);
 
-		verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
+		verify(jenkins, times(0)).triggerJob(any(), any(), any(), any());
 	}
 }

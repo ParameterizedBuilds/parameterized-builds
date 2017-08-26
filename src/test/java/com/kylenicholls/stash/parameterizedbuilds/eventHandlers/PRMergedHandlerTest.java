@@ -65,10 +65,10 @@ public class PRMergedHandlerTest{
         jobs.add(job);
         PullRequestMergedEvent mergedEvent = eventFactory.getMockedMergeEvent(repository);
         PRMergedHandler handler = new PRMergedHandler(settingsService, pullRequestService, jenkins, mergedEvent, PR_URL);
-        handler.run();
+        PRMergedHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
 }

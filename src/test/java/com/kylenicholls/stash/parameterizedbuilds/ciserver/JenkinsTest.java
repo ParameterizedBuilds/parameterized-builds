@@ -3,15 +3,14 @@ package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.kylenicholls.stash.parameterizedbuilds.item.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,9 +19,6 @@ import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
-import com.kylenicholls.stash.parameterizedbuilds.item.Server;
-import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 
 public class JenkinsTest {
 	private static final String PLUGIN_KEY = "com.kylenicholls.stash.parameterized-builds";
@@ -258,6 +254,70 @@ public class JenkinsTest {
 
 		assertEquals(2, actual.size());
 		assertEquals(token, actual.get(1).getToken());
+	}
+
+	@Test
+	public void testTriggerJobUseProjectServerAndUserToken(){
+		String userToken = USER_SLUG + ":token";
+		Server expected = new Server("globalurl", user.getDisplayName(), "token", false);
+		when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+		when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY)).thenReturn("token");
+
+		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
+				.pathRegex("").prDestRegex("").build();
+		BitbucketVariables bitbucketVariables = mock(BitbucketVariables.class);
+		Jenkins jenkinsSpy = spy(jenkins);
+		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
+
+		verify(jenkinsSpy, times(1)).triggerJob("globalurl/job/build", userToken, false);
+	}
+
+	@Test
+	public void testTriggerJobUseGlobalJenkinsAndUserToken(){
+		String userToken = USER_SLUG + ":token";
+		Server expected = new Server("globalurl", user.getDisplayName(), "token", false);
+		when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(null);
+		when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
+		when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn("token");
+
+		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
+				.pathRegex("").prDestRegex("").build();
+		BitbucketVariables bitbucketVariables = mock(BitbucketVariables.class);
+		Jenkins jenkinsSpy = spy(jenkins);
+		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
+
+		verify(jenkinsSpy, times(1)).triggerJob("globalurl/job/build", userToken, false);
+	}
+
+	@Test
+	public void testTriggerJobNoProjectUserSet(){
+		String userToken = USER_SLUG + ":token";
+		when(user.getDisplayName()).thenReturn(USER_SLUG);
+		Server expected = new Server("globalurl", user.getDisplayName(), "token", false);
+		when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+
+		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
+				.pathRegex("").prDestRegex("").build();
+		BitbucketVariables bitbucketVariables = mock(BitbucketVariables.class);
+		Jenkins jenkinsSpy = spy(jenkins);
+		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
+
+		verify(jenkinsSpy, times(1)).triggerJob("globalurl/job/build", userToken, true);
+	}
+
+	@Test
+	public void testTriggerJobNoDefaultUserSet(){
+		when(user.getDisplayName()).thenReturn("user");
+		Server expected = new Server("globalurl", "", "", false);
+		when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+
+		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
+				.pathRegex("").prDestRegex("").build();
+		BitbucketVariables bitbucketVariables = mock(BitbucketVariables.class);
+		Jenkins jenkinsSpy = spy(jenkins);
+		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
+
+		verify(jenkinsSpy, times(1)).triggerJob("globalurl/job/build", null, true);
 	}
 
 	@Test

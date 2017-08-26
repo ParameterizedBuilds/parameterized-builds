@@ -75,10 +75,10 @@ public class RefDeletedHandlerTest {
         Job job = jobBuilder.triggers(new String[] { "delete" }).build();
         jobs.add(job);
         RefDeletedHandler handler = new RefDeletedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        RefDeletedHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
 }

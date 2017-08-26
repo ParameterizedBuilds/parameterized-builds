@@ -66,10 +66,10 @@ public class PRAutoMergedHandlerTest {
         AutomaticMergeEvent automaticMergeEvent = eventFactory.getMockedAutoMergeEvent(repository);
         Branch branch = mock(Branch.class);
         PRAutoMergedHandler handler = new PRAutoMergedHandler(settingsService, jenkins, automaticMergeEvent, PR_URL, branch);
-        handler.run();
+        PRAutoMergedHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
 }

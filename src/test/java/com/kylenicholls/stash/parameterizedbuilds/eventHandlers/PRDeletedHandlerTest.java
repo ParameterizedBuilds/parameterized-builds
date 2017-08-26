@@ -63,10 +63,10 @@ public class PRDeletedHandlerTest {
         jobs.add(job);
         PullRequestDeletedEvent deletedEvent = eventFactory.getMockedDeletedEvent(repository);
         PRDeletedHandler handler = new PRDeletedHandler(settingsService, pullRequestService, jenkins, deletedEvent, PR_URL);
-        handler.run();
+        PRDeletedHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
 }

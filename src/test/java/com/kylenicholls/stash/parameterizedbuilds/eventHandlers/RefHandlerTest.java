@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 
@@ -28,11 +27,7 @@ public class RefHandlerTest {
     private final String BRANCH_REF = "refs/heads/branch";
     private final String PROJECT_KEY = "projectkey";
     private final String COMMIT = "commithash";
-    private final String REPO_SLUG = "reposlug";
     private final String url = "http://url";
-    private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
-    private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken",
-            false);
     private Settings settings;
     private RefChange refChange;
     private MinimalRef minimalRef;
@@ -63,8 +58,6 @@ public class RefHandlerTest {
         when(settingsService.getSettings(any())).thenReturn(settings);
         when(repository.getProject()).thenReturn(project);
         when(project.getKey()).thenReturn(PROJECT_KEY);
-        when(jenkins.getJenkinsServer()).thenReturn(globalServer);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(projectServer);
         when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
 
         when(minimalRef.getId()).thenReturn(BRANCH_REF);
@@ -79,9 +72,10 @@ public class RefHandlerTest {
         Job job = jobBuilder.triggers(new String[] { "push" }).branchRegex("foobar").build();
         jobs.add(job);
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        PushHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
+        verify(spyHandler, times(0)).triggerJenkins(any(), any());
     }
 
     @Test
@@ -89,10 +83,10 @@ public class RefHandlerTest {
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        PushHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
     @Test
@@ -100,33 +94,32 @@ public class RefHandlerTest {
         Job job = jobBuilder.triggers(new String[] { "push" }).branchRegex("bran.*").build();
         jobs.add(job);
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        PushHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
     @Test
     public void testBranchUpdatedAndPathRegexEmtpy() {
-        when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        PushHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
     @Test
     public void testBranchUpdatedAndTriggerIsNotPush() {
-        when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
         Job job = jobBuilder.triggers(new String[] { "add" }).build();
         jobs.add(job);
-        RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
+        verify(spyHandler, times(0)).triggerJenkins(eq(job), any());
     }
 
     @Test
@@ -136,10 +129,10 @@ public class RefHandlerTest {
         Job job = jobBuilder.isTag(true).triggers(new String[] { "add" }).build();
         jobs.add(job);
         RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        RefCreatedHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("projecturl/job/build", projectServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
     @Test
@@ -149,35 +142,9 @@ public class RefHandlerTest {
         Job job = jobBuilder.isTag(false).triggers(new String[] { "add" }).build();
         jobs.add(job);
         RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
+        RefCreatedHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(0)).triggerJob(any(), any(), anyBoolean());
+        verify(spyHandler, times(0)).triggerJenkins(any(), any());
     }
-
-    @Test
-    public void testUseProjectJenkinsAndUserToken() {
-        String userToken = "user:token";
-        when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
-        when(jenkins.getJoinedUserToken(user, PROJECT_KEY)).thenReturn(userToken);
-        Job job = jobBuilder.triggers(new String[] { "push" }).build();
-        jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
-
-        verify(jenkins, times(1)).triggerJob("projecturl/job/build", userToken, false);
-    }
-
-    @Test
-    public void testUseGlobalJenkinsAndUserToken() {
-        String userToken = "user:token";
-        when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(null);
-        when(jenkins.getJoinedUserToken(user)).thenReturn(userToken);
-        Job job = jobBuilder.triggers(new String[] { "push" }).build();
-        jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
-        handler.run();
-
-        verify(jenkins, times(1)).triggerJob("globalurl/job/build", userToken, false);
-    }
-
 }

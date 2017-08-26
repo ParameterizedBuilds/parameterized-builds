@@ -67,8 +67,10 @@ public class PROpenedHandlerTest {
         PullRequestOpenedEvent openedEvent = eventFactory.getMockedOpenedEvent(repository);
         PROpenedHandler handler = new PROpenedHandler(settingsService, pullRequestService, jenkins, openedEvent, PR_URL);
         handler.run();
-        verify(jenkins, times(1))
-                .triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+        PROpenedHandler spyHandler = spy(handler);
+        spyHandler.run();
+
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
     //TODO: don't validate jenkins
@@ -79,8 +81,10 @@ public class PROpenedHandlerTest {
         PullRequestReopenedEvent reopenedEvent = eventFactory.getMockedReopenedEvent(repository);
         PROpenedHandler handler = new PROpenedHandler(settingsService, pullRequestService, jenkins, reopenedEvent, PR_URL);
         handler.run();
-        verify(jenkins, times(1))
-                .triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+        PROpenedHandler spyHandler = spy(handler);
+        spyHandler.run();
+
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
     //TODO: don't validate jenkins
@@ -90,9 +94,10 @@ public class PROpenedHandlerTest {
         jobs.add(job);
         PullRequestRescopedEvent rescopedEvent = eventFactory.getMockedRescopedEvent(repository);
         PROpenedHandler handler = new PROpenedHandler(settingsService, pullRequestService, jenkins, rescopedEvent, PR_URL);
-        handler.run();
-        verify(jenkins, times(1))
-                .triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+        PROpenedHandler spyHandler = spy(handler);
+        spyHandler.run();
+
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
 }

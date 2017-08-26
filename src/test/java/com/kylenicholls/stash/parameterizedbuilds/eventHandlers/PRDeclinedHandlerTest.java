@@ -63,10 +63,10 @@ public class PRDeclinedHandlerTest {
         jobs.add(job);
         PullRequestDeclinedEvent declinedEvent = eventFactory.getMockedDeclinedEvent(repository);
         PRDeclinedHandler handler = new PRDeclinedHandler(settingsService, pullRequestService, jenkins, declinedEvent, PR_URI);
-        handler.run();
+        PRDeclinedHandler spyHandler = spy(handler);
+        spyHandler.run();
 
-        verify(jenkins, times(1))
-                .triggerJob("globalurl/job/build", globalServer.getJoinedToken(), true);
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
 }
