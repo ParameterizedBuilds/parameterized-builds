@@ -56,7 +56,7 @@ public class ParameterizedBuildHook
 		}
 	}
 
-	private RefHandler createHandler(RefChange refChange, Repository repository){
+	RefHandler createHandler(RefChange refChange, Repository repository){
 		switch (refChange.getType()) {
 			case ADD: return new RefCreatedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
 			case DELETE: return new RefDeletedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
