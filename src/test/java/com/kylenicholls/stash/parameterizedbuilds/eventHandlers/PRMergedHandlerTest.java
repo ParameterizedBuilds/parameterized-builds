@@ -71,4 +71,16 @@ public class PRMergedHandlerTest{
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
+    @Test
+    public void testMergeCommitAdded() throws IOException {
+        Job job = jobBuilder.triggers(new String[] { "PRMERGED" }).build();
+        jobs.add(job);
+        PullRequestMergedEvent mergedEvent = eventFactory.getMockedMergeEvent(repository);
+        PRMergedHandler handler = new PRMergedHandler(settingsService, pullRequestService, jenkins, mergedEvent, PR_URL);
+        PRMergedHandler spyHandler = spy(handler);
+        spyHandler.run();
+
+        verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
+    }
+
 }

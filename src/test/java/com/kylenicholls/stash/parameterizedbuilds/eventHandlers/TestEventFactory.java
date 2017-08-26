@@ -1,6 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.eventHandlers;
 
 import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
+import com.atlassian.bitbucket.commit.MinimalCommit;
 import com.atlassian.bitbucket.event.pull.*;
 import com.atlassian.bitbucket.pull.*;
 import com.atlassian.bitbucket.repository.Repository;
@@ -23,6 +24,8 @@ public class TestEventFactory {
         PullRequestRef prFromRef = mock(PullRequestRef.class);
         PullRequestRef prToRef = mock(PullRequestRef.class);
         PullRequestParticipant author = mock(PullRequestParticipant.class);
+        MinimalCommit mergeCommit = mock(MinimalCommit.class);
+
         openedEvent = mock(PullRequestOpenedEvent.class);
         reopenedEvent = mock(PullRequestReopenedEvent.class);
         rescopedEvent = mock(PullRequestRescopedEvent.class);
@@ -34,6 +37,7 @@ public class TestEventFactory {
         String SOURCE_BRANCH = "sourcebranch";
         String DEST_BRANCH = "destbranch";
         String COMMIT = "commithash";
+        String newCommit = "newcommithash";
         String PR_TITLE = "prtitle";
         Long PR_ID = 15L;
 
@@ -41,6 +45,7 @@ public class TestEventFactory {
         when(reopenedEvent.getPullRequest()).thenReturn(pullRequest);
         when(rescopedEvent.getPullRequest()).thenReturn(pullRequest);
         when(mergedEvent.getPullRequest()).thenReturn(pullRequest);
+        when(mergedEvent.getCommit()).thenReturn(mergeCommit);
         when(autoMergeEvent.getRepository()).thenReturn(repository);
         when(declinedEvent.getPullRequest()).thenReturn(pullRequest);
         when(deletedEvent.getPullRequest()).thenReturn(pullRequest);
@@ -54,6 +59,7 @@ public class TestEventFactory {
         when(prFromRef.getDisplayId()).thenReturn(SOURCE_BRANCH);
         when(prFromRef.getLatestCommit()).thenReturn(COMMIT);
         when(prToRef.getDisplayId()).thenReturn(DEST_BRANCH);
+        when(mergeCommit.getId()).thenReturn(newCommit);
     }
 
     public PullRequestMergedEvent getMockedMergeEvent(Repository repository){

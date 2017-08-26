@@ -16,7 +16,7 @@ public class BitbucketVariables {
 	private final String [] SET_VALUES = {
 			"$BRANCH", "$COMMIT", "$URL", "$REPOSITORY", "$PROJECT", "$PRID",
 			"$PRAUTHOR", "$PRTITLE", "$PRDESCRIPTION", "$PRDESTINATION",
-			"$PRURL", "$TRIGGER",};
+			"$PRURL", "$TRIGGER", "$MERGECOMMIT",};
 	private final Set<String> allowedVariables = new HashSet<>(Arrays.asList(SET_VALUES));
 
 	private BitbucketVariables(Builder builder){
