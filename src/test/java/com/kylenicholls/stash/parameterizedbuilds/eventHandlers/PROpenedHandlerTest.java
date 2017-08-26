@@ -59,7 +59,6 @@ public class PROpenedHandlerTest {
         when(settingsService.getJobs(any())).thenReturn(jobs);
     }
 
-    //TODO: don't validate jenkins
     @Test
     public void testPROpenedAndTriggerIsPULLREQUEST() throws IOException{
         Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
@@ -73,7 +72,6 @@ public class PROpenedHandlerTest {
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
-    //TODO: don't validate jenkins
     @Test
     public void testPRReOpenedAndTriggerIsPULLREQUEST() throws IOException{
         Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
@@ -87,7 +85,6 @@ public class PROpenedHandlerTest {
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
 
-    //TODO: don't validate jenkins
     @Test
     public void testPRSourceRescopedAndTriggerIsPULLREQUEST() throws IOException{
         Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();

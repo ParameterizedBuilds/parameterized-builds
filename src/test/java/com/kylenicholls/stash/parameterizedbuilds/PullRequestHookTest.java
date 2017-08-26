@@ -75,7 +75,6 @@ public class PullRequestHookTest {
 		when(settingsService.getJobs(any())).thenReturn(jobs);
 	}
 
-	//TODO: validate handler creation, not jenkins trigger
 	@Test
 	public void testPRSourceRescopedTriggersBuild() throws IOException {
 		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
@@ -88,7 +87,6 @@ public class PullRequestHookTest {
 				.triggerJob(any(), any(), any(), any());
 	}
 
-	//TODO: validate handler creation, not jenkins trigger
 	@Test
 	public void testPRDestRescopedDoesntTriggerBuild() throws IOException {
 		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
