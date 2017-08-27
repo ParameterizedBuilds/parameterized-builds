@@ -36,13 +36,14 @@
                 <div class="field-group"><div class="error">{$errors['jenkins-admin-error']}</div></div>
         {/if}
         {let $configKeys: $config ? keys($config) : [] /}
-        {let $visibleInputsCount: $configKeys.length > 0 ? ($configKeys.length / 9) : 1 /}
+        {let $visibleInputsCount: $configKeys.length > 0 ? ($configKeys.length / 10) : 1 /}
         {for $i in range($visibleInputsCount)}
             {call .addJob}
                 {param canDelete: $visibleInputsCount > 1 /}
                 {param count: $i /}
                 {param jobName: $config and $config['jobName-' + $i] ? $config['jobName-' + $i] : null /}
                 {param isTag: $config and $config['isTag-' + $i] ? $config['isTag-' + $i] : false /}
+                {param isPipeline: $config and $config['isPipeline-' + $i] ? $config['isPipeline-' + $i] : false /}
                 {param triggers: $config and $config['triggers-' + $i] ? $config['triggers-' + $i] : null /}
                 {param token: $config and $config['token-' + $i] ? $config['token-' + $i] : null /}
                 {param buildParameters: $config and $config['buildParameters-' + $i] ? $config['buildParameters-' + $i] : null /}
@@ -69,6 +70,7 @@
  * @param count
  * @param jobName
  * @param isTag
+ * @param isPipeline
  * @param triggers
  * @param token
  * @param buildParameters
@@ -117,6 +119,19 @@
                     'value': 'false'
                 ],[
                     'text': 'tag',
+                    'value': 'true'
+                ]] /}
+            {param extraClasses: $collapsed ? 'hidden' : '' /}
+        {/call}
+        {call aui.form.selectField}
+            {param id: 'isPipeline-' + $count /}
+            {param labelContent: 'Job Type' /}
+            {param value: $isPipeline /}
+            {param options: [[
+                    'text': 'Other',
+                    'value': 'false'
+                ],[
+                    'text': 'Multibranch Pipeline',
                     'value': 'true'
                 ]] /}
             {param extraClasses: $collapsed ? 'hidden' : '' /}
