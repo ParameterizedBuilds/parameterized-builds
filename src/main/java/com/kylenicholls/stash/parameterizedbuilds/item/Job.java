@@ -24,6 +24,7 @@ public class Job {
 	private final String pathRegex;
 	private final String permissions;
 	private final String prDestRegex;
+	private final boolean isPipeline;
 
 	private Job(JobBuilder builder) {
 		this.jobId = builder.jobId;
@@ -36,6 +37,7 @@ public class Job {
 		this.pathRegex = builder.pathRegex;
 		this.permissions = builder.permissions;
 		this.prDestRegex = builder.prDestRegex;
+		this.isPipeline = builder.isPipeline;
 	}
 
 	public int getJobId() {
@@ -78,6 +80,8 @@ public class Job {
 		return prDestRegex;
 	}
 
+	public boolean isPipeline() { return isPipeline; }
+
 	public Map<String, Object> asMap(BitbucketVariables bitbucketVariables) {
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.put("id", jobId);
@@ -110,6 +114,7 @@ public class Job {
 		private String pathRegex;
 		private String permissions;
 		private String prDestRegex;
+		private boolean isPipeline;
 
 		public JobBuilder(int jobId) {
 			this.jobId = jobId;
@@ -192,6 +197,11 @@ public class Job {
 			return this;
 		}
 
+		public JobBuilder isPipeline(boolean isPipeline){
+			this.isPipeline = isPipeline;
+			return this;
+		}
+
 		public Job build() {
 			return new Job(this);
 		}
@@ -252,6 +262,9 @@ public class Job {
 		UriBuilder builder = UriBuilder.fromUri(jenkinsServer.getBaseUrl());
 		if (useUserToken || !jenkinsServer.getAltUrl()) {
 			builder.path("job").path(this.jobName);
+			if (this.isPipeline) {
+				builder.path("job").path("$BRANCH");
+			}
 		} else {
 			builder.path("buildByToken").queryParam("job", this.jobName);
 		}

@@ -69,9 +69,9 @@ public class BuildResource extends RestResource {
 	}
 
 	@POST
-	@Path(value = "triggerBuild/{id}")
+	@Path(value = "triggerBuild/{id}/{branch}")
 	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id,
-			@Context UriInfo uriInfo) {
+								 @PathParam("branch") String branch, @Context UriInfo uriInfo) {
 		if (authContext.isAuthenticated()) {
 			String projectKey = repository.getProject().getKey();
 			Map<String, Object> data = new LinkedHashMap<>();
@@ -98,6 +98,10 @@ public class BuildResource extends RestResource {
 
 				String buildUrl = jobToBuild.buildManualUrl(jenkinsServer, uriInfo
 						.getQueryParameters(), joinedUserToken != null);
+
+				if (jobToBuild.isPipeline()){
+					buildUrl = buildUrl.replace("$BRANCH", branch);
+				}
 
 				// use default user and token if the user that triggered the
 				// build does not have a token set

@@ -28,6 +28,7 @@ public class SettingsService {
 	public static final String PATH_PREFIX = "pathRegex-";
 	public static final String PERMISSIONS_PREFIX = "requirePermission-";
 	public static final String PRDEST_PREFIX = "prDestinationRegex-";
+	public static final String ISPIPELINE_PREFIX = "isPipeline-";
 
 	private RepositoryHookService hookService;
 	private SecurityService securityService;
@@ -98,6 +99,8 @@ public class SettingsService {
 								parameterMap, "REPO_READ"))
 						.prDestRegex(fetchValue(entry.getKey().replace(JOB_PREFIX, PRDEST_PREFIX),
 								parameterMap, ""))
+						.isPipeline(fetchValue(entry.getKey().replace(JOB_PREFIX, ISPIPELINE_PREFIX),
+								parameterMap, false))
 						.build();
 
 				jobsList.add(job);
