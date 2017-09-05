@@ -1,104 +1,104 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
+import java.util.*;
 
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.repository.Branch;
+import com.atlassian.bitbucket.repository.RefChange;
+import com.atlassian.bitbucket.repository.Repository;
 import com.google.common.base.Preconditions;
+import java.util.function.Supplier;
+
+import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class BitbucketVariables {
-	private List<Entry<String, String>> variables;
+	private  Map<String, BitbucketVariable<String>> variables;
+	private final String [] SET_VALUES = {
+			"$BRANCH", "$COMMIT", "$URL", "$REPOSITORY", "$PROJECT", "$PRID",
+			"$PRAUTHOR", "$PRTITLE", "$PRDESCRIPTION", "$PRDESTINATION",
+			"$PRURL", "$TRIGGER", "$MERGECOMMIT",};
+	private final Set<String> allowedVariables = new HashSet<>(Arrays.asList(SET_VALUES));
 
-	private BitbucketVariables(Builder builder) {
+	private BitbucketVariables(Builder builder){
+		assert allowedVariables.containsAll(builder.variables.keySet());
 		this.variables = builder.variables;
 	}
 
-	public List<Entry<String, String>> getVariables() {
+	public  Map<String, BitbucketVariable<String>> getVariables() {
 		return variables;
 	}
 
+	public  String fetch(String key) {
+		return variables.get(key).getOrCompute();
+	}
+
 	public static class Builder {
-		private List<Entry<String, String>> variables;
+		private Map<String, BitbucketVariable<String>> variables;
 
 		public Builder() {
-			this.variables = new ArrayList<>();
+			this.variables = new HashMap<>();
 		}
 
-		public Builder branch(String branch) {
-			Preconditions.checkNotNull(branch);
-			variables.add(new SimpleEntry<>("$BRANCH", branch));
+		public Builder add(String key, Supplier<String> supplier) {
+			Preconditions.checkNotNull(key);
+			if (variables.containsKey(key)) {
+				return this;
+			}
+			BitbucketVariable<String> variable = new BitbucketVariable<>(supplier);
+			variables.put(key, variable);
 			return this;
 		}
 
-		public Builder commit(String commit) {
-			Preconditions.checkNotNull(commit);
-			variables.add(new SimpleEntry<>("$COMMIT", commit));
-			return this;
+		public Builder populateFromPR(PullRequest pullRequest, Repository repository, String projectKey,
+									  Trigger trigger, String url){
+			String prId = Long.toString(pullRequest.getId());
+			return add("$BRANCH", () -> pullRequest.getFromRef().getDisplayId())
+					.add("$COMMIT", () -> pullRequest.getFromRef().getLatestCommit())
+					.add("$URL", () -> url)
+					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$PROJECT", () -> projectKey)
+					.add("$PRID", () -> prId)
+					.add("$PRAUTHOR", () -> pullRequest.getAuthor().getUser().getDisplayName())
+					.add("$PRTITLE", () ->  pullRequest.getTitle())
+					.add("$PRDESCRIPTION", () -> pullRequest.getDescription())
+					.add("$PRDESTINATION", () ->  pullRequest.getToRef().getDisplayId())
+					.add("$PRURL", () -> url + "/projects/" + projectKey + "/repos/" +
+							repository.getSlug() + "/pull-requests/" + prId)
+					.add("$TRIGGER", () -> trigger.toString());
 		}
 
-		public Builder trigger(Job.Trigger trigger) {
-			Preconditions.checkNotNull(trigger);
-			variables.add(new SimpleEntry<>("$TRIGGER", trigger.toString()));
-			return this;
+		public Builder populateFromRef(String branch, RefChange refChange, Repository repository,
+									   String projectKey, Trigger trigger, String url){
+			return add("$BRANCH", () -> branch)
+					.add("$COMMIT", () -> refChange.getToHash())
+					.add("$URL", () -> url)
+					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$PROJECT", () -> projectKey)
+					.add("$TRIGGER", () -> trigger.toString());
 		}
 
-		public Builder prDestination(String prDestination) {
-			Preconditions.checkNotNull(prDestination);
-			variables.add(new SimpleEntry<>("$PRDESTINATION", prDestination));
-			return this;
+		public Builder populateFromBranch(Branch branch, Repository repository, String projectKey,
+										  Trigger trigger, String url){
+			return add("$BRANCH", () -> branch.getDisplayId())
+					.add("$COMMIT", () -> branch.getLatestCommit())
+					.add("$URL", () -> url)
+					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$PROJECT", () -> projectKey)
+					.add("$TRIGGER", () -> trigger.toString());
 		}
 
-		public Builder repoName(String repoName) {
-			Preconditions.checkNotNull(repoName);
-			variables.add(new SimpleEntry<>("$REPOSITORY", repoName));
-			return this;
-		}
-
-		public Builder projectName(String projectName) {
-			Preconditions.checkNotNull(projectName);
-			variables.add(new SimpleEntry<>("$PROJECT", projectName));
-			return this;
+		public Builder populateFromStrings(String branch, String commit, Repository repository, String projectKey,
+										   Trigger trigger, String url){
+			return add("$BRANCH", () -> branch)
+					.add("$COMMIT", () -> commit)
+					.add("$URL", () -> url)
+					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$PROJECT", () -> projectKey)
+					.add("$TRIGGER", () -> trigger.toString());
 		}
 
 		public BitbucketVariables build() {
 			return new BitbucketVariables(this);
-		}
-
-		public Builder prId(long prId) {
-		    Preconditions.checkNotNull(prId);
-		    variables.add(new SimpleEntry<>("$PRID", Long.toString(prId)));
-		    return this;
-		}
-
-		public Builder prAuthor(String prAuthor) {
-		    Preconditions.checkNotNull(prAuthor);
-		    variables.add(new SimpleEntry<>("$PRAUTHOR", prAuthor));
-		    return this;
-		}
-
-		public Builder prTitle(String prTitle) {
-		    Preconditions.checkNotNull(prTitle);
-		    variables.add(new SimpleEntry<>("$PRTITLE", prTitle));
-		    return this;
-		}
-
-		public Builder prDescription(String prDescription) {
-		    Preconditions.checkNotNull(prDescription);
-		    variables.add(new SimpleEntry<>("$PRDESCRIPTION", prDescription));
-		    return this;
-		}
-
-		public Builder prUrl(String prUrl) {
-		    Preconditions.checkNotNull(prUrl);
-		    variables.add(new SimpleEntry<>("$PRURL", prUrl));
-		    return this;
-		}
-
-		public Builder url(String url) {
-		    Preconditions.checkNotNull(url);
-		    variables.add(new SimpleEntry<>("$URL", url));
-		    return this;
 		}
 	}
 }

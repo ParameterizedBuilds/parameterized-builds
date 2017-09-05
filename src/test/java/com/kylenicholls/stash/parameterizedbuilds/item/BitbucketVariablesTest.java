@@ -1,135 +1,294 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestParticipant;
+import com.atlassian.bitbucket.pull.PullRequestRef;
+import com.atlassian.bitbucket.repository.Branch;
+import com.atlassian.bitbucket.repository.RefChange;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class BitbucketVariablesTest {
+
+	private PullRequest pullRequest;
+	private RefChange refChange;
+	private Branch branch;
+	private Repository repository;
+
+	private final String projectKey = "projectkey";
+	private final Trigger trigger = Trigger.NULL;
+	private final String url = "http://uri";
+	private final String PR_TITLE = "prtitle";
+	private final String REPO_SLUG = "reposlug";
+	private final Long PR_ID = 15L;
+	private final String PR_DESCRIPTION = "Description of this PR";
+	private final String PR_AUTHOR = "this guy";
+	private final String SOURCE_BRANCH = "sourcebranch";
+	private final String DEST_BRANCH = "destbranch";
+	private final String COMMIT = "commithash";
+
+	@Before
+	public void setup() {
+		pullRequest = mock(PullRequest.class);
+		refChange = mock(RefChange.class);
+		repository = mock(Repository.class);
+		branch = mock(Branch.class);
+
+		PullRequestParticipant author = mock(PullRequestParticipant.class);
+		PullRequestRef prFromRef = mock(PullRequestRef.class);
+		PullRequestRef prToRef = mock(PullRequestRef.class);
+		ApplicationUser user = mock(ApplicationUser.class);
+
+		when(pullRequest.getFromRef()).thenReturn(prFromRef);
+		when(pullRequest.getToRef()).thenReturn(prToRef);
+		when(pullRequest.getAuthor()).thenReturn(author);
+		when(pullRequest.getDescription()).thenReturn(null);
+		when(pullRequest.getTitle()).thenReturn(PR_TITLE);
+		when(pullRequest.getId()).thenReturn(PR_ID);
+		when(pullRequest.getDescription()).thenReturn(PR_DESCRIPTION);
+		when(refChange.getToHash()).thenReturn(COMMIT);
+		when(branch.getDisplayId()).thenReturn(SOURCE_BRANCH);
+		when(branch.getLatestCommit()).thenReturn(COMMIT);
+		when(author.getUser()).thenReturn(user);
+		when(user.getDisplayName()).thenReturn(PR_AUTHOR);
+		when(prFromRef.getRepository()).thenReturn(repository);
+		when(prFromRef.getDisplayId()).thenReturn(SOURCE_BRANCH);
+		when(prFromRef.getLatestCommit()).thenReturn(COMMIT);
+		when(prToRef.getDisplayId()).thenReturn(DEST_BRANCH);
+		when(repository.getSlug()).thenReturn(REPO_SLUG);
+	}
+
 	@Test
 	public void testAddBranch() {
 		String branch = "branch";
-		BitbucketVariables actual = new BitbucketVariables.Builder().branch(branch).build();
+		BitbucketVariables actual = new BitbucketVariables.Builder().add("$BRANCH", () -> branch).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$BRANCH", branch));
 		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(branch, actual.fetch("$BRANCH"));
 	}
 
 	@Test
-	public void testAddCommit() {
-		String commit = "commit";
-		BitbucketVariables actual = new BitbucketVariables.Builder().commit(commit).build();
+	public void testPopulateFromPRSetsBranch() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$COMMIT", commit));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(SOURCE_BRANCH, actual.fetch("$BRANCH"));
 	}
 
 	@Test
-	public void testAddTrigger() {
-		Trigger trigger = Trigger.NULL;
-		BitbucketVariables actual = new BitbucketVariables.Builder().trigger(trigger).build();
+	public void testPopulateFromPRSetsCommit() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$TRIGGER", trigger.toString()));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(COMMIT, actual.fetch("$COMMIT"));
 	}
 
 	@Test
-	public void testAddPRDestination() {
-		String prDestination = "prdest";
-		BitbucketVariables actual = new BitbucketVariables.Builder().prDestination(prDestination).build();
+	public void testPopulateFromPRSetsUrl() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$PRDESTINATION", prDestination));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(url, actual.fetch("$URL"));
 	}
 
 	@Test
-	public void testAddPRId() {
-		int prId = 5;
-		BitbucketVariables actual = new BitbucketVariables.Builder().prId(prId).build();
+	public void testPopulateFromPRSetsRepository() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$PRID", Integer.toString(prId)));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(REPO_SLUG, actual.fetch("$REPOSITORY"));
 	}
 
 	@Test
-	public void testAddPRAuthor() {
-		String prAuthor = "prauthor";
-		BitbucketVariables actual = new BitbucketVariables.Builder().prAuthor(prAuthor).build();
+	public void testPopulateFromPRSetsProject() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$PRAUTHOR", prAuthor));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(projectKey, actual.fetch("$PROJECT"));
 	}
 
 	@Test
-	public void testAddPRTitle() {
-		String prTitle = "prtitle";
-		BitbucketVariables actual = new BitbucketVariables.Builder().prTitle(prTitle).build();
+	public void testPopulateFromPRSetsPRID() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$PRTITLE", prTitle));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(PR_ID.toString(), actual.fetch("$PRID"));
 	}
 
 	@Test
-	public void testAddPRDescription() {
-		String prDescription = "prdesc";
-		BitbucketVariables actual = new BitbucketVariables.Builder().prDescription(prDescription).build();
+	public void testPopulateFromPRSetsPRAuthor() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$PRDESCRIPTION", prDescription));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(PR_AUTHOR, actual.fetch("$PRAUTHOR"));
 	}
 
 	@Test
-	public void testAddPRUrl() {
-		String prUrl = "prurl";
-		BitbucketVariables actual = new BitbucketVariables.Builder().prUrl(prUrl).build();
+	public void testPopulateFromPRSetsPRTitle() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$PRURL", prUrl));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(PR_TITLE, actual.fetch("$PRTITLE"));
 	}
 
 	@Test
-	public void testAddRepo() {
-		String repo = "repo";
-		BitbucketVariables actual = new BitbucketVariables.Builder().repoName(repo).build();
+	public void testPopulateFromPRSetsPRDescription() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$REPOSITORY", repo));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(PR_DESCRIPTION, actual.fetch("$PRDESCRIPTION"));
 	}
 
 	@Test
-	public void testAddProject() {
-		String project = "project";
-		BitbucketVariables actual = new BitbucketVariables.Builder().projectName(project).build();
+	public void testPopulateFromPRSetsPRDestinaion() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		List<Entry<String, String>> expected = new ArrayList<>();
-		expected.add(new SimpleEntry<>("$PROJECT", project));
-		assertEquals(1, actual.getVariables().size());
-		assertEquals(expected, actual.getVariables());
+		assertEquals(DEST_BRANCH, actual.fetch("$PRDESTINATION"));
+	}
+
+	@Test
+	public void testPopulateFromPRSetsPRUrl() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
+
+		String expected = url + "/projects/" + projectKey + "/repos/" + REPO_SLUG + "/pull-requests/" + PR_ID;
+		assertEquals(expected, actual.fetch("$PRURL"));
+	}
+
+	@Test
+	public void testPopulateFromPRSetsTrigger() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
+
+		assertEquals(trigger.toString(), actual.fetch("$TRIGGER"));
+	}
+
+	@Test
+	public void testPopulateFromRefSetsBranch() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromRef(SOURCE_BRANCH, refChange, repository, projectKey, trigger, url).build();
+
+		assertEquals(SOURCE_BRANCH, actual.fetch("$BRANCH"));
+	}
+
+	@Test
+	public void testPopulateFromRefSetsCommit() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromRef(SOURCE_BRANCH, refChange, repository, projectKey, trigger, url).build();
+
+		assertEquals(COMMIT, actual.fetch("$COMMIT"));
+	}
+
+	@Test
+	public void testPopulateFromRefSetsUrl() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromRef(SOURCE_BRANCH, refChange, repository, projectKey, trigger, url).build();
+
+		assertEquals(url, actual.fetch("$URL"));
+	}
+
+	@Test
+	public void testPopulateFromRefSetsRepository() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromRef(SOURCE_BRANCH, refChange, repository, projectKey, trigger, url).build();
+
+		assertEquals(REPO_SLUG, actual.fetch("$REPOSITORY"));
+	}
+
+	@Test
+	public void testPopulateFromRefSetsProject() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromRef(SOURCE_BRANCH, refChange, repository, projectKey, trigger, url).build();
+
+		assertEquals(projectKey, actual.fetch("$PROJECT"));
+	}
+
+	@Test
+	public void testPopulateFromBranchSetsBranch() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromBranch(branch, repository, projectKey, trigger, url).build();
+
+		assertEquals(SOURCE_BRANCH, actual.fetch("$BRANCH"));
+	}
+
+	@Test
+	public void testPopulateFromBranchSetsCommit() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromBranch(branch, repository, projectKey, trigger, url).build();
+
+		assertEquals(COMMIT, actual.fetch("$COMMIT"));
+	}
+
+	@Test
+	public void testPopulateFromBranchSetsUrl() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromBranch(branch, repository, projectKey, trigger, url).build();
+
+		assertEquals(url, actual.fetch("$URL"));
+	}
+
+	@Test
+	public void testPopulateFromBranchSetsRepository() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromBranch(branch, repository, projectKey, trigger, url).build();
+
+		assertEquals(REPO_SLUG, actual.fetch("$REPOSITORY"));
+	}
+
+	@Test
+	public void testPopulateFromBranchSetsProject() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromBranch(branch, repository, projectKey, trigger, url).build();
+
+		assertEquals(projectKey, actual.fetch("$PROJECT"));
+	}
+
+	@Test
+	public void testPopulateFromStringsSetsBranch() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromStrings(SOURCE_BRANCH, COMMIT, repository, projectKey, trigger, url).build();
+
+		assertEquals(SOURCE_BRANCH, actual.fetch("$BRANCH"));
+	}
+
+	@Test
+	public void testPopulateFromStringsSetsCommit() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromStrings(SOURCE_BRANCH, COMMIT, repository, projectKey, trigger, url).build();
+
+		assertEquals(COMMIT, actual.fetch("$COMMIT"));
+	}
+
+	@Test
+	public void testPopulateFromStringsSetsUrl() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromStrings(SOURCE_BRANCH, COMMIT, repository, projectKey, trigger, url).build();
+
+		assertEquals(url, actual.fetch("$URL"));
+	}
+
+	@Test
+	public void testPopulateFromStringsSetsRepository() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromStrings(SOURCE_BRANCH, COMMIT, repository, projectKey, trigger, url).build();
+
+		assertEquals(REPO_SLUG, actual.fetch("$REPOSITORY"));
+	}
+
+	@Test
+	public void testPopulateFromStringsSetsProject() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromStrings(SOURCE_BRANCH, COMMIT, repository, projectKey, trigger, url).build();
+
+		assertEquals(projectKey, actual.fetch("$PROJECT"));
 	}
 }

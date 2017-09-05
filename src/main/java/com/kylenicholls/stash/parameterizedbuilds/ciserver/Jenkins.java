@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.kylenicholls.stash.parameterizedbuilds.item.*;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +21,7 @@ import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
 import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse.JenkinsMessage;
-import com.kylenicholls.stash.parameterizedbuilds.item.Server;
-import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 
 public class Jenkins {
 	private static final Logger logger = LoggerFactory.getLogger(Jenkins.class);
@@ -266,6 +264,30 @@ public class Jenkins {
 		}
 
 		return httpPost(buildUrl.replace(" ", "%20"), joinedToken, promptUser);
+	}
+
+	public JenkinsResponse triggerJob(String projectKey, ApplicationUser user, Job job, BitbucketVariables bitbucketVariables) {
+		Server jenkinsServer = getJenkinsServer(projectKey);
+		String joinedUserToken = getJoinedUserToken(user, projectKey);
+		if (jenkinsServer == null) {
+			jenkinsServer = getJenkinsServer();
+			joinedUserToken = getJoinedUserToken(user);
+		}
+
+		String buildUrl = job
+				.buildUrl(jenkinsServer, bitbucketVariables, joinedUserToken != null);
+
+		// use default user and token if the user that triggered the
+		// build does not have a token set
+		boolean prompt = false;
+		if (joinedUserToken == null) {
+			prompt = true;
+			if (!jenkinsServer.getUser().isEmpty()) {
+				joinedUserToken = jenkinsServer.getJoinedToken();
+			}
+		}
+
+		return triggerJob(buildUrl, joinedUserToken, prompt);
 	}
 
 	private HttpURLConnection setupConnection(String baseUrl, String userToken) throws Exception{
