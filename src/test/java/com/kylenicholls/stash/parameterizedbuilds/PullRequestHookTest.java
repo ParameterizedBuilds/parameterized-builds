@@ -12,6 +12,7 @@ import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
 import com.atlassian.bitbucket.event.pull.*;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.repository.Branch;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.BaseHandler;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.TestEventFactory;
 import org.bouncycastle.jcajce.provider.symmetric.DES;
 import org.junit.Before;
@@ -31,8 +32,13 @@ import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.JobBuilder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 public class PullRequestHookTest {
 	private final String COMMIT = "commithash";
@@ -47,6 +53,7 @@ public class PullRequestHookTest {
 	private List<Job> jobs;
 	private RepositoryHook repoHook;
 	private TestEventFactory eventFactory;
+	private ExecutorService executorService;
 
 	@Before
 	public void setup() throws URISyntaxException {
@@ -54,8 +61,18 @@ public class PullRequestHookTest {
 		PullRequestService pullRequestService = mock(PullRequestService.class);
 		jenkins = mock(Jenkins.class);
 		propertiesService = mock(ApplicationPropertiesService.class);
+		executorService = mock(ExecutorService.class);
+
+		// executor simply invokes run on argument
+		doAnswer(invocationOnMock -> {
+            Object[] args = invocationOnMock.getArguments();
+            Runnable runnable = (Runnable) args[0];
+            runnable.run();
+            return null;
+        }).when(executorService).submit(any(Runnable.class));
+
 		when(propertiesService.getBaseUrl()).thenReturn(new URI(PR_URI));
-		hook = new PullRequestHook(settingsService, pullRequestService, jenkins, propertiesService);
+		hook = new PullRequestHook(settingsService, pullRequestService, jenkins, propertiesService, executorService);
 		eventFactory = new TestEventFactory();
 
 		Project project = mock(Project.class);

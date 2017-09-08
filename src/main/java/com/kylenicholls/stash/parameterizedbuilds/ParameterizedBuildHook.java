@@ -2,6 +2,7 @@ package com.kylenicholls.stash.parameterizedbuilds;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -17,6 +18,7 @@ import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.atlassian.bitbucket.user.ApplicationUser;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PushHandler;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.RefCreatedHandler;
@@ -35,14 +37,23 @@ public class ParameterizedBuildHook
 	private final Jenkins jenkins;
 	private String url;
 	private ApplicationUser user;
+	private ExecutorService executorService;
 
-	public ParameterizedBuildHook(SettingsService settingsService, CommitService commitService,
-			Jenkins jenkins, ApplicationPropertiesService applicationPropertiesService, AuthenticationContext actx) {
+	public ParameterizedBuildHook(
+			SettingsService settingsService,
+			CommitService commitService,
+			Jenkins jenkins,
+			ApplicationPropertiesService applicationPropertiesService,
+			AuthenticationContext actx,
+			@ComponentImport
+			ExecutorService executorService) {
+
 		this.settingsService = settingsService;
 		this.commitService = commitService;
 		this.jenkins = jenkins;
 		this.url = applicationPropertiesService.getBaseUrl().toString();
 		this.user = actx.getCurrentUser();
+		this.executorService = executorService;
 	}
 
 	@Override
@@ -51,8 +62,10 @@ public class ParameterizedBuildHook
 		Repository repository = request.getRepository();
 
 		for (RefChange refChange : refChanges) {
-			RefHandler refHandler = createHandler(refChange, repository);
-			refHandler.run();
+			this.executorService.submit(() -> {
+				RefHandler refHandler = createHandler(refChange, repository);
+				refHandler.run();
+			});
 		}
 	}
 
