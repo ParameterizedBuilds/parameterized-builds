@@ -253,39 +253,6 @@ public class JobTest {
 	}
 
 	@Test
-	public void testBuildManualUrlNullServer() {
-		Job job = new Job.JobBuilder(0).build();
-		String actual = job.buildManualUrl(null, null, false);
-
-		assertEquals(null, actual);
-	}
-
-	@Test
-	public void testBuildManualUrl() {
-		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", false);
-		MultivaluedMap<String, String> query = new MultivaluedMapImpl();
-		Job job = new Job.JobBuilder(0).jobName(jobName).build();
-		String actual = job.buildManualUrl(server, query, false);
-
-		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
-	}
-
-	@Test
-	public void testBuildManualUrlWithParameters() {
-		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", false);
-		MultivaluedMap<String, String> query = new MultivaluedMapImpl();
-		query.add("param1", "value1");
-		query.add("param2", "value2");
-		Job job = new Job.JobBuilder(0).jobName(jobName).build();
-		String actual = job.buildManualUrl(server, query, false);
-
-		assertEquals(server.getBaseUrl() + "/job/" + jobName
-				+ "/buildWithParameters?param1=value1&param2=value2", actual);
-	}
-
-	@Test
 	public void testTriggerSpecialToString() {
 		String expected = "REF CREATED";
 		String actual = Trigger.ADD.toString();

@@ -269,7 +269,7 @@ public class JenkinsTest {
 		Jenkins jenkinsSpy = spy(jenkins);
 		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-		verify(jenkinsSpy, times(1)).triggerJob("globalurl/job/build", userToken, false);
+		verify(jenkinsSpy, times(1)).sanitizeTrigger("globalurl/job/build", userToken, false);
 	}
 
 	@Test
@@ -286,7 +286,7 @@ public class JenkinsTest {
 		Jenkins jenkinsSpy = spy(jenkins);
 		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-		verify(jenkinsSpy, times(1)).triggerJob("globalurl/job/build", userToken, false);
+		verify(jenkinsSpy, times(1)).sanitizeTrigger("globalurl/job/build", userToken, false);
 	}
 
 	@Test
@@ -302,7 +302,7 @@ public class JenkinsTest {
 		Jenkins jenkinsSpy = spy(jenkins);
 		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-		verify(jenkinsSpy, times(1)).triggerJob("globalurl/job/build", userToken, true);
+		verify(jenkinsSpy, times(1)).sanitizeTrigger("globalurl/job/build", userToken, true);
 	}
 
 	@Test
@@ -317,12 +317,12 @@ public class JenkinsTest {
 		Jenkins jenkinsSpy = spy(jenkins);
 		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-		verify(jenkinsSpy, times(1)).triggerJob("globalurl/job/build", null, true);
+		verify(jenkinsSpy, times(1)).sanitizeTrigger("globalurl/job/build", null, true);
 	}
 
 	@Test
 	public void testTriggerJobNoBuildUrl() {
-		JenkinsResponse actual = jenkins.triggerJob(null, null, false);
+		JenkinsResponse actual = jenkins.sanitizeTrigger(null, null, false);
 
 		assertEquals(true, actual.getError());
 		assertEquals(false, actual.getPrompt());

@@ -128,7 +128,7 @@ public class BuildResourceTest {
 		query.add("param1", "value1");
 		query.add("param2", "value2");
 		when(uriInfo.getQueryParameters()).thenReturn(query);
-		when(jenkins.triggerJob(any(), any(), anyBoolean())).thenReturn(message);
+		when(jenkins.triggerJob(any(), any(), any(), any())).thenReturn(message);
 		Response results = rest.triggerBuild(repository, "0", "test", uriInfo);
 
 		assertEquals(Response.Status.OK.getStatusCode(), results.getStatus());

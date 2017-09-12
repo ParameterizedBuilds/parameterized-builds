@@ -256,7 +256,7 @@ public class Jenkins {
 	 * @param promptUser
 	 *            prompt the user to link their jenkins account
 	 */
-	public JenkinsResponse triggerJob(@Nullable String buildUrl, @Nullable String joinedToken,
+	public JenkinsResponse sanitizeTrigger(@Nullable String buildUrl, @Nullable String joinedToken,
 			boolean promptUser) {
 		if (buildUrl == null) {
 			return new JenkinsResponse.JenkinsMessage().error(true)
@@ -287,7 +287,7 @@ public class Jenkins {
 			}
 		}
 
-		return triggerJob(buildUrl, joinedUserToken, prompt);
+		return sanitizeTrigger(buildUrl, joinedUserToken, prompt);
 	}
 
 	private HttpURLConnection setupConnection(String baseUrl, String userToken) throws Exception{

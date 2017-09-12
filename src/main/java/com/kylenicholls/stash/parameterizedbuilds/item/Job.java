@@ -140,6 +140,10 @@ public class Job {
 					triggers.add(Trigger.NULL);
 				}
 			}
+			return triggers(triggers);
+		}
+
+		public JobBuilder triggers(List<Trigger> triggers) {
 			this.triggers = triggers;
 			return this;
 		}
@@ -173,7 +177,11 @@ public class Job {
 					}
 				}
 			}
-			this.buildParameters = parameterList;
+			return buildParameters(parameterList);
+		}
+
+		public JobBuilder buildParameters(List<Entry<String, Object>> buildParameters) {
+			this.buildParameters = buildParameters;
 			return this;
 		}
 
@@ -205,6 +213,12 @@ public class Job {
 		public Job build() {
 			return new Job(this);
 		}
+	}
+
+	public Job copy(List<Entry<String, Object>> buildParameters){
+		return new JobBuilder(jobId).jobName(jobName).isTag(isTag).triggers(triggers).token(token)
+				.buildParameters(buildParameters).branchRegex(branchRegex).pathRegex(pathRegex).permissions(permissions)
+				.prDestRegex(prDestRegex).isPipeline(isPipeline).build();
 	}
 
 	public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,
@@ -240,21 +254,6 @@ public class Job {
 		}
 
 		return buildUrl;
-	}
-
-	public String buildManualUrl(Server jenkinsServer,
-			MultivaluedMap<String, String> manualParameters, boolean useUserToken) {
-		if (jenkinsServer == null) {
-			return null;
-		}
-
-		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, manualParameters.size() > 0);
-
-		for (Entry<String, List<String>> param : manualParameters.entrySet()) {
-			builder.queryParam(param.getKey(), param.getValue().get(0));
-		}
-
-		return builder.build().toString();
 	}
 
 	private UriBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
