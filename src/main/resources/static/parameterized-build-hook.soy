@@ -123,17 +123,13 @@
                 ]] /}
             {param extraClasses: $collapsed ? 'hidden' : '' /}
         {/call}
-        {call aui.form.selectField}
+        {call aui.form.checkboxField}
+            {param legendContent : 'Multibranch Pipeline' /}
             {param id: 'isPipeline-' + $count /}
-            {param labelContent: 'Job Type' /}
-            {param value: $isPipeline /}
-            {param options: [[
-                    'text': 'Other',
-                    'value': 'false'
-                ],[
-                    'text': 'Multibranch Pipeline',
-                    'value': 'true'
-                ]] /}
+            {param fields: [[
+                    'isChecked': $isPipeline,
+                    'labelText': ''
+            ]] /}
             {param extraClasses: $collapsed ? 'hidden' : '' /}
         {/call}
         <div class="field-group {$collapsed ? 'hidden' : ''}">
