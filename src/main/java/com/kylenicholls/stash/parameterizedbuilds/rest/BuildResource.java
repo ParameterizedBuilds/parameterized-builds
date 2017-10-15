@@ -95,7 +95,9 @@ public class BuildResource extends RestResource {
 				Job job = jobToBuild.copy(paramList.entrySet().stream().collect(Collectors.toList()));
 
 				//create bitbucketVariables with only branch to resolve pipelines
-				BitbucketVariables variables = new BitbucketVariables.Builder().add("$BRANCH", () -> branch).build();
+				BitbucketVariables variables = new BitbucketVariables.Builder()
+						.add("$BRANCH", () -> branch)
+						.add("$TRIGGER", Trigger.MANUAL::toString).build();
 
 				Map<String, Object> message = jenkins.triggerJob(projectKey, user, job, variables)
 						.getMessage();

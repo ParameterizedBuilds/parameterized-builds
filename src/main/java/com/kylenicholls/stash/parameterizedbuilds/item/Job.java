@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
@@ -221,14 +223,7 @@ public class Job {
 				.prDestRegex(prDestRegex).isPipeline(isPipeline).build();
 	}
 
-	public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,
-			boolean useUserToken) {
-		if (jenkinsServer == null) {
-			return null;
-		}
-
-		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty());
-
+	private void appendBuildParams(UriBuilder builder){
 		for (Entry<String, Object> param : this.buildParameters) {
 			String key = param.getKey();
 			String value;
@@ -238,6 +233,19 @@ public class Job {
 				value = param.getValue().toString();
 			}
 			builder.queryParam(key, value);
+		}
+	}
+
+	public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,
+			boolean useUserToken) {
+		if (jenkinsServer == null) {
+			return null;
+		}
+		Trigger trigger =  Trigger.fromToString(bitbucketVariables.fetch("$TRIGGER"));
+		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty(), trigger);
+
+		if (!this.isPipeline || !trigger.isRefChange()){
+			appendBuildParams(builder);
 		}
 
 		String buildUrl = builder.build().toString();
@@ -257,15 +265,22 @@ public class Job {
 	}
 
 	private UriBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
-			boolean hasParameters) {
+			boolean hasParameters, Trigger trigger) {
+
 		UriBuilder builder = UriBuilder.fromUri(jenkinsServer.getBaseUrl());
 		if (useUserToken || !jenkinsServer.getAltUrl()) {
 			builder.path("job").path(this.jobName);
-			if (this.isPipeline) {
-				builder.path("job").path("$BRANCH");
-			}
 		} else {
 			builder.path("buildByToken").queryParam("job", this.jobName);
+		}
+
+		if (this.isPipeline) {
+			if (trigger.isRefChange()){
+				//if posting to the scan url, parameters can't be passed
+				hasParameters = false;
+			} else {
+				builder.path("job").path("$BRANCH");
+			}
 		}
 
 		if (hasParameters) {
@@ -295,6 +310,24 @@ public class Job {
 				case PRDECLINED: return "PR DECLINED";
 				case PRDELETED: return "PR DELETED";
 				default: return super.toString();
+			}
+		}
+
+		public Boolean isRefChange(){
+			return Stream.of(ADD, PUSH, DELETE).collect(Collectors.toList()).contains(this);
+		}
+
+		public static Trigger fromToString(String toString){
+			switch(toString) {
+				case "REF CREATED": return ADD;
+				case "PUSH EVENT": return PUSH;
+				case "PR OPENED": return PULLREQUEST;
+				case "REF DELETED": return DELETE;
+				case "PR MERGED": return PRMERGED;
+				case "AUTO MERGED": return PRAUTOMERGED;
+				case "PR DECLINED": return PRDECLINED;
+				case "PR DELETED": return PRDELETED;
+				default: return NULL;
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +12,20 @@ import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class JobTest {
+
+	private BitbucketVariables bitbucketVariables;
+
+	@Before
+	public void setup() throws IOException {
+		bitbucketVariables = new BitbucketVariables.Builder().add("$TRIGGER", Job.Trigger.ADD::toString).build();
+	}
 	@Test
 	public void testBuildJobId() {
 		int jobId = 0;
@@ -125,7 +134,7 @@ public class JobTest {
 		String jobName = "jobname";
 		Server server = new Server("http://baseurl", "", "", true);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), false);
+		String actual = job.buildUrl(server, bitbucketVariables, false);
 
 		assertEquals(server.getBaseUrl() + "/buildByToken/build?job=" + jobName, actual);
 	}
@@ -135,7 +144,7 @@ public class JobTest {
 		String jobName = "jobname";
 		Server server = new Server("http://baseurl", "", "", true);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), true);
+		String actual = job.buildUrl(server, bitbucketVariables, true);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
@@ -145,7 +154,7 @@ public class JobTest {
 		String jobName = "jobname";
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), false);
+		String actual = job.buildUrl(server, bitbucketVariables, false);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
@@ -156,7 +165,7 @@ public class JobTest {
 		String token = "token";
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").token(token).build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), false);
+		String actual = job.buildUrl(server, bitbucketVariables, false);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build?token=" + token, actual);
 	}
@@ -167,7 +176,7 @@ public class JobTest {
 		String token = "token";
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").token(token).build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), true);
+		String actual = job.buildUrl(server, bitbucketVariables, true);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
@@ -177,7 +186,7 @@ public class JobTest {
 		String jobName = "jobname";
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").token("").build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), false);
+		String actual = job.buildUrl(server, bitbucketVariables, false);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
@@ -187,7 +196,7 @@ public class JobTest {
 		String jobName = "jobname";
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), false);
+		String actual = job.buildUrl(server, bitbucketVariables, false);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
@@ -198,7 +207,7 @@ public class JobTest {
 		String params = "param1=value1";
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), false);
+		String actual = job.buildUrl(server, bitbucketVariables, false);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?"
 				+ params, actual);
@@ -210,7 +219,7 @@ public class JobTest {
 		String params = "param1=1;2;3";
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
-		String actual = job.buildUrl(server, new BitbucketVariables.Builder().build(), false);
+		String actual = job.buildUrl(server, bitbucketVariables, false);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?"
 				+ params.split(";")[0], actual);
@@ -221,7 +230,8 @@ public class JobTest {
 		String jobName = "jobname";
 		String params = "param1=$BRANCH";
 		String branch = "branchname";
-		BitbucketVariables vars = new BitbucketVariables.Builder().add("$BRANCH", () -> branch).build();
+		BitbucketVariables vars = new BitbucketVariables.Builder().add("$BRANCH", () -> branch)
+				.add("$TRIGGER", Trigger.ADD::toString).build();
 		Server server = new Server("http://baseurl", "", "", false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
 		String actual = job.buildUrl(server, vars, false);

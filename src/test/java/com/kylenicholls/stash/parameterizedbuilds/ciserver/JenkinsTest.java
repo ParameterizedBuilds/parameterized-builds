@@ -265,7 +265,7 @@ public class JenkinsTest {
 
 		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
 				.pathRegex("").prDestRegex("").build();
-		BitbucketVariables bitbucketVariables = mock(BitbucketVariables.class);
+		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().add("$TRIGGER", () -> Job.Trigger.ADD.toString()).build();
 		Jenkins jenkinsSpy = spy(jenkins);
 		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
@@ -282,7 +282,7 @@ public class JenkinsTest {
 
 		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
 				.pathRegex("").prDestRegex("").build();
-		BitbucketVariables bitbucketVariables = mock(BitbucketVariables.class);
+		BitbucketVariables bitbucketVariables =  new BitbucketVariables.Builder().add("$TRIGGER", () -> Job.Trigger.ADD.toString()).build();;
 		Jenkins jenkinsSpy = spy(jenkins);
 		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
@@ -298,7 +298,7 @@ public class JenkinsTest {
 
 		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
 				.pathRegex("").prDestRegex("").build();
-		BitbucketVariables bitbucketVariables = mock(BitbucketVariables.class);
+		BitbucketVariables bitbucketVariables =  new BitbucketVariables.Builder().add("$TRIGGER", () -> Job.Trigger.ADD.toString()).build();;
 		Jenkins jenkinsSpy = spy(jenkins);
 		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
@@ -313,7 +313,7 @@ public class JenkinsTest {
 
 		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
 				.pathRegex("").prDestRegex("").build();
-		BitbucketVariables bitbucketVariables = mock(BitbucketVariables.class);
+		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().add("$TRIGGER", () -> Job.Trigger.ADD.toString()).build();
 		Jenkins jenkinsSpy = spy(jenkins);
 		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
