@@ -223,19 +223,6 @@ public class Job {
 				.prDestRegex(prDestRegex).isPipeline(isPipeline).build();
 	}
 
-	private void appendBuildParams(UriBuilder builder){
-		for (Entry<String, Object> param : this.buildParameters) {
-			String key = param.getKey();
-			String value;
-			if (param.getValue() instanceof String[]) {
-				value = ((String[]) param.getValue())[0];
-			} else {
-				value = param.getValue().toString();
-			}
-			builder.queryParam(key, value);
-		}
-	}
-
 	public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,
 			boolean useUserToken) {
 		if (jenkinsServer == null) {
@@ -243,10 +230,6 @@ public class Job {
 		}
 		Trigger trigger =  Trigger.fromToString(bitbucketVariables.fetch("$TRIGGER"));
 		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty(), trigger);
-
-		if (!this.isPipeline || !trigger.isRefChange()){
-			appendBuildParams(builder);
-		}
 
 		String buildUrl = builder.build().toString();
 
@@ -266,33 +249,40 @@ public class Job {
 
 	private UriBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
 			boolean hasParameters, Trigger trigger) {
-
 		UriBuilder builder = UriBuilder.fromUri(jenkinsServer.getBaseUrl());
+		String jobBase = !isPipeline || trigger.isRefChange() ? "%s": "%s%s%s";
+		hasParameters = !isPipeline || !trigger.isRefChange() ? hasParameters : false;
+
 		if (useUserToken || !jenkinsServer.getAltUrl()) {
-			builder.path("job").path(this.jobName);
+			builder.path("job").path(String.format(jobBase, this.jobName, "/job/", "$BRANCH"));
 		} else {
-			builder.path("buildByToken").queryParam("job", this.jobName);
-		}
-
-		if (this.isPipeline) {
-			if (trigger.isRefChange()){
-				//if posting to the scan url, parameters can't be passed
-				hasParameters = false;
-			} else {
-				builder.path("job").path("$BRANCH");
-			}
-		}
-
-		if (hasParameters) {
-			builder.path("buildWithParameters");
-		} else {
-			builder.path("build");
+			builder.path("buildByToken").queryParam("job", String.format(jobBase, this.jobName, "/", "$BRANCH"));
 		}
 
 		if (!useUserToken && this.token != null && !this.token.isEmpty()) {
 			builder.queryParam("token", this.token);
 		}
+
+		if (hasParameters) {
+			builder.path("buildWithParameters");
+			appendBuildParams(builder);
+		} else {
+			builder.path("build");
+		}
 		return builder;
+	}
+
+	private void appendBuildParams(UriBuilder builder){
+		for (Entry<String, Object> param : this.buildParameters) {
+			String key = param.getKey();
+			String value;
+			if (param.getValue() instanceof String[]) {
+				value = ((String[]) param.getValue())[0];
+			} else {
+				value = param.getValue().toString();
+			}
+			builder.queryParam(key, value);
+		}
 	}
 
 	public enum Trigger {

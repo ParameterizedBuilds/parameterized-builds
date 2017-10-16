@@ -125,12 +125,12 @@
         {/call}
         {call aui.form.checkboxField}
             {param legendContent : 'Multibranch Pipeline' /}
-            {param id: 'isPipeline-' + $count /}
             {param fields: [[
                     'isChecked': $isPipeline,
-                    'labelText': ''
+                    'labelText': '',
+                    'id' : 'isPipeline-' + $count
             ]] /}
-            {param extraClasses: $collapsed ? 'hidden' : '' /}
+            {param extraClasses: $collapsed ? 'hidden field-group' : 'field-group' /}
         {/call}
         <div class="field-group {$collapsed ? 'hidden' : ''}">
             <label for="trigger-buttons-{$count}">Triggers<span class="aui-icon icon-required"></span></label>

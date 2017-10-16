@@ -169,7 +169,6 @@
     $(document).on('click', '.toggle-job', function(e) {
         e.preventDefault();
         $currentJob = $(this).parent().find('.field-group');
-        $currentJob.push.apply($currentJob,  $(this).parent().find('.group'))
         var classes = $(this).find('span').attr('class');
         if (classes.indexOf("aui-iconfont-expanded") > -1) {
             var title = $currentJob.first().find('input').val();
