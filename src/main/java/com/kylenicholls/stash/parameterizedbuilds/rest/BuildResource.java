@@ -38,7 +38,6 @@ import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables.Builde
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.sun.jersey.spi.resource.Singleton;
-import org.apache.commons.collections.map.HashedMap;
 
 @Path(ResourcePatterns.REPOSITORY_URI)
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -92,9 +91,9 @@ public class BuildResource extends RestResource {
 						uriInfo.getQueryParameters().entrySet()
 								.stream()
 								.collect(Collectors.toMap(Entry::getKey, e->e.getValue().get(0)));
-				Job job = jobToBuild.copy(paramList.entrySet().stream().collect(Collectors.toList()));
+				Job job = jobToBuild.copy().buildParameters(paramList).build();
 
-				//create bitbucketVariables with only branch to resolve pipelines
+				//create bitbucketVariables with only branch and trigger to resolve pipelines
 				BitbucketVariables variables = new BitbucketVariables.Builder()
 						.add("$BRANCH", () -> branch)
 						.add("$TRIGGER", Trigger.MANUAL::toString).build();

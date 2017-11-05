@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -82,7 +81,7 @@ public class Job {
 		return prDestRegex;
 	}
 
-	public boolean isPipeline() { return isPipeline; }
+	public boolean getIsPipeline() { return isPipeline; }
 
 	public Map<String, Object> asMap(BitbucketVariables bitbucketVariables) {
 		Map<String, Object> map = new LinkedHashMap<>();
@@ -187,6 +186,10 @@ public class Job {
 			return this;
 		}
 
+		public JobBuilder buildParameters(Map<String, Object> buildParameters) {
+			return buildParameters(buildParameters.entrySet().stream().collect(Collectors.toList()));
+		}
+
 		public JobBuilder branchRegex(String branchRegex) {
 			this.branchRegex = branchRegex;
 			return this;
@@ -217,10 +220,10 @@ public class Job {
 		}
 	}
 
-	public Job copy(List<Entry<String, Object>> buildParameters){
+	public JobBuilder copy(){
 		return new JobBuilder(jobId).jobName(jobName).isTag(isTag).triggers(triggers).token(token)
 				.buildParameters(buildParameters).branchRegex(branchRegex).pathRegex(pathRegex).permissions(permissions)
-				.prDestRegex(prDestRegex).isPipeline(isPipeline).build();
+				.prDestRegex(prDestRegex).isPipeline(isPipeline);
 	}
 
 	public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,

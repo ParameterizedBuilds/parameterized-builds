@@ -117,4 +117,21 @@ public class SettingsServiceTest {
 
 		assertTrue(jobs.get(0).getIsTag());
 	}
+
+	@Test
+	public void testGetPipelineJob() {
+		Map<String, Object> jobConfig = new HashMap<>();
+		jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
+		jobConfig.put(SettingsService.ISPIPELINE_PREFIX + "0", "true");
+		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "add");
+		jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
+		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
+		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+		List<Job> jobs = settingsService.getJobs(jobConfig);
+
+		assertTrue(jobs.get(0).getIsPipeline());
+	}
 }
