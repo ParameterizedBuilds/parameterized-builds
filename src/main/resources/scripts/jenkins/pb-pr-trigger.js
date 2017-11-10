@@ -24,13 +24,14 @@ define('jenkins/parameterized-build-pullrequest', [
         jobs = getJobs(resourceUrl);
         if (jobs.length == 1){
             if (jobs[0].buildParameters.length == 0){
-                var buildUrl = getResourceUrl("triggerBuild/0");
+                branchName = branch.split("/").pop()
+                var buildUrl = getResourceUrl("triggerBuild/0/" + encodeURIComponent(branchName));
                 triggerBuild(buildUrl);
                 return false;
             }
         }
         var buildUrl = getResourceUrl("triggerBuild");
-        showManualBuildDialog(buildUrl);
+        showManualBuildDialog(buildUrl, branch);
         return false;
     });
 
@@ -53,7 +54,7 @@ define('jenkins/parameterized-build-pullrequest', [
         return results;
     }
 
-    function showManualBuildDialog(buildUrl) {
+    function showManualBuildDialog(buildUrl, branch) {
         var dialog = _aui.dialog2(aui.dialog.dialog2({
             titleText: AJS.I18n.getText('Build with Parameters'),
             content: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildDialog({
@@ -73,7 +74,8 @@ define('jenkins/parameterized-build-pullrequest', [
                 var $jobParameters = dialog.$el.find('.jenkins-form');
                 var jobSelect = document.getElementById("job");
                 var id = jobSelector.options[jobSelector.selectedIndex].value;
-                buildUrl += "/" + jobs[id].id + "?";
+                branchName = branch.split("/").pop()
+                buildUrl += "/" + jobs[id].id + "/" + encodeURIComponent(branchName) + "?";
                 $jobParameters.each(function(index, jobParam) {
                     var $curJobParam = $(jobParam);
                     var key = $curJobParam.find('label').text();

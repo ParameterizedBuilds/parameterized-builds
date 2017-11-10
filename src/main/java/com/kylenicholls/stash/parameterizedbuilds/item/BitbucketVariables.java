@@ -55,36 +55,36 @@ public class BitbucketVariables {
 			return add("$BRANCH", () -> pullRequest.getFromRef().getDisplayId())
 					.add("$COMMIT", () -> pullRequest.getFromRef().getLatestCommit())
 					.add("$URL", () -> url)
-					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$REPOSITORY", repository::getSlug)
 					.add("$PROJECT", () -> projectKey)
 					.add("$PRID", () -> prId)
 					.add("$PRAUTHOR", () -> pullRequest.getAuthor().getUser().getDisplayName())
-					.add("$PRTITLE", () ->  pullRequest.getTitle())
-					.add("$PRDESCRIPTION", () -> pullRequest.getDescription())
+					.add("$PRTITLE", pullRequest::getTitle)
+					.add("$PRDESCRIPTION", pullRequest::getDescription)
 					.add("$PRDESTINATION", () ->  pullRequest.getToRef().getDisplayId())
 					.add("$PRURL", () -> url + "/projects/" + projectKey + "/repos/" +
 							repository.getSlug() + "/pull-requests/" + prId)
-					.add("$TRIGGER", () -> trigger.toString());
+					.add("$TRIGGER", trigger::toString);
 		}
 
 		public Builder populateFromRef(String branch, RefChange refChange, Repository repository,
 									   String projectKey, Trigger trigger, String url){
 			return add("$BRANCH", () -> branch)
-					.add("$COMMIT", () -> refChange.getToHash())
+					.add("$COMMIT", refChange::getToHash)
 					.add("$URL", () -> url)
-					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$REPOSITORY", repository::getSlug)
 					.add("$PROJECT", () -> projectKey)
-					.add("$TRIGGER", () -> trigger.toString());
+					.add("$TRIGGER",  trigger::toString);
 		}
 
 		public Builder populateFromBranch(Branch branch, Repository repository, String projectKey,
 										  Trigger trigger, String url){
-			return add("$BRANCH", () -> branch.getDisplayId())
-					.add("$COMMIT", () -> branch.getLatestCommit())
+			return add("$BRANCH", branch::getDisplayId)
+					.add("$COMMIT", branch::getLatestCommit)
 					.add("$URL", () -> url)
-					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$REPOSITORY", repository::getSlug)
 					.add("$PROJECT", () -> projectKey)
-					.add("$TRIGGER", () -> trigger.toString());
+					.add("$TRIGGER", trigger::toString);
 		}
 
 		public Builder populateFromStrings(String branch, String commit, Repository repository, String projectKey,
@@ -92,9 +92,9 @@ public class BitbucketVariables {
 			return add("$BRANCH", () -> branch)
 					.add("$COMMIT", () -> commit)
 					.add("$URL", () -> url)
-					.add("$REPOSITORY", () -> repository.getSlug())
+					.add("$REPOSITORY", repository::getSlug)
 					.add("$PROJECT", () -> projectKey)
-					.add("$TRIGGER", () -> trigger.toString());
+					.add("$TRIGGER", trigger::toString);
 		}
 
 		public BitbucketVariables build() {

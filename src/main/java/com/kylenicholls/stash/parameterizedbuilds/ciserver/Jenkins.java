@@ -256,7 +256,7 @@ public class Jenkins {
 	 * @param promptUser
 	 *            prompt the user to link their jenkins account
 	 */
-	public JenkinsResponse triggerJob(@Nullable String buildUrl, @Nullable String joinedToken,
+	public JenkinsResponse sanitizeTrigger(@Nullable String buildUrl, @Nullable String joinedToken,
 			boolean promptUser) {
 		if (buildUrl == null) {
 			return new JenkinsResponse.JenkinsMessage().error(true)
@@ -287,7 +287,7 @@ public class Jenkins {
 			}
 		}
 
-		return triggerJob(buildUrl, joinedUserToken, prompt);
+		return sanitizeTrigger(buildUrl, joinedUserToken, prompt);
 	}
 
 	private HttpURLConnection setupConnection(String baseUrl, String userToken) throws Exception{
@@ -340,15 +340,20 @@ public class Jenkins {
 			}
 
 			String message;
+			String responseMessage =  connection.getResponseMessage();
 			if (status == 403) {
 				message = "You do not have permissions to build this job";
+			} else if (status == 302 && responseMessage.equals("Found")) {
+				//multibranch pipelines cause redirects on the build but work just fine
+				//so if we get a redirect but it is successful, just report success
+				return jenkinsMessage.messageText("Build triggered").build();
 			} else if (status == 404) {
 				message = "Job was not found";
 				return jenkinsMessage.error(true).messageText(message).build();
 			} else if (status == 500) {
 				message = "Error triggering job, invalid build parameters";
 			} else {
-				message = connection.getResponseMessage();
+				message = responseMessage;
 			}
 			logger.error("Exception for parametized build: " + message);
 			return jenkinsMessage.error(true).messageText(message).build();

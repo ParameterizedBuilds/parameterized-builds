@@ -5,8 +5,9 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ public class Job {
 	private final String pathRegex;
 	private final String permissions;
 	private final String prDestRegex;
+	private final boolean isPipeline;
 
 	private Job(JobBuilder builder) {
 		this.jobId = builder.jobId;
@@ -36,6 +38,7 @@ public class Job {
 		this.pathRegex = builder.pathRegex;
 		this.permissions = builder.permissions;
 		this.prDestRegex = builder.prDestRegex;
+		this.isPipeline = builder.isPipeline;
 	}
 
 	public int getJobId() {
@@ -78,6 +81,8 @@ public class Job {
 		return prDestRegex;
 	}
 
+	public boolean getIsPipeline() { return isPipeline; }
+
 	public Map<String, Object> asMap(BitbucketVariables bitbucketVariables) {
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.put("id", jobId);
@@ -110,6 +115,7 @@ public class Job {
 		private String pathRegex;
 		private String permissions;
 		private String prDestRegex;
+		private boolean isPipeline;
 
 		public JobBuilder(int jobId) {
 			this.jobId = jobId;
@@ -135,6 +141,10 @@ public class Job {
 					triggers.add(Trigger.NULL);
 				}
 			}
+			return triggers(triggers);
+		}
+
+		public JobBuilder triggers(List<Trigger> triggers) {
 			this.triggers = triggers;
 			return this;
 		}
@@ -168,8 +178,16 @@ public class Job {
 					}
 				}
 			}
-			this.buildParameters = parameterList;
+			return buildParameters(parameterList);
+		}
+
+		public JobBuilder buildParameters(List<Entry<String, Object>> buildParameters) {
+			this.buildParameters = buildParameters;
 			return this;
+		}
+
+		public JobBuilder buildParameters(Map<String, Object> buildParameters) {
+			return buildParameters(buildParameters.entrySet().stream().collect(Collectors.toList()));
 		}
 
 		public JobBuilder branchRegex(String branchRegex) {
@@ -192,9 +210,20 @@ public class Job {
 			return this;
 		}
 
+		public JobBuilder isPipeline(boolean isPipeline){
+			this.isPipeline = isPipeline;
+			return this;
+		}
+
 		public Job build() {
 			return new Job(this);
 		}
+	}
+
+	public JobBuilder copy(){
+		return new JobBuilder(jobId).jobName(jobName).isTag(isTag).triggers(triggers).token(token)
+				.buildParameters(buildParameters).branchRegex(branchRegex).pathRegex(pathRegex).permissions(permissions)
+				.prDestRegex(prDestRegex).isPipeline(isPipeline);
 	}
 
 	public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,
@@ -202,19 +231,8 @@ public class Job {
 		if (jenkinsServer == null) {
 			return null;
 		}
-
-		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty());
-
-		for (Entry<String, Object> param : this.buildParameters) {
-			String key = param.getKey();
-			String value;
-			if (param.getValue() instanceof String[]) {
-				value = ((String[]) param.getValue())[0];
-			} else {
-				value = param.getValue().toString();
-			}
-			builder.queryParam(key, value);
-		}
+		Trigger trigger =  Trigger.fromToString(bitbucketVariables.fetch("$TRIGGER"));
+		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty(), trigger);
 
 		String buildUrl = builder.build().toString();
 
@@ -232,40 +250,42 @@ public class Job {
 		return buildUrl;
 	}
 
-	public String buildManualUrl(Server jenkinsServer,
-			MultivaluedMap<String, String> manualParameters, boolean useUserToken) {
-		if (jenkinsServer == null) {
-			return null;
-		}
-
-		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, manualParameters.size() > 0);
-
-		for (Entry<String, List<String>> param : manualParameters.entrySet()) {
-			builder.queryParam(param.getKey(), param.getValue().get(0));
-		}
-
-		return builder.build().toString();
-	}
-
 	private UriBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
-			boolean hasParameters) {
+			boolean hasParameters, Trigger trigger) {
 		UriBuilder builder = UriBuilder.fromUri(jenkinsServer.getBaseUrl());
-		if (useUserToken || !jenkinsServer.getAltUrl()) {
-			builder.path("job").path(this.jobName);
-		} else {
-			builder.path("buildByToken").queryParam("job", this.jobName);
-		}
+		String jobBase = !isPipeline || trigger.isRefChange() ? "%s": "%s%s%s";
+		hasParameters = !isPipeline || !trigger.isRefChange() ? hasParameters : false;
 
-		if (hasParameters) {
-			builder.path("buildWithParameters");
+		if (useUserToken || !jenkinsServer.getAltUrl()) {
+			builder.path("job").path(String.format(jobBase, this.jobName, "/job/", "$BRANCH"));
 		} else {
-			builder.path("build");
+			builder.path("buildByToken").queryParam("job", String.format(jobBase, this.jobName, "/", "$BRANCH"));
 		}
 
 		if (!useUserToken && this.token != null && !this.token.isEmpty()) {
 			builder.queryParam("token", this.token);
 		}
+
+		if (hasParameters) {
+			builder.path("buildWithParameters");
+			appendBuildParams(builder);
+		} else {
+			builder.path("build");
+		}
 		return builder;
+	}
+
+	private void appendBuildParams(UriBuilder builder){
+		for (Entry<String, Object> param : this.buildParameters) {
+			String key = param.getKey();
+			String value;
+			if (param.getValue() instanceof String[]) {
+				value = ((String[]) param.getValue())[0];
+			} else {
+				value = param.getValue().toString();
+			}
+			builder.queryParam(key, value);
+		}
 	}
 
 	public enum Trigger {
@@ -283,6 +303,24 @@ public class Job {
 				case PRDECLINED: return "PR DECLINED";
 				case PRDELETED: return "PR DELETED";
 				default: return super.toString();
+			}
+		}
+
+		public Boolean isRefChange(){
+			return Stream.of(ADD, PUSH, DELETE).collect(Collectors.toList()).contains(this);
+		}
+
+		public static Trigger fromToString(String toString){
+			switch(toString) {
+				case "REF CREATED": return ADD;
+				case "PUSH EVENT": return PUSH;
+				case "PR OPENED": return PULLREQUEST;
+				case "REF DELETED": return DELETE;
+				case "PR MERGED": return PRMERGED;
+				case "AUTO MERGED": return PRAUTOMERGED;
+				case "PR DECLINED": return PRDECLINED;
+				case "PR DELETED": return PRDELETED;
+				default: return NULL;
 			}
 		}
 	}

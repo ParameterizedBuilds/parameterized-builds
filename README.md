@@ -26,6 +26,7 @@ You can add as many jobs as you want (within reason),
 they will be triggered in the order they are added.
 * `Job Name`
 * `Ref Type` will apply your triggers to either branch operations or tag operations
+* [Multibranch Pipeline](#multibranch-pipeline-setup) should only be used to trigger jenkins multibranch pipelines
 * [Triggers](#triggers)
 * `Token` correspondes to the authorization token on your job configuration page in Jenkins
 * [Build Parameters](#build-parameters)
@@ -129,6 +130,11 @@ Parameter Types:
   * when using the `MANUAL` trigger users will be prompted with a checkbox
   * `true` will be the default, use `key=false` to make false the default  
  
+## Multibranch Pipeline Setup
+Jenkins Multibranch pipelines can be built directly or through scans. Therefore, if the Multibranch Pipeline checkbox is
+selected, `REF CREATED`, `REF DELETED`, and `PUSH EVENT` triggers will cause a scan while all others will trigger a build
+for the given branch. Triggers still need to be selected like any other job.
+
  
 # Contributing
 * Pull requests should be opened against master

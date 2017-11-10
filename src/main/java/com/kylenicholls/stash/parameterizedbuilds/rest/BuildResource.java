@@ -1,10 +1,8 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
@@ -39,7 +37,6 @@ import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables.Builder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
-import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
 
 @Path(ResourcePatterns.REPOSITORY_URI)
@@ -69,9 +66,9 @@ public class BuildResource extends RestResource {
 	}
 
 	@POST
-	@Path(value = "triggerBuild/{id}")
+	@Path(value = "triggerBuild/{id}/{branch}")
 	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id,
-			@Context UriInfo uriInfo) {
+								 @PathParam("branch") String branch, @Context UriInfo uriInfo) {
 		if (authContext.isAuthenticated()) {
 			String projectKey = repository.getProject().getKey();
 			Map<String, Object> data = new LinkedHashMap<>();
@@ -89,27 +86,19 @@ public class BuildResource extends RestResource {
 			} else {
 				ApplicationUser user = authContext.getCurrentUser();
 
-				Server jenkinsServer = jenkins.getJenkinsServer(projectKey);
-				String joinedUserToken = jenkins.getJoinedUserToken(user, projectKey);
-				if (jenkinsServer == null) {
-					jenkinsServer = jenkins.getJenkinsServer();
-					joinedUserToken = jenkins.getJoinedUserToken(user);
-				}
+				//create a job with already resolved buildParameters
+				Map<String, Object> paramList =
+						uriInfo.getQueryParameters().entrySet()
+								.stream()
+								.collect(Collectors.toMap(Entry::getKey, e->e.getValue().get(0)));
+				Job job = jobToBuild.copy().buildParameters(paramList).build();
 
-				String buildUrl = jobToBuild.buildManualUrl(jenkinsServer, uriInfo
-						.getQueryParameters(), joinedUserToken != null);
+				//create bitbucketVariables with only branch and trigger to resolve pipelines
+				BitbucketVariables variables = new BitbucketVariables.Builder()
+						.add("$BRANCH", () -> branch)
+						.add("$TRIGGER", Trigger.MANUAL::toString).build();
 
-				// use default user and token if the user that triggered the
-				// build does not have a token set
-				boolean prompt = false;
-				if (joinedUserToken == null) {
-					prompt = true;
-					if (!jenkinsServer.getUser().isEmpty()) {
-						joinedUserToken = jenkinsServer.getJoinedToken();
-					}
-				}
-
-				Map<String, Object> message = jenkins.triggerJob(buildUrl, joinedUserToken, prompt)
+				Map<String, Object> message = jenkins.triggerJob(projectKey, user, job, variables)
 						.getMessage();
 				return Response.ok(message).build();
 			}
@@ -120,7 +109,8 @@ public class BuildResource extends RestResource {
 	@GET
 	@Path(value = "getJobs")
 	public Response getJobs(@Context final Repository repository,
-			@QueryParam("branch") String branch, @QueryParam("commit") String commit, @QueryParam("prdestination") String prDestination, @QueryParam("prid") long prId) {
+			@QueryParam("branch") String branch, @QueryParam("commit") String commit,
+			@QueryParam("prdestination") String prDestination, @QueryParam("prid") long prId) {
 		if (authContext.isAuthenticated()) {
 			Settings settings = settingsService.getSettings(repository);
 			if (settings == null) {
