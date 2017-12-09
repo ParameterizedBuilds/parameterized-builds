@@ -270,7 +270,7 @@
 		<bitbucket.server.version>5.4.0</bitbucket.server.version>
 		<bitbucket.data.version>5.4.0</bitbucket.data.version>
 		<atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
-		<amps.version>6.1.0</amps.version>
+		<amps.version>6.3.4</amps.version>
 		<plugin.testrunner.version>1.2.0</plugin.testrunner.version>
 	</properties>
 </project>
