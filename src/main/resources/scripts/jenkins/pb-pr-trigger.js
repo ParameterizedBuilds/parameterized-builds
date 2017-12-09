@@ -24,7 +24,9 @@ define('jenkins/parameterized-build-pullrequest', [
         jobs = getJobs(resourceUrl);
         if (jobs.length == 1){
             if (jobs[0].buildParameters.length == 0){
-                branchName = branch.split("/").pop()
+                var splitBranch = branch.split("/")
+                splitBranch.splice(0, 2) //remove ref/heads or ref/tags
+                var branchName = splitBranch.join("%2F")
                 var buildUrl = getResourceUrl("triggerBuild/0/" + encodeURIComponent(branchName));
                 triggerBuild(buildUrl);
                 return false;
@@ -74,7 +76,9 @@ define('jenkins/parameterized-build-pullrequest', [
                 var $jobParameters = dialog.$el.find('.jenkins-form');
                 var jobSelect = document.getElementById("job");
                 var id = jobSelector.options[jobSelector.selectedIndex].value;
-                branchName = branch.split("/").pop()
+                var splitBranch = branch.split("/")
+                splitBranch.splice(0, 2) //remove ref/heads or ref/tags
+                var branchName = splitBranch.join("%2F")
                 buildUrl += "/" + jobs[id].id + "/" + encodeURIComponent(branchName) + "?";
                 $jobParameters.each(function(index, jobParam) {
                     var $curJobParam = $(jobParam);
