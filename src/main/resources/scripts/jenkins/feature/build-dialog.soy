@@ -5,19 +5,19 @@
  */
 {template .buildDialog}
     {call aui.form.form}
-    	{param action: '' /}
+        {param action: '' /}
         {param content}
-	    <select class="select" id="job" name="job" style="max-width:initial;width:auto">
-	        {for $i in range(length($jobs))}
-            	<option value="{$i}">{$jobs[$i]['jobName']}</option>
+        <select class="select" id="job" name="job" style="max-width:initial;width:auto">
+            {for $i in range(length($jobs))}
+                <option value="{$i}">{$jobs[$i]['jobName']}</option>
             {/for}
-	    </select>
-	    {call aui.form.form}
-        	{param content}
-        		<div class="job-params" />
-    		{/param}
-    		{param action: ''/}
-		{/call}
+        </select>
+        {call aui.form.form}
+            {param content}
+                <div class="job-params" />
+            {/param}
+            {param action: ''/}
+        {/call}
         {/param}
     {/call}
 {/template}
@@ -29,16 +29,16 @@
  */
 {template .addStringParameter}
     <div id="jenkins-form-{$count}" class="field-group jenkins-form">
-	    {call aui.form.label}
-	         {param forField : 'build-param-value-' + $count /}
-	         {param content : $key /}
-	    {/call}
-	    <input class="text" 
-			id="build-param-value-{$count}"
-			type="text" 
-			name="build-param-value-{$count}"
-			value="{$value}">
-	</div>
+        {call aui.form.label}
+             {param forField : 'build-param-value-' + $count /}
+             {param content : $key /}
+        {/call}
+        <input class="text"
+            id="build-param-value-{$count}"
+            type="text"
+            name="build-param-value-{$count}"
+            value="{$value}">
+    </div>
 {/template}
 
 /**
@@ -48,12 +48,12 @@
  */
 {template .addBranchParameter}
     <div id="jenkins-form-{$count}" class="jenkins-form">
-		{call bitbucket.component.branchSelector.field}
-			{param id: 'build-param-value-' + $count /}
-			{param labelText: $key /}
-			{param initialValue: $value /}
-		{/call}
-	</div>
+        {call bitbucket.component.branchSelector.field}
+            {param id: 'build-param-value-' + $count /}
+            {param labelText: $key /}
+            {param initialValue: $value /}
+        {/call}
+    </div>
 {/template}
 
 /**
@@ -63,12 +63,12 @@
  */
 {template .addBooleanParameter}
     <div id="jenkins-form-{$count}" class="field-group jenkins-form">
-	    <div class="checkbox">
-			<input class="checkbox" type="checkbox" id="build-param-value-{$count}" name="build-param-value-{$count}" 
-				{$value == 'true' ? 'checked="checked"' : ''}>
-			<label for="build-param-value-2">{$key}</label>
-		</div>
-	</div>
+        <div class="checkbox">
+            <input class="checkbox" type="checkbox" id="build-param-value-{$count}" name="build-param-value-{$count}"
+                {$value == 'true' ? 'checked="checked"' : ''}>
+            <label for="build-param-value-2">{$key}</label>
+        </div>
+    </div>
 {/template}
 
 /**
@@ -78,15 +78,15 @@
  */
 {template .addArrayParameter}
     <div id="jenkins-form-{$count}" class="field-group jenkins-form">
-		{call aui.form.label}
-		     {param forField : 'build-param-value-' + $count /}
-		     {param content : $key /}
-		{/call}
-		<select class="select" id="build-param-value-{$count}">
-			{foreach $selectValue in $value}
-		    	<option value="{$selectValue}">{$selectValue}</option>
-		    {/foreach}
-		</select>
+        {call aui.form.label}
+             {param forField : 'build-param-value-' + $count /}
+             {param content : $key /}
+        {/call}
+        <select class="select" id="build-param-value-{$count}">
+            {foreach $selectValue in $value}
+                <option value="{$selectValue}">{$selectValue}</option>
+            {/foreach}
+        </select>
     </div>
 {/template}
 
@@ -94,9 +94,9 @@
  * Start build button
  */
 {template .buildButton}
-	{call widget.aui.form.button}
-	    {param id: 'start-build' /}
-	    {param label: 'Start Build' /}
-	    {param autofocus: true /}
-	{/call}
+    {call widget.aui.form.button}
+        {param id: 'start-build' /}
+        {param label: 'Start Build' /}
+        {param autofocus: true /}
+    {/call}
 {/template}
