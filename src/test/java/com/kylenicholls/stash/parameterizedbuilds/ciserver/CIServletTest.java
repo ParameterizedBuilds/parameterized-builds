@@ -78,7 +78,10 @@ public class CIServletTest {
 		when(jenkins.getJenkinsServer()).thenReturn(server);
 		servlet.doGet(req, resp);
 
-		Map<String, Object> data = ImmutableMap.<String, Object> of("server", server, "errors", "");
+		Map<String, Object> data = ImmutableMap.of(
+				CIServer.SERVER, server,
+				CIServer.ERRORS, "",
+				CIServer.TESTMESSAGE, "");
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
 	}
@@ -89,7 +92,10 @@ public class CIServletTest {
 		when(jenkins.getJenkinsServer()).thenReturn(null);
 		servlet.doGet(req, resp);
 
-		Map<String, Object> data = ImmutableMap.<String, Object> of("server", "", "errors", "");
+		Map<String, Object> data = ImmutableMap.of(
+				CIServer.SERVER, "",
+				CIServer.ERRORS, "",
+				CIServer.TESTMESSAGE, "");
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
 	}
@@ -116,8 +122,11 @@ public class CIServletTest {
 		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(server);
 		servlet.doGet(req, resp);
 
-		Map<String, Object> data = ImmutableMap
-				.<String, Object> of("server", server, "projectKey", PROJECT_KEY, "errors", "");
+		Map<String, Object> data = ImmutableMap.of(
+				CIServer.SERVER, server,
+				ProjectServer.PROJECT_KEY, PROJECT_KEY,
+				CIServer.ERRORS, "",
+				CIServer.TESTMESSAGE, "");
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settingsProjectAdmin", data);
 	}
@@ -128,8 +137,11 @@ public class CIServletTest {
 		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(null);
 		servlet.doGet(req, resp);
 
-		Map<String, Object> data = ImmutableMap
-				.<String, Object> of("server", "", "projectKey", PROJECT_KEY, "errors", "");
+		Map<String, Object> data = ImmutableMap.of(
+				CIServer.SERVER, "",
+				ProjectServer.PROJECT_KEY, PROJECT_KEY,
+				CIServer.ERRORS, "",
+				CIServer.TESTMESSAGE, "");
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settingsProjectAdmin", data);
 	}

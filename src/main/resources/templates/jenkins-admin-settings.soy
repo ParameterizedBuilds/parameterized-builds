@@ -3,6 +3,7 @@
 /**
  * @param server
  * @param errors
+ * @param testMessage
  */
 {template .settings}
 <html>
@@ -14,6 +15,7 @@
 {call .body}
     {param server: $server /}
     {param errors: $errors /}
+    {param testMessage: $testMessage /}
 {/call}
 {/template}
 
@@ -21,6 +23,7 @@
  * @param server
  * @param projectKey
  * @param errors
+ * @param testMessage
  */
 {template .settingsProjectAdmin}
 <html>
@@ -33,12 +36,14 @@
 {call .body}
     {param server: $server /}
     {param errors: $errors /}
+    {param testMessage: $testMessage /}
 {/call}
 {/template}
 
 /**
  * @param server
  * @param errors
+ * @param testMessage
  */
 {template .body}
 <body>
@@ -50,12 +55,23 @@
 		{if $errors}
 			<div class="field-group"><div class="error">{$errors}</div></div>
 		{/if}
+		<p>
 		{call aui.form.submit}
           {param id: 'testButton' /}
           {param name: 'submit' /}
           {param text: 'Test Jenkins Settings' /}
           {param extraClasses: 'aui-button' /}
         {/call}
+        </p>
+        {if $testMessage}
+            {if strContains($testMessage, 'success') or strContains($testMessage, 'Success')}
+                <div class="aui-message success">{$testMessage}</div>
+            {else}
+                <div class="aui-message error">{$testMessage}</div>
+            {/if}
+            <div class=>
+        {/if}
+        <p>
 	    {call aui.form.submit}
 	      {param id: 'saveButton' /}
 	      {param name: 'submit' /}
@@ -63,6 +79,7 @@
 	      {param type: 'submit' /}
 		  {param extraClasses: 'aui-button-primary' /}
 	    {/call}
+	    </p>
     </form>
 </body>
 </html>

@@ -62,11 +62,11 @@ public class CIServlet extends HttpServlet {
 					                                      authContext.getCurrentUser(), projectService);
 
 			if (req.getParameter("submit").equals("Test Jenkins Settings")) {
-				render(res, ciServer.JENKINS_SETTINGS, ciServer.renderMap(ciServer.testConnection()));
+				render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
 			} else {
 				boolean clearSettings = req.getParameter("clear-settings") != null
-						&& "on".equals(req.getParameter("clear-settings")) ? true : false;
-				Map renderLoc = ciServer.postSettings(clearSettings);
+						&& "on".equals(req.getParameter("clear-settings"));
+				Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
 				if (renderLoc != null){
 					render(res, ciServer.JENKINS_SETTINGS, renderLoc);
 				} else {

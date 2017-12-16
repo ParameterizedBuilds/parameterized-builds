@@ -3,11 +3,15 @@ package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ProjectServer extends CIServer{
 
-    private static final String PROJECT_KEY = "projectKey";
+    static final String PROJECT_KEY = "projectKey";
 
     private String projectKey;
 
@@ -22,14 +26,23 @@ public class ProjectServer extends CIServer{
         if (clearSettings) {
             jenkins.saveJenkinsServer(null, projectKey);
         } else if (server.getBaseUrl().isEmpty()) {
-            renderMap("Base URL required");
+
+            renderMap(Stream.of("Base URL required")
+                    .collect(Collectors.toMap(x -> ERRORS, Function.identity())));
         } else {
             jenkins.saveJenkinsServer(server, projectKey);
         }
         return null;
     }
 
-    public  ImmutableMap<String, Object> renderMap(String error){
-        return ImmutableMap.of(SERVER, server != null ? server : "", PROJECT_KEY, projectKey, ERRORS, error);
+    public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
+        Object server = this.server != null ? this.server: "";
+        Map<String, Object> baseMap = new HashMap<>();
+        baseMap.put(SERVER, server);
+        baseMap.put(PROJECT_KEY, projectKey);
+        baseMap.put(ERRORS, "");
+        baseMap.put(TESTMESSAGE, "");
+        baseMap.putAll(renderOptions);
+        return ImmutableMap.copyOf(baseMap);
     }
 }

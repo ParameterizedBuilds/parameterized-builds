@@ -5,6 +5,7 @@ import com.atlassian.bitbucket.user.ApplicationUser;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,8 @@ public class AccountServer extends CIServer {
 
     private static final String PROJECT_KEY_PREFIX = "projectKey-";
     private static final String USER_TOKEN_PREFIX = "jenkinsToken-";
+    private static final String PROJECT_TOKENS_KEY = "projectTokens";
+    private static final String USER_KEY = "user";
 
     private final transient ProjectService projectService;
     private ApplicationUser user;
@@ -39,9 +42,14 @@ public class AccountServer extends CIServer {
         return null;
     }
 
-    public  ImmutableMap<String, Object> renderMap(String error){
+    public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
         List<UserToken> projectTokens = jenkins
                 .getAllUserTokens(user, projectService.findAllKeys(), projectService);
-        return ImmutableMap.of("user", user, "projectTokens", projectTokens, ERRORS, error);
+        Map<String, Object> baseMap = new HashMap<>();
+        baseMap.put(USER_KEY, user);
+        baseMap.put(PROJECT_TOKENS_KEY, projectTokens);
+        baseMap.put(ERRORS, "");
+        baseMap.putAll(renderOptions);
+        return ImmutableMap.copyOf(baseMap);
     }
 }

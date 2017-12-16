@@ -3,7 +3,11 @@ package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GlobalServer extends CIServer{
 
@@ -17,14 +21,21 @@ public class GlobalServer extends CIServer{
         if (clearSettings) {
             jenkins.saveJenkinsServer(null);
         } else if (server.getBaseUrl().isEmpty()) {
-            return renderMap("Base URL required");
+            renderMap(Stream.of("Base URL required")
+                    .collect(Collectors.toMap(x -> ERRORS, Function.identity())));
         } else {
             jenkins.saveJenkinsServer(server);
         }
         return null;
     }
 
-    public  ImmutableMap<String, Object> renderMap(String error){
-        return ImmutableMap.of(SERVER, server != null ? server : "", ERRORS, error);
+    public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
+        Object server = this.server != null ? this.server: "";
+        Map<String, Object> baseMap = new HashMap<>();
+        baseMap.put(SERVER, server);
+        baseMap.put(ERRORS, "");
+        baseMap.put(TESTMESSAGE, "");
+        baseMap.putAll(renderOptions);
+        return ImmutableMap.copyOf(baseMap);
     }
 }
