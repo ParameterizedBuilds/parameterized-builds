@@ -39,7 +39,7 @@ public class CIServerFactory {
     }
 
     private static Server getServerFromMap(Map<String, String[]> parameters) {
-        boolean jenkinsAltUrl = parameters.get("jenkinsAltUrl")[0] != null
+        boolean jenkinsAltUrl = parameters.get("jenkinsAltUrl") != null
                 && "on".equals(parameters.get("jenkinsAltUrl")[0]) ? true : false;
         return new Server(parameters.get("jenkinsUrl")[0], parameters.get("jenkinsUser")[0],
                 parameters.get("jenkinsToken")[0], jenkinsAltUrl);

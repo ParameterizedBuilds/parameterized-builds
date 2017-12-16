@@ -50,17 +50,17 @@
 		{if $errors}
 			<div class="field-group"><div class="error">{$errors}</div></div>
 		{/if}
-		{call aui.form.button}
-          {param id: 'submit' /}
+		{call aui.form.submit}
+          {param id: 'testButton' /}
+          {param name: 'submit' /}
           {param text: 'Test Jenkins Settings' /}
-          {param value: 'Test Connection' /}
-          {param extraClasses: 'aui-button-primary' /}
+          {param extraClasses: 'aui-button' /}
         {/call}
 	    {call aui.form.submit}
-	      {param id: 'submit' /}
+	      {param id: 'saveButton' /}
+	      {param name: 'submit' /}
 	      {param text: 'Save' /}
 	      {param type: 'submit' /}
-	      {param value: 'Save Connection' /}
 		  {param extraClasses: 'aui-button-primary' /}
 	    {/call}
     </form>

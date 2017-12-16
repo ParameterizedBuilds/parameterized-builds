@@ -22,7 +22,7 @@ public abstract class CIServer {
 
     public abstract ImmutableMap<String, Object> renderMap(String error);
 
-    public  String testConnection(){
+    public String testConnection(){
         return jenkins.testConnection(server);
     }
 }
