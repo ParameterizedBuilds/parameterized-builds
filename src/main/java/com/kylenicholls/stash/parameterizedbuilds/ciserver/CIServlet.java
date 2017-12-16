@@ -59,7 +59,7 @@ public class CIServlet extends HttpServlet {
 		try {
 			String pathInfo = req.getPathInfo();
 			CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins, req.getParameterMap(),
-					                                      authContext.getCurrentUser(), projectService);
+					authContext.getCurrentUser(), projectService);
 
 			if (req.getParameter("submit").equals("Test Jenkins Settings")) {
 				render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());

@@ -45,11 +45,12 @@ public class AccountServer extends CIServer {
     public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
         List<UserToken> projectTokens = jenkins
                 .getAllUserTokens(user, projectService.findAllKeys(), projectService);
-        Map<String, Object> baseMap = new HashMap<>();
-        baseMap.put(USER_KEY, user);
-        baseMap.put(PROJECT_TOKENS_KEY, projectTokens);
-        baseMap.put(ERRORS, "");
-        baseMap.putAll(renderOptions);
+        Map<String, Object> baseMap = new HashMap<String, Object>() {{
+            put(USER_KEY, user);
+            put(PROJECT_TOKENS_KEY, projectTokens);
+            put(ERRORS, "");
+            putAll(renderOptions);
+        }};
         return ImmutableMap.copyOf(baseMap);
     }
 }

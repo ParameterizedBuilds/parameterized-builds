@@ -3,7 +3,6 @@ package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class CIServer {
@@ -19,13 +18,11 @@ public abstract class CIServer {
     public abstract Map<String, Object> postSettings(boolean clearSettings);
 
     public Map<String, Object> testSettings() {
-        Map<String, Object> testMessageMap = new HashMap<>();
-        testMessageMap.put(TESTMESSAGE, testConnection());
-        return renderMap(testMessageMap);
+        return renderMap(ImmutableMap.of(TESTMESSAGE, testConnection()));
     }
 
     public ImmutableMap<String, Object> renderMap(){
-        return renderMap(new HashMap<>());
+        return renderMap(ImmutableMap.of());
     }
 
     public abstract ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions);

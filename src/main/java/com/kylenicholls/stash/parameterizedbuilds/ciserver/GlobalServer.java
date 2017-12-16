@@ -21,8 +21,7 @@ public class GlobalServer extends CIServer{
         if (clearSettings) {
             jenkins.saveJenkinsServer(null);
         } else if (server.getBaseUrl().isEmpty()) {
-            renderMap(Stream.of("Base URL required")
-                    .collect(Collectors.toMap(x -> ERRORS, Function.identity())));
+            return renderMap(ImmutableMap.of(ERRORS, "Base URL required"));
         } else {
             jenkins.saveJenkinsServer(server);
         }
@@ -31,11 +30,12 @@ public class GlobalServer extends CIServer{
 
     public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
         Object server = this.server != null ? this.server: "";
-        Map<String, Object> baseMap = new HashMap<>();
-        baseMap.put(SERVER, server);
-        baseMap.put(ERRORS, "");
-        baseMap.put(TESTMESSAGE, "");
-        baseMap.putAll(renderOptions);
+        Map<String, Object> baseMap = new HashMap<String, Object>() {{
+            put(SERVER,server);
+            put(ERRORS,"");
+            put(TESTMESSAGE,"");
+            putAll(renderOptions);
+        }};
         return ImmutableMap.copyOf(baseMap);
     }
 }
