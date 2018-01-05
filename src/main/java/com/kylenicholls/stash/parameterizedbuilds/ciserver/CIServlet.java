@@ -1,9 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,24 +14,12 @@ import org.slf4j.LoggerFactory;
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.nav.NavBuilder;
 import com.atlassian.bitbucket.project.ProjectService;
-import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.soy.renderer.SoyException;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
-import com.google.common.collect.ImmutableMap;
-import com.kylenicholls.stash.parameterizedbuilds.item.Server;
-import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 
 @SuppressWarnings("serial")
 public class CIServlet extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(CIServlet.class);
-	private static final String USER_TOKEN_PREFIX = "jenkinsToken-";
-	private static final String PROJECT_KEY_PREFIX = "projectKey-";
-	private static final String JENKINS_USER_SETTINGS = "jenkins.user.settings";
-	private static final String ERRORS = "errors";
-	private static final String JENKINS_ADMIN_SETTINGS = "jenkins.admin.settings";
-	private static final String JENKINS_PROJECT_SETTINGS = "jenkins.admin.settingsProjectAdmin";
-	private static final String SERVER = "server";
-	private static final String PROJECT_KEY = "projectKey";
 	private final transient SoyTemplateRenderer soyTemplateRenderer;
 	private final transient AuthenticationContext authContext;
 	private final transient NavBuilder navBuilder;
@@ -55,13 +41,9 @@ public class CIServlet extends HttpServlet {
 		try {
 			String pathInfo = req.getPathInfo();
 			if (authContext.isAuthenticated()) {
-				if (pathInfo.contains("/jenkins/account")) {
-					renderForAccount(res);
-				} else if (pathInfo.contains("/jenkins/project/")) {
-					renderForProject(res, pathInfo);
-				} else {
-					renderForGlobal(res);
-				}
+				CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins,
+						authContext.getCurrentUser(), projectService);
+				render(res, ciServer.JENKINS_SETTINGS, ciServer.renderMap());
 			} else {
 				res.sendRedirect(navBuilder.login().next(req.getServletPath() + pathInfo)
 						.buildAbsolute());
@@ -71,98 +53,29 @@ public class CIServlet extends HttpServlet {
 		}
 	}
 
-	private void renderForAccount(HttpServletResponse resp) throws IOException, ServletException {
-		ApplicationUser user = authContext.getCurrentUser();
-		List<UserToken> projectTokens = jenkins
-				.getAllUserTokens(user, projectService.findAllKeys(), projectService);
-		render(resp, JENKINS_USER_SETTINGS, ImmutableMap
-				.<String, Object> of("user", user, "projectTokens", projectTokens, ERRORS, ""));
-	}
-
-	private void renderForProject(HttpServletResponse resp, String pathInfo)
-			throws IOException, ServletException {
-		String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "").split("/")[0];
-		Server projectServer = jenkins.getJenkinsServer(projectKey);
-		render(resp, JENKINS_PROJECT_SETTINGS, ImmutableMap
-				.<String, Object> of(SERVER, projectServer != null ? projectServer
-						: "", PROJECT_KEY, projectKey, ERRORS, ""));
-	}
-
-	private void renderForGlobal(HttpServletResponse resp) throws IOException, ServletException {
-		Server server = jenkins.getJenkinsServer();
-		render(resp, JENKINS_ADMIN_SETTINGS, ImmutableMap
-				.<String, Object> of(SERVER, server != null ? server : "", ERRORS, ""));
-	}
-
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
 		try {
 			String pathInfo = req.getPathInfo();
-			if (pathInfo.contains("/jenkins/account")) {
-				postAccountSettings(req.getParameterMap());
-				doGet(req, res);
+			CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins, req.getParameterMap(),
+					authContext.getCurrentUser(), projectService);
+
+			if (req.getParameter("submit").equals("Test Jenkins Settings")) {
+				render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
 			} else {
-				Server server = getServerFromMap(req);
 				boolean clearSettings = req.getParameter("clear-settings") != null
-						&& "on".equals(req.getParameter("clear-settings")) ? true : false;
-				if (pathInfo.contains("/jenkins/project/")) {
-					String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "")
-							.split("/")[0];
-					postProjectSettings(server, clearSettings, projectKey, req, res);
+						&& "on".equals(req.getParameter("clear-settings"));
+				Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
+				if (renderLoc != null){
+					render(res, ciServer.JENKINS_SETTINGS, renderLoc);
 				} else {
-					postGlobalSettings(server, clearSettings, req, res);
+					doGet(req, res);
 				}
 			}
 		} catch (Exception e) {
 			logger.error("Exception in CIServlet.doPost: " + e.getMessage(), e);
 		}
-	}
-
-	private void postAccountSettings(Map<String, String[]> parameters) {
-		Set<String> parameterKeys = parameters.keySet();
-		for (String key : parameterKeys) {
-			if (key.startsWith(PROJECT_KEY_PREFIX)) {
-				String projectKey = parameters.get(key)[0];
-				String token = parameters.get(USER_TOKEN_PREFIX + projectKey)[0];
-				jenkins.saveUserToken(authContext.getCurrentUser().getSlug(), projectKey, token);
-			}
-		}
-	}
-
-	private Server getServerFromMap(HttpServletRequest req) {
-		boolean jenkinsAltUrl = req.getParameter("jenkinsAltUrl") != null
-				&& "on".equals(req.getParameter("jenkinsAltUrl")) ? true : false;
-		return new Server(req.getParameter("jenkinsUrl"), req.getParameter("jenkinsUser"),
-				req.getParameter("jenkinsToken"), jenkinsAltUrl);
-	}
-
-	private void postGlobalSettings(Server server, boolean clearSettings, HttpServletRequest req,
-			HttpServletResponse res) throws IOException, ServletException {
-		if (clearSettings) {
-			jenkins.saveJenkinsServer(null);
-		} else if (server.getBaseUrl().isEmpty()) {
-			render(res, JENKINS_ADMIN_SETTINGS, ImmutableMap
-					.<String, Object> of(SERVER, server, ERRORS, "Base URL required"));
-			return;
-		} else {
-			jenkins.saveJenkinsServer(server);
-		}
-		doGet(req, res);
-	}
-
-	private void postProjectSettings(Server server, boolean clearSettings, String projectKey,
-			HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-		if (clearSettings) {
-			jenkins.saveJenkinsServer(null, projectKey);
-		} else if (server.getBaseUrl().isEmpty()) {
-			render(res, JENKINS_PROJECT_SETTINGS, ImmutableMap
-					.<String, Object> of(SERVER, server, PROJECT_KEY, projectKey, ERRORS, "Base URL required"));
-			return;
-		} else {
-			jenkins.saveJenkinsServer(server, projectKey);
-		}
-		doGet(req, res);
 	}
 
 	private void render(HttpServletResponse resp, String templateName, Map<String, Object> data)

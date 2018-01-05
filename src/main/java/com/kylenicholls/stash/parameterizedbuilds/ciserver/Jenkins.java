@@ -305,6 +305,27 @@ public class Jenkins {
 		return connection;
 	}
 
+	public String testConnection(Server server){
+		try {
+			String url = server.getBaseUrl().replaceAll("/$", "") + "/api/json";
+			HttpURLConnection connection = setupConnection(url, server.getJoinedToken());
+			connection.setRequestMethod("GET");
+			connection.setFixedLengthStreamingMode(0);
+			connection.connect();
+
+			int status = connection.getResponseCode();
+			if (status == 403){
+				return "Error authenticating to server";
+			} else if (status == 200) {
+				return "Connection successful";
+			} else {
+				return "Failed to establish connection";
+			}
+		} catch (Exception e) {
+			return "An error occurred trying to establish a connection";
+		}
+	}
+
 	private String getCrumb(String buildUrl, String token) throws Exception{
 		URL url = new URL(buildUrl);
 		String port = url.getPort() == -1 ? "" : ":" + Integer.toString(url.getPort());
