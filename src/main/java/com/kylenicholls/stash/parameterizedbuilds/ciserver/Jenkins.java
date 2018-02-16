@@ -214,7 +214,6 @@ public class Jenkins {
 	 * that have a Jenkins server set.
 	 *
 	 * @return a list of all user tokens for all projects (including global)
-	 * @return a list of all user tokens for all projects (including global)
 	 *         that have a Jenkins server set.
 	 * @param user
 	 *            the user to get the token for
