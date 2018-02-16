@@ -61,23 +61,25 @@ public class CIServlet extends HttpServlet {
 			CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins, req.getParameterMap(),
 					authContext.getCurrentUser(), projectService);
 
-			// optout that part if on account info (no submit or clear-settings stuff)
-			if (!pathInfo.equals("/jenkins/account")) {
-
-				if (req.getParameter("submit").equals("Test Jenkins Settings")) 
-					render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
-				} else {
-					boolean clearSettings = req.getParameter("clear-settings") != null
-							&& "on".equals(req.getParameter("clear-settings"));
-					Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
-					if (renderLoc != null) {
-						render(res, ciServer.JENKINS_SETTINGS, renderLoc);
-					} else {
-						doGet(req, res);
-					}
+			Map<String,String[]> parameters = req.getParameterMap();
+			for (String parameter:parameters.keySet()){
+				logger.debug("doPost: parameter "+parameter+ " contains values:");
+				for(String value:parameters.get(parameter)){
+					logger.debug(" - \""+value+"\"");
 				}
-			}else {
-				doGet(req, res);
+			}
+
+			if (req.getParameter("submit").equals("Test Jenkins Settings")) {
+				render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
+			} else {
+				boolean clearSettings = req.getParameter("clear-settings") != null
+						&& "on".equals(req.getParameter("clear-settings"));
+				Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
+				if (renderLoc != null) {
+					render(res, ciServer.JENKINS_SETTINGS, renderLoc);
+				} else {
+					doGet(req, res);
+				}
 			}
 		} catch (Exception e) {
 			logger.error("Exception in CIServlet.doPost: " + e.getMessage(), e);

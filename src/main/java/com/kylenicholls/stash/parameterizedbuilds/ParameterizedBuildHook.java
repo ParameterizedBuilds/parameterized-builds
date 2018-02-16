@@ -111,14 +111,14 @@ public class ParameterizedBuildHook
 						.getDescription());
 			}
 
-			PatternSyntaxException pathExecption = null;
+			PatternSyntaxException pathException = null;
 			try {
 				Pattern.compile(job.getPathRegex());
 			} catch (PatternSyntaxException e) {
-				pathExecption = e;
+				pathException = e;
 			}
-			if (pathExecption != null) {
-				errors.addFieldError(SettingsService.PATH_PREFIX + i, pathExecption
+			if (pathException != null) {
+				errors.addFieldError(SettingsService.PATH_PREFIX + i, pathException
 						.getDescription());
 			}
 		}
