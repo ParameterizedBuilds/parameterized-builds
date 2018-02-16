@@ -26,7 +26,7 @@ public class Server {
 		try {
 			this.csrfEnabled = Boolean.parseBoolean(map.get("csrfEnabled").toString());
 		}catch(Exception e){
-			this.csrfEnabled = false;
+			this.csrfEnabled = true; // csrf default value
 		}
 	}
 

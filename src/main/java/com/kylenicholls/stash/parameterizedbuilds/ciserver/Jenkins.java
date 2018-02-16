@@ -116,7 +116,7 @@ public class Jenkins {
 			// legacy settings
 			String[] serverProps = settingObj.toString().split(";");
 			boolean altUrl = serverProps.length > 3 && "true".equals(serverProps[3]) ? true : false;
-			boolean csrfEnabled = (serverProps.length > 4 && "true".equals(serverProps[4])) ? true : false;
+			boolean csrfEnabled = true; // default value
 			return new Server(serverProps[0], serverProps[1], serverProps[2], altUrl, csrfEnabled);
 		}
 		return null;
