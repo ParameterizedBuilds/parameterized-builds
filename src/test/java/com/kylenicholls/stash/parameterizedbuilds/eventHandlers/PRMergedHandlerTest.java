@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 public class PRMergedHandlerTest{
 
     private final String PR_URL = "http://pruri";
-    private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
+    private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
     private SettingsService settingsService;
     private Jenkins jenkins;
     private Repository repository;

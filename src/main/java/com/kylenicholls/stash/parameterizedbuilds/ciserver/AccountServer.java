@@ -53,4 +53,17 @@ public class AccountServer extends CIServer {
         }};
         return ImmutableMap.copyOf(baseMap);
     }
+
+    public String toString(){
+        List<UserToken> projectTokens = jenkins
+                .getAllUserTokens(user, projectService.findAllKeys(), projectService);
+        String result = "";
+        result += "user: "+user+", ";
+        result += "projectTokens: "+projectTokens+", { ";
+        for (String param:parameters.keySet()){
+            result+= "param: "+param+", value: "+parameters.get(param) + ", ";
+        }
+        result += " }";
+        return result;
+    }
 }

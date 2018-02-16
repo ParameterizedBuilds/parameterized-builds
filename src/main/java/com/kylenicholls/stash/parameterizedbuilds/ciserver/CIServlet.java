@@ -61,17 +61,23 @@ public class CIServlet extends HttpServlet {
 			CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins, req.getParameterMap(),
 					authContext.getCurrentUser(), projectService);
 
-			if (req.getParameter("submit").equals("Test Jenkins Settings")) {
-				render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
-			} else {
-				boolean clearSettings = req.getParameter("clear-settings") != null
-						&& "on".equals(req.getParameter("clear-settings"));
-				Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
-				if (renderLoc != null){
-					render(res, ciServer.JENKINS_SETTINGS, renderLoc);
+			// optout that part if on account info (no submit or clear-settings stuff)
+			if (!pathInfo.equals("/jenkins/account")) {
+
+				if (req.getParameter("submit").equals("Test Jenkins Settings")) 
+					render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
 				} else {
-					doGet(req, res);
+					boolean clearSettings = req.getParameter("clear-settings") != null
+							&& "on".equals(req.getParameter("clear-settings"));
+					Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
+					if (renderLoc != null) {
+						render(res, ciServer.JENKINS_SETTINGS, renderLoc);
+					} else {
+						doGet(req, res);
+					}
 				}
+			}else {
+				doGet(req, res);
 			}
 		} catch (Exception e) {
 			logger.error("Exception in CIServlet.doPost: " + e.getMessage(), e);

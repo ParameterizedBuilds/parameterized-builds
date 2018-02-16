@@ -29,7 +29,7 @@ public class RefCreatedHandlerTest {
     private final String COMMIT = "commithash";
     private final String url = "http://url";
     private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken",
-            false);
+            false, false);
     private Settings settings;
     private RefChange refChange;
     private MinimalRef minimalRef;
