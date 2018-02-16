@@ -43,7 +43,7 @@ import java.util.concurrent.ExecutorService;
 public class PullRequestHookTest {
 	private final String COMMIT = "commithash";
 	private final String PR_URI = "http://pruri";
-	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
+	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
 	private SettingsService settingsService;
 	private Jenkins jenkins;
 	private ApplicationPropertiesService propertiesService;

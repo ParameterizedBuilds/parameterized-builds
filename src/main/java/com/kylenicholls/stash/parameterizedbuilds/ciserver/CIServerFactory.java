@@ -41,7 +41,14 @@ public class CIServerFactory {
     private static Server getServerFromMap(Map<String, String[]> parameters) {
         boolean jenkinsAltUrl = parameters.get("jenkinsAltUrl") != null
                 && "on".equals(parameters.get("jenkinsAltUrl")[0]) ? true : false;
+        boolean jenkinsCSRF = false;
+        try {
+            jenkinsCSRF = parameters.get("jenkinsCSRF") != null
+                    && "on".equals(parameters.get("jenkinsCSRF")[0]) ? true : false;
+        } catch (Exception e) {
+            // nothing to do here, this is for initialization purpose
+        }
         return new Server(parameters.get("jenkinsUrl")[0], parameters.get("jenkinsUser")[0],
-                parameters.get("jenkinsToken")[0], jenkinsAltUrl);
+                parameters.get("jenkinsToken")[0], jenkinsAltUrl, jenkinsCSRF );
     }
 }

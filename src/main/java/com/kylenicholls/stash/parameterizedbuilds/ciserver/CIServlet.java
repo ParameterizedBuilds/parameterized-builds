@@ -61,13 +61,21 @@ public class CIServlet extends HttpServlet {
 			CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins, req.getParameterMap(),
 					authContext.getCurrentUser(), projectService);
 
+			Map<String,String[]> parameters = req.getParameterMap();
+			for (String parameter:parameters.keySet()){
+				logger.debug("doPost: parameter "+parameter+ " contains values:");
+				for(String value:parameters.get(parameter)){
+					logger.debug(" - \""+value+"\"");
+				}
+			}
+
 			if (req.getParameter("submit").equals("Test Jenkins Settings")) {
 				render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
 			} else {
 				boolean clearSettings = req.getParameter("clear-settings") != null
 						&& "on".equals(req.getParameter("clear-settings"));
 				Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
-				if (renderLoc != null){
+				if (renderLoc != null) {
 					render(res, ciServer.JENKINS_SETTINGS, renderLoc);
 				} else {
 					doGet(req, res);

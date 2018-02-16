@@ -57,7 +57,7 @@ public class BuildResourceTest {
 	private ApplicationUser user;
 	private List<Job> jobs;
 	private RepositoryHook hook;
-	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false);
+	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
 
 	@Before
 	public void setup() throws Exception {

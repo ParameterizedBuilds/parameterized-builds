@@ -115,6 +115,11 @@
     	{param labelContent: 'Build Token Root Plugin (uses an alternate url for triggering builds)' /}
     {/call}
     {call widget.aui.form.checkbox}
+        {param id:'jenkinsCSRF' /}
+        {param checked: $server.csrfEnabled /}
+        {param labelContent: 'Check this box if your Jenkins instance has the CSRF protection enabled' /}
+    {/call}
+    {call widget.aui.form.checkbox}
     	{param id:'clear-settings' /}
     	{param labelContent: 'Clear Settings' /}
     {/call}

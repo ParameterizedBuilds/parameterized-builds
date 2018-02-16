@@ -8,12 +8,14 @@ public class Server {
 	private String user;
 	private String token;
 	private boolean altUrl;
+	private boolean csrfEnabled;
 
-	public Server(String baseUrl, String user, String token, boolean altUrl) {
+	public Server(String baseUrl, String user, String token, boolean altUrl, boolean csrfEnabled) {
 		this.baseUrl = baseUrl;
 		this.user = user;
 		this.token = token;
 		this.altUrl = altUrl;
+		this.csrfEnabled = csrfEnabled;
 	}
 
 	public Server(Map<String, Object> map) {
@@ -21,6 +23,11 @@ public class Server {
 		this.user = (String) map.get("user");
 		this.token = (String) map.get("token");
 		this.altUrl = Boolean.parseBoolean(map.get("altUrl").toString());
+		try {
+			this.csrfEnabled = Boolean.parseBoolean(map.get("csrfEnabled").toString());
+		}catch(Exception e){
+			this.csrfEnabled = false;
+		}
 	}
 
 	public String getBaseUrl() {
@@ -38,6 +45,10 @@ public class Server {
 		return token;
 	}
 
+	public boolean getCsrfEnabled() {
+		return csrfEnabled;
+	}
+
 	public boolean getAltUrl() {
 		return altUrl;
 	}
@@ -48,6 +59,7 @@ public class Server {
 		map.put("user", user);
 		map.put("token", token);
 		map.put("altUrl", altUrl);
+		map.put("csrfEnabled", csrfEnabled);
 		return map;
 	}
 

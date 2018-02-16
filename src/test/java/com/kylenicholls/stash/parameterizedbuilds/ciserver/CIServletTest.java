@@ -74,7 +74,7 @@ public class CIServletTest {
 	@Test
 	public void testDoGetGlobalServer() throws ServletException, IOException, SoyException {
 		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-		Server server = new Server("baseurl", null, null, false);
+		Server server = new Server("baseurl", null, null, false, false);
 		when(jenkins.getJenkinsServer()).thenReturn(server);
 		servlet.doGet(req, resp);
 
@@ -118,7 +118,7 @@ public class CIServletTest {
 	@Test
 	public void testDoGetProjectServer() throws ServletException, IOException, SoyException {
 		when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
-		Server server = new Server("baseurl", null, null, false);
+		Server server = new Server("baseurl", null, null, false, false);
 		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(server);
 		servlet.doGet(req, resp);
 
@@ -175,12 +175,14 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
 				.put("jenkinsUrl", baseUrl)
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -199,12 +201,14 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
 				.put("jenkinsUrl", baseUrl)
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -226,9 +230,10 @@ public class CIServletTest {
 		when(req.getParameter("jenkinsUser")).thenReturn(defaultUser);
 		when(req.getParameter("jenkinsToken")).thenReturn(defaultToken);
 		when(req.getParameter("jenkinsAltUrl")).thenReturn(null);
+		when(req.getParameter("jenkinsCSRF")).thenReturn(null);
 		servlet.doPost(req, resp);
 
-		Server expected = new Server(baseUrl, defaultUser, defaultToken, false);
+		Server expected = new Server(baseUrl, defaultUser, defaultToken, false, false);
 		verify(jenkins, times(1)).saveJenkinsServer(expected);
 	}
 
@@ -240,12 +245,14 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {""};
+		String[] csrfEnabled = {"on"};
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
 				.put("jenkinsUrl", baseUrl)
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -253,7 +260,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		Server expected = new Server(baseUrl[0], defaultUser[0], defaultToken[0], false);
+		Server expected = new Server(baseUrl[0], defaultUser[0], defaultToken[0], false, false);
 		verify(jenkins, times(1)).saveJenkinsServer(expected);
 	}
 
@@ -264,6 +271,7 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String clear = "on";
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
@@ -271,6 +279,7 @@ public class CIServletTest {
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -289,6 +298,7 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String clear = "";
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
@@ -296,6 +306,7 @@ public class CIServletTest {
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -314,12 +325,14 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
 				.put("jenkinsUrl", baseUrl)
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -337,12 +350,14 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
 				.put("jenkinsUrl", baseUrl)
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -362,12 +377,14 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
 				.put("jenkinsUrl", baseUrl)
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -386,6 +403,7 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String clear = "on";
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
@@ -393,6 +411,7 @@ public class CIServletTest {
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
@@ -412,6 +431,7 @@ public class CIServletTest {
 		String[] defaultUser = {"defaultuser"};
 		String[] defaultToken = {"defaulttoken"};
 		String[] altUrl = {"on"};
+		String[] csrfEnabled = {"on"};
 		String clear = "";
 		String saveButton = "'Save Connection";
 		Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
@@ -419,6 +439,7 @@ public class CIServletTest {
 				.put("jenkinsUser", defaultUser)
 				.put("jenkinsToken",  defaultToken)
 				.put("jenkinsAltUrl", altUrl)
+				.put("jenkinsCSRF", csrfEnabled)
 				.build();
 
 		when(req.getParameterMap()).thenReturn(params);
