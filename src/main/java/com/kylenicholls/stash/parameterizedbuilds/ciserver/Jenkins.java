@@ -116,7 +116,8 @@ public class Jenkins {
 			// legacy settings
 			String[] serverProps = settingObj.toString().split(";");
 			boolean altUrl = serverProps.length > 3 && "true".equals(serverProps[3]) ? true : false;
-			return new Server(serverProps[0], serverProps[1], serverProps[2], altUrl);
+			boolean csrfEnabled = true;
+			return new Server(serverProps[0], serverProps[1], serverProps[2], altUrl, csrfEnabled);
 		}
 		return null;
 	}
@@ -253,17 +254,19 @@ public class Jenkins {
 	 *            the build url to trigger
 	 * @param joinedToken
 	 *            the authentication token to use in the request
+	 * @param csrfToken
+	 *            the token to use in case cross site protection is enabled
 	 * @param promptUser
 	 *            prompt the user to link their jenkins account
 	 */
 	public JenkinsResponse sanitizeTrigger(@Nullable String buildUrl, @Nullable String joinedToken,
-			boolean promptUser) {
+			@Nullable String csrfHeader, boolean promptUser) {
 		if (buildUrl == null) {
 			return new JenkinsResponse.JenkinsMessage().error(true)
 					.messageText("Jenkins settings are not setup").build();
 		}
 
-		return httpPost(buildUrl.replace(" ", "%20"), joinedToken, promptUser);
+		return httpPost(buildUrl.replace(" ", "%20"), joinedToken, csrfHeader, promptUser);
 	}
 
 	public JenkinsResponse triggerJob(String projectKey, ApplicationUser user, Job job, BitbucketVariables bitbucketVariables) {
@@ -287,7 +290,17 @@ public class Jenkins {
 			}
 		}
 
-		return sanitizeTrigger(buildUrl, joinedUserToken, prompt);
+		String csrfHeader = null;
+		if (jenkinsServer.getCsrfEnabled()) {
+			// get a CSRF token because cross site protection is enabled
+			try {
+				csrfHeader = getCrumb(jenkinsServer.getBaseUrl(), joinedUserToken);
+			} catch(Exception e){
+				logger.warn("error getting CSRF token");
+			}
+		}
+
+		return sanitizeTrigger(buildUrl, joinedUserToken, csrfHeader, prompt);
 	}
 
 	private HttpURLConnection setupConnection(String baseUrl, String userToken) throws Exception{
@@ -311,6 +324,22 @@ public class Jenkins {
 			HttpURLConnection connection = setupConnection(url, server.getJoinedToken());
 			connection.setRequestMethod("GET");
 			connection.setFixedLengthStreamingMode(0);
+
+			String csrfHeader = null;
+			if (server.getCsrfEnabled()) {
+				// get a CSRF token because cross site protection is enabled
+				try {
+					csrfHeader = getCrumb(server.getBaseUrl(), server.getJoinedToken());
+				} catch(Exception e){
+					logger.warn("error getting CSRF token");
+				}
+			}
+
+			if (csrfHeader != null){
+				String[] header = csrfHeader.split(":");
+				connection.setRequestProperty(header[0], header[1]);
+			}
+
 			connection.connect();
 
 			int status = connection.getResponseCode();
@@ -326,11 +355,8 @@ public class Jenkins {
 		}
 	}
 
-	private String getCrumb(String buildUrl, String token) throws Exception{
-		URL url = new URL(buildUrl);
-		String port = url.getPort() == -1 ? "" : ":" + Integer.toString(url.getPort());
-		String jenkins_url = url.getProtocol() + "://" + url.getHost() + port;
-		String crumbUrl = jenkins_url  + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)";
+	private String getCrumb(String baseUrl, String token) throws Exception{
+		String crumbUrl = baseUrl  + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)";
 		HttpURLConnection connection = setupConnection(crumbUrl, token);
 		connection.connect();
 		int status = connection.getResponseCode();
@@ -341,16 +367,15 @@ public class Jenkins {
 		}
 	}
 
-	private JenkinsResponse httpPost(String buildUrl, String token, boolean prompt) {
+	private JenkinsResponse httpPost(String buildUrl, String token, String csrfHeader, boolean prompt) {
 		JenkinsMessage jenkinsMessage = new JenkinsResponse.JenkinsMessage().prompt(prompt);
 		try {
 			HttpURLConnection connection = setupConnection(buildUrl, token);
 			connection.setRequestMethod("POST");
 			connection.setFixedLengthStreamingMode(0);
 
-			String crumb = getCrumb(buildUrl, token);
-			if (crumb != null){
-				String[] header = crumb.split(":");
+			if (csrfHeader != null){
+				String[] header = csrfHeader.split(":");
 				connection.setRequestProperty(header[0], header[1]);
 			}
 			connection.connect();

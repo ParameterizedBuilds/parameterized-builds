@@ -14,19 +14,21 @@ public class ServerTest {
 		String user = "user";
 		String token = "token";
 		boolean altUrl = false;
-		Server actual = new Server(baseUrl, user, token, altUrl);
+		boolean csrfEnabled = false;
+		Server actual = new Server(baseUrl, user, token, altUrl, csrfEnabled);
 
 		assertEquals(baseUrl, actual.getBaseUrl());
 		assertEquals(user, actual.getUser());
 		assertEquals(token, actual.getToken());
 		assertEquals(altUrl, actual.getAltUrl());
+		assertEquals(csrfEnabled, actual.getCsrfEnabled());
 		assertEquals(user + ":" + token, actual.getJoinedToken());
 	}
 
 	@Test
 	public void testCreateNewServerWithSlash() {
 		String baseUrl = "url";
-		Server actual = new Server(baseUrl + "/", "", "", false);
+		Server actual = new Server(baseUrl + "/", "", "", false, false);
 
 		assertEquals(baseUrl, actual.getBaseUrl());
 	}
@@ -38,6 +40,7 @@ public class ServerTest {
 		expected.put("user", "user");
 		expected.put("token", "token");
 		expected.put("altUrl", false);
+		expected.put("csrfEnabled", false);
 		Map<String, Object> actual = new Server(expected).asMap();
 
 		assertEquals(expected, actual);
