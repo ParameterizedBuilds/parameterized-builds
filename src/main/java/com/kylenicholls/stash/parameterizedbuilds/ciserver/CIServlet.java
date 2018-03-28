@@ -67,7 +67,7 @@ public class CIServlet extends HttpServlet {
 				boolean clearSettings = req.getParameter("clear-settings") != null
 						&& "on".equals(req.getParameter("clear-settings"));
 				Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
-				if (renderLoc != null) {
+				if (renderLoc != null){
 					render(res, ciServer.JENKINS_SETTINGS, renderLoc);
 				} else {
 					doGet(req, res);

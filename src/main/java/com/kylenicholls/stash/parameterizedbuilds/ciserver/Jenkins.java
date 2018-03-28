@@ -116,7 +116,7 @@ public class Jenkins {
 			// legacy settings
 			String[] serverProps = settingObj.toString().split(";");
 			boolean altUrl = serverProps.length > 3 && "true".equals(serverProps[3]) ? true : false;
-			boolean csrfEnabled = true; // default value
+			boolean csrfEnabled = true;
 			return new Server(serverProps[0], serverProps[1], serverProps[2], altUrl, csrfEnabled);
 		}
 		return null;
@@ -254,8 +254,8 @@ public class Jenkins {
 	 *            the build url to trigger
 	 * @param joinedToken
 	 *            the authentication token to use in the request
-     * @param csrfToken
-     *            the token to use in case cross site protection is enabled
+	 * @param csrfToken
+	 *            the token to use in case cross site protection is enabled
 	 * @param promptUser
 	 *            prompt the user to link their jenkins account
 	 */
@@ -290,16 +290,15 @@ public class Jenkins {
 			}
 		}
 
-        String csrfHeader = null;
-        if (jenkinsServer.getCsrfEnabled()) {
-            // get a CSRF token because cross site protection is enabled
-            try {
-                logger.debug("get csrf header with token: "+joinedUserToken);
-                csrfHeader = getCrumb(jenkinsServer.getBaseUrl(), joinedUserToken);
-            } catch(Exception e){
-                logger.warn("error getting CSRF token");
-            }
-        }
+		String csrfHeader = null;
+		if (jenkinsServer.getCsrfEnabled()) {
+			// get a CSRF token because cross site protection is enabled
+			try {
+				csrfHeader = getCrumb(jenkinsServer.getBaseUrl(), joinedUserToken);
+			} catch(Exception e){
+				logger.warn("error getting CSRF token");
+			}
+		}
 
 		return sanitizeTrigger(buildUrl, joinedUserToken, csrfHeader, prompt);
 	}
@@ -330,7 +329,6 @@ public class Jenkins {
 			if (server.getCsrfEnabled()) {
 				// get a CSRF token because cross site protection is enabled
 				try {
-					logger.debug("get csrf header with token: "+server.getJoinedToken());
 					csrfHeader = getCrumb(server.getBaseUrl(), server.getJoinedToken());
 				} catch(Exception e){
 					logger.warn("error getting CSRF token");

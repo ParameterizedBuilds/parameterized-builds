@@ -23,11 +23,7 @@ public class Server {
 		this.user = (String) map.get("user");
 		this.token = (String) map.get("token");
 		this.altUrl = Boolean.parseBoolean(map.get("altUrl").toString());
-		try {
-			this.csrfEnabled = Boolean.parseBoolean(map.get("csrfEnabled").toString());
-		}catch(Exception e){
-			this.csrfEnabled = true; // csrf default value
-		}
+		this.csrfEnabled = Boolean.parseBoolean(map.getOrDefault("csrfEnabled", "true").toString());
 	}
 
 	public String getBaseUrl() {
