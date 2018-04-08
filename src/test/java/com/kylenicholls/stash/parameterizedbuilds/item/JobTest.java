@@ -1,9 +1,5 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -20,6 +16,8 @@ import org.junit.Test;
 
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+
+import static org.junit.Assert.*;
 
 public class JobTest {
 
@@ -367,12 +365,13 @@ public class JobTest {
 
 	@Test
 	public void testTriggerIsNotRefChange() {
-		assertTrue(!Trigger.PULLREQUEST.isRefChange());
-		assertTrue(!Trigger.PRMERGED.isRefChange());
-		assertTrue(!Trigger.PRDECLINED.isRefChange());
-		assertTrue(!Trigger.PRDELETED.isRefChange());
-		assertTrue(!Trigger.PRAUTOMERGED.isRefChange());
-		assertTrue(!Trigger.MANUAL.isRefChange());
+		assertFalse(Trigger.PULLREQUEST.isRefChange());
+		assertFalse(Trigger.PRMERGED.isRefChange());
+		assertFalse(Trigger.PRDECLINED.isRefChange());
+		assertFalse(Trigger.PRDELETED.isRefChange());
+		assertFalse(Trigger.PRAPPROVED.isRefChange());
+		assertFalse(Trigger.PRAUTOMERGED.isRefChange());
+		assertFalse(Trigger.MANUAL.isRefChange());
 	}
 
 	@Test
