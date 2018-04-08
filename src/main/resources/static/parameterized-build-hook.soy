@@ -145,6 +145,7 @@
             <a class="pr-merged" href="#" title="Triggers when a pull request is merged"><span class="aui-lozenge {strContains($triggers, 'prmerged;') ? 'aui-lozenge-success' : ''}">PR Merged</span></a>&nbsp;
             <a class="pr-declined" href="#" title="Triggers when a pull request is declined"><span class="aui-lozenge {strContains($triggers, 'prdeclined;') ? 'aui-lozenge-success' : ''}">PR Declined</span></a>&nbsp;
             <a class="pr-deleted" href="#" title="Triggers when a pull request is deleted"><span class="aui-lozenge {strContains($triggers, 'prdeleted;') ? 'aui-lozenge-success' : ''}">PR Deleted</span></a>
+            <a class="pr-approved" href="#" title="Triggers when a pull request is approved"><span class="aui-lozenge {strContains($triggers, 'prapproved;') ? 'aui-lozenge-success' : ''}">PR Approved</span></a>
             {if $errors and $errors['triggers-' + $count]}<div class="error">{$errors['triggers-' + $count]}</div>{/if}
         </div>
         {call aui.form.textField}
