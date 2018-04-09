@@ -289,7 +289,7 @@ public class Job {
 	}
 
 	public enum Trigger {
-		ADD, PUSH, PULLREQUEST, MANUAL, DELETE, PRMERGED, PRAUTOMERGED, PRDECLINED, PRDELETED, NULL;
+		ADD, PUSH, PULLREQUEST, MANUAL, DELETE, PRMERGED, PRAUTOMERGED, PRDECLINED, PRDELETED, PRAPPROVED, NULL;
 
 		@Override
 		public String toString() {
@@ -302,6 +302,7 @@ public class Job {
 				case PRAUTOMERGED: return "AUTO MERGED";
 				case PRDECLINED: return "PR DECLINED";
 				case PRDELETED: return "PR DELETED";
+				case PRAPPROVED: return "PR APPROVED";
 				default: return super.toString();
 			}
 		}
@@ -320,6 +321,7 @@ public class Job {
 				case "AUTO MERGED": return PRAUTOMERGED;
 				case "PR DECLINED": return PRDECLINED;
 				case "PR DELETED": return PRDELETED;
+				case "PR APPROVED": return PRAPPROVED;
 				default: return NULL;
 			}
 		}

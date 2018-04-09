@@ -48,6 +48,11 @@
                 {
                     'trigger': 'prdeleted;',
                     'extraFields': ['#pathRegex-', '#prDestinationRegex-']
+                },
+            '.pr-approved':
+                {
+                    'trigger': 'prapproved;',
+                    'extraFields': ['#pathRegex-', '#prDestinationRegex-']
                 }
         };
 

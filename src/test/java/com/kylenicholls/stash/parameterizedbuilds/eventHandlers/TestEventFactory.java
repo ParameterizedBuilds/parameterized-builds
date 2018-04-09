@@ -18,6 +18,7 @@ public class TestEventFactory {
     private PullRequestDeclinedEvent declinedEvent;
     private PullRequestDeletedEvent deletedEvent;
     private AutomaticMergeEvent autoMergeEvent;
+    private PullRequestParticipantApprovedEvent approvedEvent;
 
     public void setup(Repository repository){
         PullRequest pullRequest = mock(PullRequest.class);
@@ -33,6 +34,7 @@ public class TestEventFactory {
         autoMergeEvent = mock(AutomaticMergeEvent.class);
         declinedEvent = mock(PullRequestDeclinedEvent.class);
         deletedEvent = mock(PullRequestDeletedEvent.class);
+        approvedEvent = mock(PullRequestParticipantApprovedEvent.class);
 
         String SOURCE_BRANCH = "sourcebranch";
         String DEST_BRANCH = "destbranch";
@@ -49,6 +51,7 @@ public class TestEventFactory {
         when(autoMergeEvent.getRepository()).thenReturn(repository);
         when(declinedEvent.getPullRequest()).thenReturn(pullRequest);
         when(deletedEvent.getPullRequest()).thenReturn(pullRequest);
+        when(approvedEvent.getPullRequest()).thenReturn(pullRequest);
         when(pullRequest.getFromRef()).thenReturn(prFromRef);
         when(pullRequest.getToRef()).thenReturn(prToRef);
         when(pullRequest.getAuthor()).thenReturn(author);
@@ -90,6 +93,11 @@ public class TestEventFactory {
     public PullRequestDeletedEvent getMockedDeletedEvent(Repository repository){
         setup(repository);
         return deletedEvent;
+    }
+
+    public PullRequestParticipantApprovedEvent getMockedApprovedEvent(Repository repository){
+        setup(repository);
+        return approvedEvent;
     }
 
     public AutomaticMergeEvent getMockedAutoMergeEvent(Repository repository){

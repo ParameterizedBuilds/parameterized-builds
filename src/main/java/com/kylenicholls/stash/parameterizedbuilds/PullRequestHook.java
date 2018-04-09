@@ -88,6 +88,11 @@ public class PullRequestHook {
 		}
 	}
 
+	@EventListener
+	public void onPullRequestApproved(PullRequestParticipantApprovedEvent event) throws IOException {
+		runHandler(new PRApprovedHandler(settingsService, pullRequestService, jenkins, event, url));
+	}
+
 	protected void runHandler(BaseHandler handler) {
 		this.executorService.submit(() -> handler.run());
 	}
