@@ -62,6 +62,7 @@ public class TestEventFactory {
         when(prFromRef.getDisplayId()).thenReturn(SOURCE_BRANCH);
         when(prFromRef.getLatestCommit()).thenReturn(COMMIT);
         when(prToRef.getDisplayId()).thenReturn(DEST_BRANCH);
+        when(prToRef.getRepository()).thenReturn(repository);
         when(mergeCommit.getId()).thenReturn(newCommit);
     }
 

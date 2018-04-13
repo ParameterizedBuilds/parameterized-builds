@@ -30,7 +30,7 @@ public class PRHandler extends BaseHandler{
         this.pullRequestService = pullRequestService;
         this.pullRequest = event.getPullRequest();
         this.user = pullRequest.getAuthor().getUser();
-        this.repository = pullRequest.getFromRef().getRepository();
+        this.repository = pullRequest.getToRef().getRepository();
         this.projectKey = repository.getProject().getKey();
         this.url = url;
         this.trigger = trigger;
