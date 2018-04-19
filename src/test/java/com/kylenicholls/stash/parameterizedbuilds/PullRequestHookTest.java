@@ -1,43 +1,31 @@
 package com.kylenicholls.stash.parameterizedbuilds;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
 import com.atlassian.bitbucket.event.pull.*;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
-import com.atlassian.bitbucket.repository.Branch;
-import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.BaseHandler;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.TestEventFactory;
-import org.bouncycastle.jcajce.provider.symmetric.DES;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.bitbucket.project.Project;
-import com.atlassian.bitbucket.pull.PullRequest;
-import com.atlassian.bitbucket.pull.PullRequestParticipant;
-import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.JobBuilder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 public class PullRequestHookTest {
