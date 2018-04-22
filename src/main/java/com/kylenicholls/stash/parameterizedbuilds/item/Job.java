@@ -253,7 +253,14 @@ public class Job {
 	private UriBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
 			boolean hasParameters, Trigger trigger) {
 		UriBuilder builder = UriBuilder.fromUri(jenkinsServer.getBaseUrl());
-		String jobBase = !isPipeline || trigger.isRefChange() ? "%s": "%s%s%s";
+		String jobBase;
+		if ((isPipeline && trigger == Trigger.PULLREQUEST) ||
+			  !isPipeline ||
+			  trigger.isRefChange()) {
+			jobBase = "%s";
+		} else {
+			jobBase = "%s%s%s";
+		}
 		hasParameters = !isPipeline || !trigger.isRefChange() ? hasParameters : false;
 
 		if (useUserToken || !jenkinsServer.getAltUrl()) {
