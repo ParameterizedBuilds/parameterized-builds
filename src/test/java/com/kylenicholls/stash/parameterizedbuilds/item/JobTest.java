@@ -241,6 +241,21 @@ public class JobTest {
 	}
 
 	@Test
+	public void testBuildUrlMultibranchPullRequestOpened() {
+		String jobName = "jobname";
+		Server server = new Server("http://baseurl", "", "", false, false);
+		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").isPipeline(true).build();
+
+		BitbucketVariables vars = new BitbucketVariables.Builder()
+				.add("$TRIGGER", () -> Trigger.PULLREQUEST.toString())
+				.add("$BRANCH", () -> "test_branch")
+				.build();
+		String actual = job.buildUrl(server, vars, false);
+
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
+	}
+
+	@Test
 	public void testBuildPipelineNotParameterizedAndScan() {
 		String jobName = "jobname";
 		Server server = new Server("http://baseurl", "", "", false, false);
