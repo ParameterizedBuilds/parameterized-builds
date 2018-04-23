@@ -232,7 +232,8 @@ public class Job {
 			return null;
 		}
 		Trigger trigger =  Trigger.fromToString(bitbucketVariables.fetch("$TRIGGER"));
-		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty(), trigger);
+		boolean isPullRequest = bitbucketVariables.getVariables().containsKey("$PRID");
+		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty(), trigger, isPullRequest);
 
 		String buildUrl = builder.build().toString();
 
@@ -251,10 +252,10 @@ public class Job {
 	}
 
 	private UriBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
-			boolean hasParameters, Trigger trigger) {
+			boolean hasParameters, Trigger trigger, boolean isPullRequest) {
 		UriBuilder builder = UriBuilder.fromUri(jenkinsServer.getBaseUrl());
 		String jobBase;
-		if ((isPipeline && trigger == Trigger.PULLREQUEST) ||
+		if ((isPipeline && trigger.isPullRequestChange()) ||
 			  !isPipeline ||
 			  trigger.isRefChange()) {
 			jobBase = "%s";
@@ -263,10 +264,11 @@ public class Job {
 		}
 		hasParameters = !isPipeline || !trigger.isRefChange() ? hasParameters : false;
 
+		String subJob = trigger == Trigger.MANUAL && isPullRequest ? "PR-" + "$PRID" : "$BRANCH";
 		if (useUserToken || !jenkinsServer.getAltUrl()) {
-			builder.path("job").path(String.format(jobBase, this.jobName, "/job/", "$BRANCH"));
+			builder.path("job").path(String.format(jobBase, this.jobName, "/job/", subJob));
 		} else {
-			builder.path("buildByToken").queryParam("job", String.format(jobBase, this.jobName, "/", "$BRANCH"));
+			builder.path("buildByToken").queryParam("job", String.format(jobBase, this.jobName, "/", subJob));
 		}
 
 		if (!useUserToken && this.token != null && !this.token.isEmpty()) {
@@ -310,12 +312,18 @@ public class Job {
 				case PRDECLINED: return "PR DECLINED";
 				case PRDELETED: return "PR DELETED";
 				case PRAPPROVED: return "PR APPROVED";
+				case MANUAL: return "MANUAL";
 				default: return super.toString();
 			}
 		}
 
 		public Boolean isRefChange(){
 			return Stream.of(ADD, PUSH, DELETE).collect(Collectors.toList()).contains(this);
+		}
+
+		public Boolean isPullRequestChange(){
+			return Stream.of(PULLREQUEST, PRMERGED, PRAUTOMERGED, 
+				PRDECLINED, PRDELETED, PRAPPROVED).collect(Collectors.toList()).contains(this);
 		}
 
 		public static Trigger fromToString(String toString){
@@ -329,6 +337,7 @@ public class Job {
 				case "PR DECLINED": return PRDECLINED;
 				case "PR DELETED": return PRDELETED;
 				case "PR APPROVED": return PRAPPROVED;
+				case "MANUAL": return MANUAL;
 				default: return NULL;
 			}
 		}

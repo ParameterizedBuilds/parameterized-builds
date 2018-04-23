@@ -249,10 +249,44 @@ public class JobTest {
 		BitbucketVariables vars = new BitbucketVariables.Builder()
 				.add("$TRIGGER", () -> Trigger.PULLREQUEST.toString())
 				.add("$BRANCH", () -> "test_branch")
+				.add("$PRID", () -> "test_pr_id")
 				.build();
 		String actual = job.buildUrl(server, vars, false);
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
+	}
+
+	@Test
+	public void testBuildUrlMultibranchPullRequestDeleted() {
+		String jobName = "jobname";
+		Server server = new Server("http://baseurl", "", "", false, false);
+		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").isPipeline(true).build();
+
+		BitbucketVariables vars = new BitbucketVariables.Builder()
+				.add("$TRIGGER", () -> Trigger.PRDELETED.toString())
+				.add("$BRANCH", () -> "test_branch")
+				.add("$PRID", () -> "test_pr_id")
+				.build();
+		String actual = job.buildUrl(server, vars, false);
+
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
+	}
+
+	@Test
+	public void testBuildUrlMultibranchPullRequestManualTrigger() {
+		String jobName = "jobname";
+		Server server = new Server("http://baseurl", "", "", false, false);
+		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").isPipeline(true).build();
+		String pullRequestId = "test_id";
+
+		BitbucketVariables vars = new BitbucketVariables.Builder()
+				.add("$TRIGGER", () -> Trigger.MANUAL.toString())
+				.add("$BRANCH", () -> "test_branch")
+				.add("$PRID", () -> pullRequestId)
+				.build();
+		String actual = job.buildUrl(server, vars, false);
+
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/job/" + "PR-" + pullRequestId + "/build", actual);
 	}
 
 	@Test
