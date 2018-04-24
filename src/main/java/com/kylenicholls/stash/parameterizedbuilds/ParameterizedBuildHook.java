@@ -11,10 +11,14 @@ import com.atlassian.bitbucket.commit.CommitService;
 import com.atlassian.bitbucket.hook.repository.PostRepositoryHook;
 import com.atlassian.bitbucket.hook.repository.PostRepositoryHookContext;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookRequest;
+import com.atlassian.bitbucket.project.Project;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.scope.ProjectScope;
+import com.atlassian.bitbucket.scope.RepositoryScope;
+import com.atlassian.bitbucket.scope.Scope;
 import com.atlassian.bitbucket.server.ApplicationPropertiesService;
-import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
+import com.atlassian.bitbucket.setting.SettingsValidator;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.atlassian.bitbucket.user.ApplicationUser;
@@ -24,13 +28,14 @@ import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PushHandler;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.RefCreatedHandler;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.RefDeletedHandler;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.RefHandler;
+import com.kylenicholls.stash.parameterizedbuilds.helper.ScopeProjectVisitor;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
 public class ParameterizedBuildHook
-		implements PostRepositoryHook, RepositorySettingsValidator {
+		implements PostRepositoryHook, SettingsValidator {
 
 	private final SettingsService settingsService;
 	private final CommitService commitService;
@@ -79,10 +84,11 @@ public class ParameterizedBuildHook
 	}
 
 	@Override
-	public void validate(Settings settings, SettingsValidationErrors errors,
-			Repository repository) {
+	public void validate(Settings settings, SettingsValidationErrors errors, Scope scope) {
+		String projectKey = scope.accept(new ScopeProjectVisitor()).getKey();
+		Server projectServer = jenkins.getJenkinsServer(projectKey);
 		Server server = jenkins.getJenkinsServer();
-		Server projectServer = jenkins.getJenkinsServer(repository.getProject().getKey());
+
 		if ((server == null || server.getBaseUrl().isEmpty())
 				&& (projectServer == null || projectServer.getBaseUrl().isEmpty())) {
 			errors.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
