@@ -66,9 +66,10 @@ public class BuildResource extends RestResource {
 	}
 
 	@POST
-	@Path(value = "triggerBuild/{id}/{branch}")
+	@Path(value = "triggerBuild/{id}/{branch}{prId:(/pr/[^/]+?)?}")
 	public Response triggerBuild(@Context final Repository repository, @PathParam("id") String id,
-								 @PathParam("branch") String branch, @Context UriInfo uriInfo) {
+								 @PathParam("branch") String branch, @Context UriInfo uriInfo,
+								 @PathParam("prId") String prIdPath) {
 		if (authContext.isAuthenticated()) {
 			String projectKey = repository.getProject().getKey();
 			Map<String, Object> data = new LinkedHashMap<>();
@@ -93,10 +94,15 @@ public class BuildResource extends RestResource {
 								.collect(Collectors.toMap(Entry::getKey, e->e.getValue().get(0)));
 				Job job = jobToBuild.copy().buildParameters(paramList).build();
 
-				//create bitbucketVariables with only branch and trigger to resolve pipelines
-				BitbucketVariables variables = new BitbucketVariables.Builder()
+				//create bitbucketVariables with only branch, trigger and prId to resolve pipelines
+				BitbucketVariables.Builder variablesBuilder = new BitbucketVariables.Builder()
 						.add("$BRANCH", () -> branch)
-						.add("$TRIGGER", Trigger.MANUAL::toString).build();
+						.add("$TRIGGER", Trigger.MANUAL::toString);
+				if (prIdPath != null && !prIdPath.equals("")) {
+					final String prId = prIdPath.split("/")[2];
+					variablesBuilder.add("$PRID", () -> prId);
+				}
+				BitbucketVariables variables = variablesBuilder.build();
 
 				Map<String, Object> message = jenkins.triggerJob(projectKey, user, job, variables)
 						.getMessage();

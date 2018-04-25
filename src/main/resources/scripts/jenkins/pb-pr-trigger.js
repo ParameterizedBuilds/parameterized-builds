@@ -15,6 +15,7 @@ define('jenkins/parameterized-build-pullrequest', [
 
     $(".parameterized-build-pullrequest").click(function() {
         var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
+        var prId = prJSON.id;
         var branch = prJSON.fromRef.id;
         var commit = prJSON.fromRef.latestCommit;
         var prDest = prJSON.toRef.displayId;
@@ -27,7 +28,7 @@ define('jenkins/parameterized-build-pullrequest', [
                 var splitBranch = branch.split("/")
                 splitBranch.splice(0, 2) //remove ref/heads or ref/tags
                 var branchName = splitBranch.join("%2F")
-                var buildUrl = getResourceUrl("triggerBuild/0/" + encodeURIComponent(branchName));
+                var buildUrl = getResourceUrl("triggerBuild/0/" + encodeURIComponent(branchName) + "/pr/" + encodeURIComponent(prId));
                 triggerBuild(buildUrl);
                 return false;
             }

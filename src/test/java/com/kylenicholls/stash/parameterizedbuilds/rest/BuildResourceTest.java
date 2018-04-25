@@ -94,7 +94,7 @@ public class BuildResourceTest {
 	@Test
 	public void testTriggerBuildNotAuthed() {
 		when(authContext.isAuthenticated()).thenReturn(false);
-		Response actual = rest.triggerBuild(repository, null, null, null);
+		Response actual = rest.triggerBuild(repository, null, null, null, null);
 
 		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), actual.getStatus());
 	}
@@ -102,7 +102,7 @@ public class BuildResourceTest {
 	@Test
 	public void testTriggerBuildNoRepoSettings() {
 		when(settingsService.getSettings(repository)).thenReturn(null);
-		Response actual = rest.triggerBuild(repository, null, null,null);
+		Response actual = rest.triggerBuild(repository, null, null,null, null);
 
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), actual.getStatus());
 	}
@@ -111,7 +111,7 @@ public class BuildResourceTest {
 	public void testTriggerBuildNoMatchingJob() {
 		Job job = new Job.JobBuilder(1).triggers(new String[] { "add" }).build();
 		jobs.add(job);
-		Response actual = rest.triggerBuild(repository, "0", "test",null);
+		Response actual = rest.triggerBuild(repository, "0", "test",null, null);
 
 		Map<String, Object> expected = new LinkedHashMap<>();
 		expected.put("message", "No settings found for this job");
@@ -129,7 +129,7 @@ public class BuildResourceTest {
 		query.add("param2", "value2");
 		when(uriInfo.getQueryParameters()).thenReturn(query);
 		when(jenkins.triggerJob(any(), any(), any(), any())).thenReturn(message);
-		Response results = rest.triggerBuild(repository, "0", "test", uriInfo);
+		Response results = rest.triggerBuild(repository, "0", "test", uriInfo, null);
 
 		assertEquals(Response.Status.OK.getStatusCode(), results.getStatus());
 		assertEquals(message.getMessage(), results.getEntity());
