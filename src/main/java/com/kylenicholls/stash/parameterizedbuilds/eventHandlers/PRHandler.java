@@ -7,6 +7,7 @@ import com.atlassian.bitbucket.content.ChangeContext;
 import com.atlassian.bitbucket.content.ChangeSummary;
 import com.atlassian.bitbucket.event.pull.PullRequestEvent;
 import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestAction;
 import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class PRHandler extends BaseHandler{
 
     private PullRequestService pullRequestService;
+    private PullRequestAction pullRequestAction;
     PullRequest pullRequest;
     String url;
     final Trigger trigger;
@@ -28,6 +30,7 @@ public class PRHandler extends BaseHandler{
                      PullRequestEvent event, String url, Trigger trigger) {
         super(settingsService, jenkins);
         this.pullRequestService = pullRequestService;
+        this.pullRequestAction = event.getAction();
         this.pullRequest = event.getPullRequest();
         this.user = pullRequest.getAuthor().getUser();
         this.repository = pullRequest.getToRef().getRepository();
@@ -63,7 +66,17 @@ public class PRHandler extends BaseHandler{
     @Override
     boolean validateJob(Job job, BitbucketVariables bitbucketVariables){
         String prDest = pullRequest != null ? pullRequest.getToRef().getDisplayId() : "";
+        if (job.getIsPipeline() &&
+                (this.pullRequestAction == PullRequestAction.OPENED || this.pullRequestAction == PullRequestAction.REOPENED)) {
+            // do not use the result, call to update refs so Jenkins can pick up new refs, which are leazily generated
+            // https://issues.jenkins-ci.org/browse/JENKINS-45997
+            validateCanMerge();
+        }
         return validatePrDest(job, prDest) && validateTrigger(job, trigger) && validatePath(job, bitbucketVariables);
+    }
+
+    boolean validateCanMerge() {
+        return this.pullRequestService.canMerge(this.repository.getId(), this.pullRequest.getId()).canMerge();
     }
 
     boolean validatePrDest(Job job,String prDest){
