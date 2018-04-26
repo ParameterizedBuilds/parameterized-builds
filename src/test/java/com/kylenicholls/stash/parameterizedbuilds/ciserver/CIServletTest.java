@@ -1,7 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -190,7 +190,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(1)).saveJenkinsServer(isNotNull(Server.class));
+		verify(jenkins, times(1)).saveJenkinsServer(any(Server.class));
 		verify(renderer, times(1)).render(any(), any(), any(), any());
 	}
 
@@ -366,7 +366,7 @@ public class CIServletTest {
 		servlet.doPost(req, resp);
 
 		verify(jenkins, times(1))
-				.saveJenkinsServer(isNotNull(Server.class), isNotNull(String.class));
+				.saveJenkinsServer(any(Server.class), anyString());
 		verify(renderer, times(1)).render(any(), any(), any(), any());
 	}
 

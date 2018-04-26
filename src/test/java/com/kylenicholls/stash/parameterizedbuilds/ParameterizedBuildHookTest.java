@@ -8,6 +8,7 @@ import com.atlassian.bitbucket.repository.MinimalRef;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.scope.RepositoryScope;
 import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -56,6 +57,7 @@ public class ParameterizedBuildHookTest {
     private Jenkins jenkins;
     private ApplicationPropertiesService propertiesService;
     private Repository repository;
+    private RepositoryScope repositoryScope;
     private ExecutorService executorService;
     private SettingsValidationErrors validationErrors;
     private Project project;
@@ -84,6 +86,7 @@ public class ParameterizedBuildHookTest {
         refChange = mock(RefChange.class);
         minimalRef = mock(MinimalRef.class);
         repository = mock(Repository.class);
+        repositoryScope = mock(RepositoryScope.class);
         validationErrors = mock(SettingsValidationErrors.class);
         project = mock(Project.class);
         user = mock(ApplicationUser.class);
@@ -94,6 +97,7 @@ public class ParameterizedBuildHookTest {
         when(refChange.getToHash()).thenReturn(COMMIT);
         when(repository.getSlug()).thenReturn(REPO_SLUG);
         when(repository.getProject()).thenReturn(project);
+        when(repositoryScope.accept(any())).thenReturn(project);
         when(jenkins.getJenkinsServer()).thenReturn(globalServer);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(projectServer);
         when(propertiesService.getBaseUrl()).thenReturn(new URI(URI));
@@ -133,7 +137,7 @@ public class ParameterizedBuildHookTest {
     public void testShowErrorIfJenkinsSettingsNull() {
         when(jenkins.getJenkinsServer()).thenReturn(null);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
                 .addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
@@ -144,7 +148,7 @@ public class ParameterizedBuildHookTest {
         Server server = new Server("", null, null, false, false);
         when(jenkins.getJenkinsServer()).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
                 .addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
@@ -155,7 +159,7 @@ public class ParameterizedBuildHookTest {
         Server server = new Server("", null, null, false, false);
         when(jenkins.getJenkinsServer()).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
                 .addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
@@ -166,7 +170,7 @@ public class ParameterizedBuildHookTest {
         when(jenkins.getJenkinsServer()).thenReturn(null);
         Server server = new Server("", null, null, false, false);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
                 .addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
@@ -177,7 +181,7 @@ public class ParameterizedBuildHookTest {
         when(jenkins.getJenkinsServer()).thenReturn(null);
         Server server = new Server("baseurl", null, null, false, false);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(0)).addFieldError(any(), any());
     }
@@ -187,7 +191,7 @@ public class ParameterizedBuildHookTest {
         Server server = new Server("baseurl", null, null, false, false);
         when(jenkins.getJenkinsServer()).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(0)).addFieldError(any(), any());
     }
@@ -197,7 +201,7 @@ public class ParameterizedBuildHookTest {
         Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("")
                 .branchRegex("").pathRegex("").build();
         jobs.add(job);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
                 .addFieldError(SettingsService.JOB_PREFIX + "0", "Field is required");
@@ -208,7 +212,7 @@ public class ParameterizedBuildHookTest {
         Job job = new Job.JobBuilder(1).jobName("name").triggers("".split(";")).buildParameters("")
                 .branchRegex("").pathRegex("").build();
         jobs.add(job);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1)).addFieldError(SettingsService.TRIGGER_PREFIX
                 + "0", "You must choose at least one trigger");
@@ -219,7 +223,7 @@ public class ParameterizedBuildHookTest {
         Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";"))
                 .buildParameters("").branchRegex("(").pathRegex("").build();
         jobs.add(job);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
                 .addFieldError(SettingsService.BRANCH_PREFIX + "0", "Unclosed group");
@@ -230,7 +234,7 @@ public class ParameterizedBuildHookTest {
         Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";"))
                 .buildParameters("").branchRegex("").pathRegex("(").build();
         jobs.add(job);
-        buildHook.validate(settings, validationErrors, repository);
+        buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
                 .addFieldError(SettingsService.PATH_PREFIX + "0", "Unclosed group");
