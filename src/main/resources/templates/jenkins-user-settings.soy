@@ -28,7 +28,8 @@
 				<div>No Jenkins servers were found. Contact your Bitbucket Server administrator to add a Jenkins server.</div>
 			{else}
 			    {call aui.form.submit}
-					{param id: 'submit' /}
+					{param id: 'saveButton' /}
+					{param name: 'submit' /}
 					{param text: 'Save' /}
 					{param type: 'submit' /}
 					{param extraClasses: 'aui-button-primary' /}
