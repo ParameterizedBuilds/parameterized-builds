@@ -11,7 +11,7 @@ define('jenkins/parameterized-build-pullrequest', [
     ajax,
     flag
 ) {
-    var jobs;
+    var allJobs;
 
     $(".parameterized-build-pullrequest").click(function() {
         var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
@@ -21,20 +21,22 @@ define('jenkins/parameterized-build-pullrequest', [
 
         var resourceUrl = getResourceUrl("getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + prJSON.id;
 
-        jobs = getJobs(resourceUrl);
-        if (jobs.length == 1){
-            if (jobs[0].buildParameters.length == 0){
-                var splitBranch = branch.split("/")
-                splitBranch.splice(0, 2) //remove ref/heads or ref/tags
-                var branchName = splitBranch.join("%2F")
-                var buildUrl = getResourceUrl("triggerBuild/0/" + encodeURIComponent(branchName));
-                triggerBuild(buildUrl);
-                return false;
+        return $.when(getJobs(resourceUrl)).then(function( jobs ) {
+            allJobs = jobs
+            if (jobs.length == 1){
+                if (jobs[0].buildParameters.length == 0){
+                    var splitBranch = branch.split("/")
+                    splitBranch.splice(0, 2) //remove ref/heads or ref/tags
+                    var branchName = splitBranch.join("%2F")
+                    var buildUrl = getResourceUrl("triggerBuild/0/" + encodeURIComponent(branchName));
+                    triggerBuild(buildUrl);
+                    return false;
+                }
             }
-        }
-        var buildUrl = getResourceUrl("triggerBuild");
-        showManualBuildDialog(buildUrl, branch);
-        return false;
+            var buildUrl = getResourceUrl("triggerBuild");
+            showManualBuildDialog(buildUrl, branch, jobs);
+            return false;
+        });
     });
 
     function getResourceUrl(resourceType){
@@ -43,20 +45,14 @@ define('jenkins/parameterized-build-pullrequest', [
     }
 
     function getJobs(resourceUrl){
-        var results;
-        $.ajax({
+        return $.ajax({
             type: "GET",
             url: resourceUrl,
             dataType: 'json',
-            async: false,
-            success: function (data){
-                results = data;
-            }
         });
-        return results;
     }
 
-    function showManualBuildDialog(buildUrl, branch) {
+    function showManualBuildDialog(buildUrl, branch, jobs) {
         var dialog = _aui.dialog2(aui.dialog.dialog2({
             titleText: AJS.I18n.getText('Build with Parameters'),
             content: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildDialog({
@@ -100,7 +96,7 @@ define('jenkins/parameterized-build-pullrequest', [
 
     $(document).on('change', '#job', function(e) {
         e.preventDefault();
-        setupJobForm(jobs[this.value]);
+        setupJobForm(allJobs[this.value]);
     });
 
     function setupJobForm(job) {
@@ -156,7 +152,6 @@ define('jenkins/parameterized-build-pullrequest', [
             type: "POST",
             url: buildUrl,
             dataType: 'json',
-            async: true
         }).success(function (data) {
             if (data.error){
                 successFlag.close();
