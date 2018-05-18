@@ -4,12 +4,15 @@ import java.util.Map;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.repository.RepositoryService;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 
 public class HookIsEnabledCondition extends BaseCondition {
 
-	public HookIsEnabledCondition(SettingsService settingsService) {
-		super(settingsService);
+	public HookIsEnabledCondition(@ComponentImport RepositoryService repositoryService,
+								  SettingsService settingsService) {
+		super(repositoryService, settingsService);
 	}
 
 	@Override

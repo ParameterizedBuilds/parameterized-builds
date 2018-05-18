@@ -104,12 +104,16 @@
   
   <!-- web items -->
   <client-web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="50" section="bitbucket.pullrequest.action">
-    <client-condition>require('jenkins/parameterized-condition-pullrequest').prConditions</client-condition>
     <label>Build in Jenkins</label>
     <tooltip>Build branch in Jenkins</tooltip>
     <styleClass>parameterized-build-pullrequest</styleClass>
+    <client-condition>function(ctx) { return ctx.pullRequest.state === 'OPEN'}</client-condition>
     <dependency>${project.groupId}-${project.artifactId}:pb-pr-trigger-resource</dependency>
-    <dependency>${project.groupId}-${project.artifactId}:pb-pr-condition-resource</dependency>
+    <conditions type="AND">
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.ManualButtonCondition"/>
+      <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition"/>
+    </conditions>
   </client-web-item>
   <client-web-item key="blayout-trigger-jenkins" name="Trigger Jenkins Builds From Branch Layout" section="bitbucket.branch.layout.actions.dropdown" weight="1000">
     <label>Build in Jenkins</label>
