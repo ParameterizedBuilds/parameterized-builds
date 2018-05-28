@@ -8,10 +8,10 @@ Questions should be directed to our [Gitter](https://gitter.im/parameterized-bui
 
 Bug reports should include the following information:
 
-- Parameterized Builds for Jenkins plugin version
-- Bitbucket version
-- Jenkins Version
-- Any Jenkins or Bitbucket settings that could be relevant
+- _Parameterized Builds for Jenkins_ plugin version
+- _Bitbucket_ version
+- _Jenkins_ Version
+- Any _Jenkins_ or _Bitbucket_ settings that could be relevant
 - Detailed description of the issue
 
 In general, make the report actionable. An issue that only says "Pull request triggers do not work" does not provide
