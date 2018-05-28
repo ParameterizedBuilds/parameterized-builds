@@ -30,7 +30,7 @@ public class AccountServer extends CIServer {
         this.JENKINS_SETTINGS =  "jenkins.user.settings";
     }
 
-    public Map<String, Object> postSettings(boolean _) {
+    public Map<String, Object> postSettings(boolean clearSettings) {
         Set<String> parameterKeys = parameters.keySet();
         for (String key : parameterKeys) {
             if (key.startsWith(PROJECT_KEY_PREFIX)) {

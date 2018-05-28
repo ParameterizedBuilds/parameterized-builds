@@ -4,6 +4,7 @@ import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.permission.Permission;
 import com.atlassian.bitbucket.permission.PermissionService;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.repository.RepositoryService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -19,8 +20,10 @@ public class BuildPermissionsCondition extends BaseCondition{
     private final AuthenticationContext authContext;
 
     @Autowired
-    public BuildPermissionsCondition(@ComponentImport PermissionService permissionService, SettingsService service, AuthenticationContext authContext) {
-        super(service);
+    public BuildPermissionsCondition(@ComponentImport RepositoryService repositoryService,
+                                     @ComponentImport PermissionService permissionService,
+                                     SettingsService service, AuthenticationContext authContext) {
+        super(repositoryService, service);
         this.permissionService = permissionService;
         this.authContext = authContext;
     }

@@ -3,12 +3,14 @@ package com.kylenicholls.stash.parameterizedbuilds.conditions;
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.permission.*;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.repository.RepositoryService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,12 +28,14 @@ public class BuildPermissionsConditionTest {
     private Repository repository;
     private Map<String, Object> context;
     private SettingsService settingsService;
+    private RepositoryService repositoryService;
     private Settings settings;
 
     @Before
     public void setup() {
         repository = mock(Repository.class);
         settingsService = mock(SettingsService.class);
+        repositoryService = mock(RepositoryService.class);
         settings = mock(Settings.class);
 
         context = new HashMap<>();
@@ -39,7 +43,7 @@ public class BuildPermissionsConditionTest {
 
         PermissionService permissionService = mock(PermissionService.class);
         AuthenticationContext authContext = mock(AuthenticationContext.class);
-        condition = new BuildPermissionsCondition(permissionService, settingsService, authContext);
+        condition = new BuildPermissionsCondition(repositoryService, permissionService, settingsService, authContext);
 
         when(permissionService.hasRepositoryPermission(any(), any(), eq(Permission.REPO_WRITE))).thenReturn(true);
         when(permissionService.hasRepositoryPermission(any(), any(), eq(Permission.REPO_READ))).thenReturn(true);
@@ -55,6 +59,21 @@ public class BuildPermissionsConditionTest {
     public void testShouldNotDisplayIfNotRepository() {
         context.put("repository", "notARepository");
         assertFalse(condition.shouldDisplay(context));
+    }
+
+    @Test
+    public void testGetRepoFromRequest() {
+        context.put("repository", null);
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        when(mockRequest.getRequestURI()).thenReturn("/projects/PROJ1/repos/REP1/");
+        when(repositoryService.getBySlug("PROJ1", "REP1")).thenReturn(repository);
+        when(settingsService.getSettings(repository)).thenReturn(settings);
+        Job job = new Job.JobBuilder(1).permissions("REPO_WRITE").build();
+        List<Job> jobs = new ArrayList<>();
+        jobs.add(job);
+        when(settingsService.getJobs(any())).thenReturn(jobs);
+        context.put("request", mockRequest);
+        assertTrue(condition.shouldDisplay(context));
     }
 
     @Test
