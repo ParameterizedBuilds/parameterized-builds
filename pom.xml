@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.kylenicholls.stash</groupId>
 	<artifactId>parameterized-builds</artifactId>
-	<version>3.2.5</version>
+	<version>9.0.1</version>
 
 	<organization>
 		<name>Kyle Nicholls</name>
@@ -13,7 +13,7 @@
 	</organization>
 
 	<name>Parameterized Builds for Jenkins</name>
-	<description>Adds a build hook with customizable parameters for Jenkins</description>
+	<description>Adds a build hook with customizable parameters for Jenkins - RKR edition</description>
 	<packaging>atlassian-plugin</packaging>
 	<repositories>
 		<repository>
@@ -273,7 +273,7 @@
 		<bitbucket.server.version>5.4.0</bitbucket.server.version>
 		<bitbucket.data.version>5.4.0</bitbucket.data.version>
 		<atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
-		<amps.version>6.3.4</amps.version>
+		<amps.version>6.3.10</amps.version>
 		<plugin.testrunner.version>1.2.0</plugin.testrunner.version>
 	</properties>
 </project>
