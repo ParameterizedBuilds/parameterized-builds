@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLException;
 
 import com.kylenicholls.stash.parameterizedbuilds.item.*;
 import org.apache.commons.codec.binary.Base64;
@@ -361,7 +362,7 @@ public class Jenkins {
 		// retry the connection three times should be OK for temporary connection issues
 		final int maxRetries = 3;
 		final int sleepRetryMS = 3000;
-		for( int retry = 0; retry < maxRetries; ++retry ) {
+		for( int retry = 1; retry <= maxRetries; ++retry ) {
 			try {
 				final HttpURLConnection connection = setupConnection(crumbUrl, token);
 				connection.connect();
@@ -369,19 +370,16 @@ public class Jenkins {
 				if (status == 200) {
 					return new BufferedReader(new InputStreamReader((connection.getInputStream()))).readLine();
 				} else {
-               if( retry+1 < maxRetries ) {
-                  logger.warn("Could not connect to " + baseUrl + ", got HTTP status " + status + " will retry in " + sleepRetryMS + "ms");
-               } else {
-                  return null;
-               }
+					logger.warn("Could not connect to " + baseUrl + ", got HTTP status " + status + ".");
+					return null;
 				}
-			} catch(final Exception e) {
-            if( retry+1 < maxRetries ) {
-               // log issue and try again
-               logger.warn("Could not connect to " + baseUrl + ", will retry in " + sleepRetryMS + "ms", e);
-            } else {
-               throw e;
-            }
+			} catch(final SSLException e) {
+				if( retry < maxRetries ) {
+					// log issue and try again
+					logger.warn("Could not connect to " + baseUrl + ", will retry in " + sleepRetryMS + "ms", e);
+				} else {
+					throw e;
+				}
 			}
 			// wait before next retry
 			Thread.sleep(sleepRetryMS);
