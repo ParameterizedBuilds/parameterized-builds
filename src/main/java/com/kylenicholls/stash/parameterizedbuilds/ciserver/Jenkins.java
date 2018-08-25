@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLException;
 
 import com.kylenicholls.stash.parameterizedbuilds.item.*;
 import org.apache.commons.codec.binary.Base64;
@@ -356,15 +357,34 @@ public class Jenkins {
 	}
 
 	private String getCrumb(String baseUrl, String token) throws Exception{
-		String crumbUrl = baseUrl  + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)";
-		HttpURLConnection connection = setupConnection(crumbUrl, token);
-		connection.connect();
-		int status = connection.getResponseCode();
-		if (status == 200) {
-			return new BufferedReader(new InputStreamReader((connection.getInputStream()))).readLine();
-		} else {
-			return null;
+		final String crumbUrl = baseUrl  + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)";
+		// workaround temporary javax.net.ssl.SSLException: Received close_notify during handshake
+		// retry the connection three times should be OK for temporary connection issues
+		final int maxRetries = 3;
+		final int sleepRetryMS = 3000;
+		for( int retry = 1; retry <= maxRetries; ++retry ) {
+			try {
+				final HttpURLConnection connection = setupConnection(crumbUrl, token);
+				connection.connect();
+				final int status = connection.getResponseCode();
+				if (status == 200) {
+					return new BufferedReader(new InputStreamReader((connection.getInputStream()))).readLine();
+				} else {
+					logger.warn("Could not connect to " + baseUrl + ", got HTTP status " + status + ".");
+					return null;
+				}
+			} catch(final SSLException e) {
+				if( retry < maxRetries ) {
+					// log issue and try again
+					logger.warn("Could not connect to " + baseUrl + ", will retry in " + sleepRetryMS + "ms", e);
+				} else {
+					throw e;
+				}
+			}
+			// wait before next retry
+			Thread.sleep(sleepRetryMS);
 		}
+		return null;
 	}
 
 	private JenkinsResponse httpPost(String buildUrl, String token, String csrfHeader, boolean prompt) {
