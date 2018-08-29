@@ -64,7 +64,7 @@ You can use any combination of triggers.
   * triggers a build for branch or tag creation events
   * the branch or tag name must match the `Ref Filter` parameter (leave blank to match all)
 * `PUSH EVENT`
-  * triggers a build for branch push events to the repository
+  * triggers a build for branch push events to the repository (new branches do not count even if they contain new commits)
   * the branch must match the `Ref Filter` parameter (leave blank to match all)
   * the files modified in the commits must match the `Monitored Paths` parameter (leave blank to match all)
 * `MANUAL`
