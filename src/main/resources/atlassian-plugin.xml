@@ -43,14 +43,7 @@
 
   <!-- Pullrequest trigger button resource -->
   <web-resource key="pb-pr-trigger-resource">
-    <resource type="download" name="pb-pr-trigger.js" location="/scripts/jenkins/pb-pr-trigger.js"/>
-    <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
-    <context>bitbucket.page.pullRequest.view</context>
-  </web-resource>
-
-  <!-- Pullrequest condition resource -->
-  <web-resource key="pb-pr-condition-resource">
-    <resource type="download" name="pb-pr-conditions.js" location="/scripts/jenkins/pb-pr-conditions.js"/>
+    <resource type="download" name="pb_pr_trigger.js" location="/scripts/jenkins/pb-pr-trigger.js"/>
     <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
     <context>bitbucket.page.pullRequest.view</context>
   </web-resource>
@@ -63,7 +56,7 @@
   
   <!-- List button resource -->
   <web-resource key="pb-blist-trigger-resource" name="Jenkins branch build list resource">
-    <resource name="pb-blist-trigger.js" type="download" location="/scripts/jenkins/pb-blist-trigger.js"/>
+    <resource name="pb_blist_trigger.js" type="download" location="/scripts/jenkins/pb-blist-trigger.js"/>
     <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
   </web-resource>
   

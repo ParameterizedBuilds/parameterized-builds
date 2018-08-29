@@ -5,3 +5,5 @@
 /bin/
 *.iml
 /.idea
+*.pack.js
+parameterized-client/node_modules

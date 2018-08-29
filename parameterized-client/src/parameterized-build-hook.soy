@@ -233,7 +233,7 @@
             {param descriptionText: 'Only allow users with the given repository permission or higher to trigger this job.' /}
             {param extraClasses: $permissionsClasses /}
         {/call}
-        {let $pathClasses}
+        {let $destClasses}
             {call .setHideClasses}
                 {param collapsed: $collapsed /}
                 {param triggers: $triggers /}
@@ -248,7 +248,7 @@
             {param extraClass: 'long-field' /}
             {param fieldWidth: 'full-width' /}
             {param descriptionText: 'Trigger builds if the pull request destination matches the regex (example: "release.*|hotfix.*|production"). Supported triggers: PR OPENED, PR MERGED, PR DECLINED, PR DELETED' /}
-            {param extraClasses: $pathClasses /}
+            {param extraClasses: $destClasses /}
         {/call}
 <hr>
     </div>

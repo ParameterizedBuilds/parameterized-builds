@@ -1,0 +1,25 @@
+{
+  "name": "parameterized-builds",
+  "version": "3.2.6",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf node_modules/ npm-debug.log",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prod-build": "./node_modules/.bin/webpack --config webpack.config.js"
+  },
+  "author": "Kyle Nicholls/Austin Hacker",
+  "private": true,
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@atlassian/atlassian-soy-loader": "^2.2.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0"
+  },
+  "dependencies": {
+    "jquery": "^3.3.1"
+  }
+}
