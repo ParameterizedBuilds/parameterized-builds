@@ -53,13 +53,9 @@ define('jenkins/parameterized-build-pullrequest', [
     }
 
     function showManualBuildDialog(buildUrl, branch, jobs) {
-        var dialog = _aui.dialog2(aui.dialog.dialog2({
-            titleText: AJS.I18n.getText('Build with Parameters'),
-            content: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildDialog({
-                jobs: jobs
-            }),
-            footerActionContent: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildButton(),
-            removeOnHide: true
+        var dialog = _aui.dialog2(com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.fullDialog({
+            jobs: jobs,
+            title: AJS.I18n.getText('Build with Parameters')
         })).show();
 
         var jobSelector = document.getElementById("job");
