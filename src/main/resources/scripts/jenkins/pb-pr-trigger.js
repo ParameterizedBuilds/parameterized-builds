@@ -1,14 +1,14 @@
 define('jenkins/parameterized-build-pullrequest', [
     'aui',
     'jquery',
-    'bitbucket/internal/model/page-state',
-    'bitbucket/internal/util/ajax',
+    'bitbucket/util/state',
+    'bitbucket/util/server',
     'aui/flag'
 ], function(
     _aui,
     $,
     pageState,
-    ajax,
+    server_util,
     flag
 ) {
     var allJobs;
@@ -40,12 +40,12 @@ define('jenkins/parameterized-build-pullrequest', [
     });
 
     function getResourceUrl(resourceType){
-        return _aui.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().getKey() + '/repos/'
-            + pageState.getRepository().getSlug() + '/' + resourceType;
+        return _aui.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
+            + pageState.getRepository().slug + '/' + resourceType;
     }
 
     function getJobs(resourceUrl){
-        return $.ajax({
+        return server_util.ajax({
             type: "GET",
             url: resourceUrl,
             dataType: 'json',
@@ -148,7 +148,7 @@ define('jenkins/parameterized-build-pullrequest', [
             body: 'Build started',
             close: 'auto'
         });
-        ajax.rest({
+        server_util.rest({
             type: "POST",
             url: buildUrl,
             dataType: 'json',

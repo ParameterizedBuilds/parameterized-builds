@@ -1,5 +1,5 @@
 define('jenkins/parameterized-build-layout', [
-    'bitbucket/internal/model/page-state',
+    'bitbucket/util/state',
     'trigger/build-dialog',
     'exports'
 ], function(
@@ -9,7 +9,7 @@ define('jenkins/parameterized-build-layout', [
 ) {
     exports.onReady = function () {
         branchBuild.bindToDropdownLink('.parameterized-build-layout', '#branch-actions-menu', function () {
-            return [pageState.getRevisionRef().getId(), pageState.getRevisionRef().getLatestCommit()];
+            return [pageState.getRef().id, pageState.getRef().latestCommit];
         });
     };
 });

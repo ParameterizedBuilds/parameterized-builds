@@ -2,15 +2,15 @@ define('trigger/build-dialog', [
     'aui',
     'jquery',
     'exports',
-    'bitbucket/internal/model/page-state',
-    'bitbucket/internal/util/ajax',
+    'bitbucket/util/state',
+    'bitbucket/util/server',
     'aui/flag'
 ], function(
     _aui,
     $,
     exports,
     pageState,
-    ajax,
+    server_utils,
     flag
 ) {
     var allJobs;
@@ -53,12 +53,12 @@ define('trigger/build-dialog', [
     }
     
     function getResourceUrl(resourceType){
-        return _aui.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().getKey() + '/repos/'
-        + pageState.getRepository().getSlug() + '/' + resourceType;
+        return _aui.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
+        + pageState.getRepository().slug + '/' + resourceType;
     }
     
     function getJobs(resourceUrl){
-        return $.ajax({
+        return server_utils.ajax({
           type: "GET",
           url: resourceUrl,
           dataType: 'json',
@@ -161,7 +161,7 @@ define('trigger/build-dialog', [
             body: 'Build started',
             close: 'auto'
         });
-        ajax.rest({
+        server_utils.rest({
           type: "POST",
           url: buildUrl,
           dataType: 'json',
