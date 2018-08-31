@@ -3,12 +3,14 @@ define('jenkins/parameterized-build-pullrequest', [
     'jquery',
     'bitbucket/util/state',
     'bitbucket/util/server',
+    'lodash',
     'aui/flag'
 ], function(
-    _aui,
+    AJS,
     $,
     pageState,
     server_util,
+    _,
     flag
 ) {
     var allJobs;
@@ -40,7 +42,7 @@ define('jenkins/parameterized-build-pullrequest', [
     });
 
     function getResourceUrl(resourceType){
-        return _aui.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
+        return AJS.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
             + pageState.getRepository().slug + '/' + resourceType;
     }
 
@@ -53,7 +55,7 @@ define('jenkins/parameterized-build-pullrequest', [
     }
 
     function showManualBuildDialog(buildUrl, branch, jobs) {
-        var dialog = _aui.dialog2(com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.fullDialog({
+        var dialog = AJS.dialog2(com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.fullDialog({
             jobs: jobs,
             title: AJS.I18n.getText('Build with Parameters')
         })).show();
@@ -158,7 +160,7 @@ define('jenkins/parameterized-build-pullrequest', [
                 });
             } else if (data.prompt) {
                 var promptCookie = getCookie("jenkinsPrompt");
-                var settingsPath = _aui.contextPath() + "/plugins/servlet/account/jenkins";
+                var settingsPath = AJS.contextPath() + "/plugins/servlet/account/jenkins";
                 if (promptCookie !== "ignore") {
                     flag({
                         type: 'info',
