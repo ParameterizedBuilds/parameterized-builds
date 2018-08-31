@@ -196,6 +196,6 @@ define('jenkins/parameterized-build-pullrequest', [
     }
 });
 
-AJS.$(document).ready(function() {
+require('aui').$(document).ready(function() {
     require('jenkins/parameterized-build-pullrequest');
 });
