@@ -2,15 +2,17 @@ define('trigger/build-dialog', [
     'aui',
     'jquery',
     'exports',
-    'bitbucket/internal/model/page-state',
-    'bitbucket/internal/util/ajax',
+    'bitbucket/util/state',
+    'bitbucket/util/server',
+    'lodash',
     'aui/flag'
 ], function(
-    _aui,
+    AJS,
     $,
     exports,
     pageState,
-    ajax,
+    server_utils,
+    _,
     flag
 ) {
     var allJobs;
@@ -53,12 +55,12 @@ define('trigger/build-dialog', [
     }
     
     function getResourceUrl(resourceType){
-        return _aui.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().getKey() + '/repos/'
-        + pageState.getRepository().getSlug() + '/' + resourceType;
+        return AJS.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
+        + pageState.getRepository().slug + '/' + resourceType;
     }
     
     function getJobs(resourceUrl){
-        return $.ajax({
+        return server_utils.ajax({
           type: "GET",
           url: resourceUrl,
           dataType: 'json',
@@ -66,13 +68,9 @@ define('trigger/build-dialog', [
     }
 
     function showManualBuildDialog(buildUrl, branch, jobs) {
-        var dialog = _aui.dialog2(aui.dialog.dialog2({
-            titleText: AJS.I18n.getText('Build with Parameters'),
-            content: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildDialog({
-                jobs: jobs
-            }),
-            footerActionContent: com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.buildButton(),
-            removeOnHide: true
+        var dialog = AJS.dialog2(com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.fullDialog({
+                jobs: jobs,
+                title: AJS.I18n.getText('Build with Parameters')
         })).show();
         
         var jobSelector = document.getElementById("job");
@@ -161,7 +159,7 @@ define('trigger/build-dialog', [
             body: 'Build started',
             close: 'auto'
         });
-        ajax.rest({
+        server_utils.rest({
           type: "POST",
           url: buildUrl,
           dataType: 'json',
@@ -175,7 +173,7 @@ define('trigger/build-dialog', [
                 });
             } else if (data.prompt) {
                 var promptCookie = getCookie("jenkinsPrompt");
-                var settingsPath = _aui.contextPath() + "/plugins/servlet/account/jenkins";
+                var settingsPath = AJS.contextPath() + "/plugins/servlet/account/jenkins";
                 if (promptCookie !== "ignore") {
                     flag({
                         type: 'info',

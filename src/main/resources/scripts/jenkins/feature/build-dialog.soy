@@ -2,6 +2,25 @@
 
 /**
  * @param jobs
+ * @param title
+ */
+{template .fullDialog}
+    {call aui.dialog.dialog2}
+        {param content}
+            {call .buildDialog}
+                {param jobs : $jobs/}
+            {/call}
+        {/param}
+        {param titleText: $title /}
+        {param removeOnHide: true /}
+        {param footerActionContent}
+            {call .buildButton /}
+        {/param}
+    {/call}
+{/template}
+
+/**
+ * @param jobs
  */
 {template .buildDialog}
     {call aui.form.form}
