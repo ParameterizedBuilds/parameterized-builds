@@ -1,0 +1,256 @@
+import React from 'react';
+import { connect } from 'react-redux';
+
+
+const getInitialState = () => {
+    return {
+        id: null,
+        active: true,
+        jobName: "",
+        isTag: false,
+        isPipeline: false,
+        triggers: "",
+        token: "",
+        buildParameters: "",
+        branchRegex: "",
+        pathRegex: "",
+        requirePermission: "",
+        prDestinationRegex: "",
+    }
+};
+
+export const jobState = (state=getInitialState(), action) => {
+    switch (action.type) {
+        case 'ADD_JOB':
+            return {
+                ...getInitialState(),
+                id: action.id,
+            };
+        case 'TOGGLE_JOB':
+            return {
+                ...state,
+                active: action.id === state.id ? !state.active : state.active
+            };
+        case 'DECREMENT_ID':
+            return {
+                ...state,
+                id: state.id - 1
+            };
+        case 'UPDATE_TEXT_FIELD':
+            if (action.id !== state.id){
+                return state;
+            }
+            let newState = {
+                ...state,
+            };
+            newState[action.field] = action.value;
+            return newState;
+        case 'UPDATE_TRIGGER_FIELD':
+            if (action.id !== state.id){
+                return state;
+            }
+            if (state.triggers.includes(action.value)){
+                return {
+                    ...state,
+                    triggers: state.triggers.replace(action.value, "")
+                }
+            } else {
+                return {
+                    ...state,
+                    triggers: state.triggers + action.value
+                }
+            }
+        default:
+            return state
+    }
+};
+
+const TriggerButton = ({
+                           triggerClass,
+                           description,
+                           triggerId,
+                           triggerText,
+                           id,
+                           jobInfo,
+                           updateTrigger,
+                       }) => {
+    return <a className={triggerClass} href={"#"} title={description}
+              onClick={() => {updateTrigger(id, triggerId)}}>
+        <span className={"aui-lozenge" + (jobInfo.triggers.includes(triggerId) ? " aui-lozenge-success" : "")}>{triggerText}</span>
+    </a>
+};
+
+const OptionalTextField = ({
+                            requiredTriggers,
+                            fieldName,
+                            fieldLabel,
+                            description,
+                            id,
+                            jobInfo,
+                            updateText,
+                           }) => {
+    let display = jobInfo.active && (requiredTriggers.some(trigger => jobInfo.triggers.includes(trigger)));
+    return <div className={"field-group" + (display ? "" : " hidden")}>
+        <label htmlFor={fieldName + "-" + id}>{fieldLabel}</label>
+        <input id={fieldName + "-" + id} className={"text full-width-field"} name={fieldName + "-" + id} type={"text"}
+               value={jobInfo[fieldName]} onChange={(e) => {updateText(id, fieldName, e.target.value)}}/>
+        <div className={"description"}>
+            {description}
+        </div>
+    </div>
+};
+
+const JobContainer = ({
+    jobInfo,
+    id,
+    children,
+    toggleJob,
+    deleteJob,
+    updateText,
+    updateTrigger
+}) => {
+    return <div id={"job-" + id}>
+        <div className={"delete-job inline-button"}>
+            <a href={"#"} title={"Delete job"} onClick={e => {e.preventDefault(); deleteJob(id);}}>
+                <span className={"aui-icon aui-icon-small aui-iconfont-remove"}/>
+            </a>
+        </div>
+        <div className={"toggle-job inline-button"}>
+            <a href="#" title="Toggle job details" onClick={e => {e.preventDefault(); toggleJob(id);}}>
+                <span className={"aui-icon aui-icon-small " + (jobInfo.active ? "aui-iconfont-expanded" : "aui-iconfont-collapsed")}/>
+                {jobInfo.jobName}
+            </a>
+        </div>
+        <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
+            <label htmlFor={"jobName-" + id}>
+                Job Name
+                <span className={"aui-icon icon-required"}/>
+            </label>
+            <input id={"jobName-" + id} className={"text"} name={"jobName-" + id} value={jobInfo.jobName}
+                   type={"text"} onChange={e => {updateText(id, 'jobName', e.target.value)}}/>
+        </div>
+        <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
+            <label htmlFor={"isTag-" + id}>Ref Type</label>
+            <select id={"isTag-" + id} className={"select"} name={"isTag-" + id}
+                    onChange={e => {updateText(id, 'isTag', e.target.value)}}>
+                <option value={false} selected={!jobInfo.isTag}>branch</option>
+                <option value={true} selected={jobInfo.isTag}>tag</option>
+            </select>
+        </div>
+        <fieldset className={"group field-group" + (jobInfo.active ? "" : " hidden") }>
+            <legend><span>Multibranch Pipeline</span></legend>
+            <div className={"checkbox"}>
+                <input id={"isPipeline-" + id} className={"checkbox"} name={"isPipeline-" + id} checked={jobInfo.isPipeline}
+                       type={"checkbox"} onClick={() => {updateText(id, 'isPipeline', !jobInfo.isPipeline)}}/>
+            </div>
+        </fieldset>
+        <div className={"field-group" + (jobInfo.active ? "" : " hidden")}>
+            <label htmlFor={"trigger-buttons-" + id}>
+                Triggers
+                <span className={"aui-icon icon-required"}/>
+            </label>
+            <TriggerButton triggerClass={"branch-created"} description={"Triggers when new branches or tags are created"}
+                           triggerId={"add;"} triggerText={"Ref Created"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+            <TriggerButton triggerClass={"push-event"} description={"Triggers on branch push events"}
+                           triggerId={"push;"} triggerText={"Push Event"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+            <TriggerButton triggerClass={"manual"} description={"Adds a build button to the branch actions menu"}
+                           triggerId={"manual;"} triggerText={"Manual"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+            <TriggerButton triggerClass={"branch-deleted"} description={"Triggers when a branch or tag is deleted"}
+                           triggerId={"delete;"} triggerText={"Ref Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+            <TriggerButton triggerClass={"pr-auto-merged"} description={"Triggers when a branch is merged via Bitbucket's Automatic Merge feature"}
+                           triggerId={"prautomerged;"} triggerText={"Auto Merged"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+            <TriggerButton triggerClass={"pr-opened"} description={"Triggers when a pull request is opened, re-opend, or rescoped"}
+                           triggerId={"pullrequest;"} triggerText={"PR Opened"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+            <TriggerButton triggerClass={"pr-merged"} description={"Triggers when a pull request is merged"}
+                           triggerId={"prmerged;"} triggerText={"PR Merged"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+            <TriggerButton triggerClass={"pr-declined"} description={"Triggers when a pull request is declined"}
+                           triggerId={"prdeclined;"} triggerText={"PR Declined"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+            <TriggerButton triggerClass={"pr-deleted"} description={"Triggers when a pull request is deleted"}
+                           triggerId={"prdeleted;"} triggerText={"PR Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+            <TriggerButton triggerClass={"pr-approved"} description={"Triggers when a pull request is approved"}
+                           triggerId={"prapproved;"} triggerText={"PR Approved"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+        </div>
+        <div className={"field-group hidden"}>
+            <label htmlFor={"triggers-" + id}>Triggers</label>
+            <input id={"triggers-" + id} className={"text"} name={"triggers-" + id}
+                   type={"text"} value={jobInfo.triggers}/>
+        </div>
+        <div className={"field-group" + (jobInfo.active ? "" : " hidden")}>
+            <label htmlFor={"token-" + id}>Token</label>
+            <input id={"token-" + id} className={"text"} name={"token-" + id} value={jobInfo.token}
+                   type={"text"} onChange={e => {updateText(id, 'token', e.target.value)}}/>
+            <div className={"description"}>
+                Trigger builds remotely (e.g., from scripts) or leave blank to use user API token
+            </div>
+        </div>
+        <div className={"field-group" + (jobInfo.active ? "" : " hidden")}>
+            <label htmlFor={"buildParameters-" + id}>Build Parameters</label>
+            <textarea id={"buildParameters-" + id} className={"textarea full-width-field"} name={"buildParameters-" + id}
+                      value={jobInfo.buildParameters} rows={3} onChange={e => {updateText(id, 'buildParameters', e.target.value)}}/>
+            <div className={"description"}>
+                {"Key=Value pairs separated by new line. For choice parameters separate values with a semicolon. " +
+                 "Available Bitbucket variables: $BRANCH, $COMMIT, $REPOSITORY, $PROJECT, $TRIGGER (for PR triggers " +
+                 "also $PRID, $PRTITLE, $PRDESTINATION, $PRAUTHOR, $PRDESCRIPTION, $PRURL, and for PR MERGED triggers " +
+                 "$MERGECOMMIT))"}
+            </div>
+        </div>
+        <OptionalTextField requiredTriggers={['add;', 'delete;', 'push;']} fieldLabel={"Ref Filter"} fieldName={"branchRegex"}
+                           description={"Trigger builds for matched branches or tags (example: \"release.*|hotfix.*|production\"). " +
+                                        "Supported triggers: REF CREATED, PUSH EVENT, REF DELETED"}
+                           id={id} jobInfo={jobInfo} updateText={updateText}/>
+        <OptionalTextField requiredTriggers={['push;', 'pullrequest;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
+                           fieldLabel={"Monitored Paths"} fieldName={"pathRegex"}
+                           description={"Trigger builds if matched files are modified (example: \"directory/.*.txt|foobar/.*\"). " +
+                                        "Supported triggers: PUSH EVENT, PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}
+                           id={id} jobInfo={jobInfo} updateText={updateText}/>
+        <OptionalTextField requiredTriggers={['manual;']} fieldLabel={"Required Build Permission"} fieldName={"requirePermission"}
+                           description={"Only allow users with the given repository permission or higher to trigger this job."}
+                           id={id} jobInfo={jobInfo} updateText={updateText}/>
+        <OptionalTextField requiredTriggers={['pullrequest;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
+                           fieldLabel={"PR Destination Filter"} fieldName={"prDestinationRegex"}
+                           description={"Trigger builds if the pull request destination matches the regex (example: \"release.*|hotfix.*|production\"). " +
+                                        "Supported triggers: PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}
+                           id={id} jobInfo={jobInfo} updateText={updateText}/>
+    </div>
+};
+
+const mapStateToJobContainerProps = (state, ownProps) => {
+    return {
+        jobInfo: state[ownProps.id],
+        id: ownProps.id
+    }
+};
+
+const mapDispatchToJobContainerProps = (dispatch) => {
+    return {
+        toggleJob: (id) => {
+            dispatch({
+                type: 'TOGGLE_JOB',
+                id: id
+            });
+        },
+        deleteJob: (id) => {
+            dispatch({
+                type: 'DELETE_JOB',
+                id: id
+            });
+        },
+        updateText: (id, fieldName, fieldValue) => {
+            dispatch({
+                type: 'UPDATE_TEXT_FIELD',
+                id: id,
+                field: fieldName,
+                value: fieldValue
+            })
+        },
+        updateTrigger: (id, triggerVal) => {
+            dispatch({
+                type: 'UPDATE_TRIGGER_FIELD',
+                id: id,
+                value: triggerVal
+            })
+        }
+    };
+};
+
+export const Job = connect(mapStateToJobContainerProps, mapDispatchToJobContainerProps)(JobContainer);

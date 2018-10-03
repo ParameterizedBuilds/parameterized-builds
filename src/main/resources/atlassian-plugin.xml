@@ -79,7 +79,7 @@
     <description key="parameterized-builds.description">Adds a build hook with customizable parameters for Jenkins</description>
     <icon>images/icon.png</icon>
     <config-form name="Parameterized Build Hook Config" key="parameterized-build-hook-config">
-      <view>com.kylenicholls.stash.parameterizedbuilds.hook.view</view>
+      <view>parameterizedbuilds.view</view>
       <directory location="/static/"/>
     </config-form>
   </repository-hook>

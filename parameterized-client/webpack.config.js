@@ -7,7 +7,7 @@ module.exports = {
       minimize: false
     },
     entry: {
-        'static/parameterized_build_hook': ['./src/parameterized-build-hook.js'],
+        'static/parameterized_build_hook': ['./src/hook/view.js'],
     },
     output: {
         path: path.join(__dirname, '../src/main/resources/'),
@@ -21,7 +21,7 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['babel-preset-env'],
+                        presets: ['@babel/preset-env', '@babel/preset-react'],
                     },
                 },
             },

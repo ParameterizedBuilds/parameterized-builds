@@ -1,8 +1,6 @@
 import * as hook_template from './parameterized-build-hook.soy';
 import $ from "jquery";
 
-let addJob = hook_template.kylenicholls.stash.parameterizedbuilds.hook.addJob;
-
 // create button definitions here
 // button logic is automatically created for all values in triggers
 const triggers =
