@@ -12,21 +12,15 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@atlassian/atlassian-soy-loader": "^2.2.0",
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
-    "babel-core": "^6.26.3",
     "babel-loader": "^8.0.4",
-    "babel-preset-env": "^1.7.0",
     "webpack": "^4.17.1",
     "webpack-cli": "^3.1.0"
   },
   "dependencies": {
-    "@atlassian/aui": "0.0.0-8-0-0-SNAPSHOT-001-issue-AUI-4903-aui-8-release-on-in-bamboo-pbc-test",
-    "jquery": "^3.3.1",
     "react": "^16.5.2",
-    "react-dom": "^16.5.2",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0"
   }
