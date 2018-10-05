@@ -87,6 +87,7 @@ const OptionalTextField = ({
                             description,
                             id,
                             jobInfo,
+                            errors,
                             updateText,
                            }) => {
     let display = jobInfo.active && (requiredTriggers.some(trigger => jobInfo.triggers.includes(trigger)));
@@ -97,11 +98,14 @@ const OptionalTextField = ({
         <div className={"description"}>
             {description}
         </div>
+        {typeof errors[fieldName + "-" + id] !== 'undefined' &&
+            <div className={"error"}>{errors[fieldName + "-" + id]}</div>}
     </div>
 };
 
 const JobContainer = ({
     jobInfo,
+    errors,
     id,
     children,
     toggleJob,
@@ -128,6 +132,8 @@ const JobContainer = ({
             </label>
             <input id={"jobName-" + id} className={"text"} name={"jobName-" + id} value={jobInfo.jobName}
                    type={"text"} onChange={e => {updateText(id, 'jobName', e.target.value)}}/>
+            {typeof errors["jobName-" + id] !== 'undefined' &&
+                <div className={"error"}>{errors["jobName-" + id]}</div>}
         </div>
         <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
             <label htmlFor={"isTag-" + id}>Ref Type</label>
@@ -169,6 +175,8 @@ const JobContainer = ({
                            triggerId={"prdeleted;"} triggerText={"PR Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
             <TriggerButton triggerClass={"pr-approved"} description={"Triggers when a pull request is approved"}
                            triggerId={"prapproved;"} triggerText={"PR Approved"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+            {typeof errors["triggers-" + id] !== 'undefined' &&
+                <div className={"error"}>{errors["triggers-" + id]}</div>}
         </div>
         <div className={"field-group hidden"}>
             <label htmlFor={"triggers-" + id}>Triggers</label>
@@ -197,26 +205,28 @@ const JobContainer = ({
         <OptionalTextField requiredTriggers={['add;', 'delete;', 'push;']} fieldLabel={"Ref Filter"} fieldName={"branchRegex"}
                            description={"Trigger builds for matched branches or tags (example: \"release.*|hotfix.*|production\"). " +
                                         "Supported triggers: REF CREATED, PUSH EVENT, REF DELETED"}
-                           id={id} jobInfo={jobInfo} updateText={updateText}/>
+                           id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
         <OptionalTextField requiredTriggers={['push;', 'pullrequest;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                            fieldLabel={"Monitored Paths"} fieldName={"pathRegex"}
                            description={"Trigger builds if matched files are modified (example: \"directory/.*.txt|foobar/.*\"). " +
                                         "Supported triggers: PUSH EVENT, PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}
-                           id={id} jobInfo={jobInfo} updateText={updateText}/>
+                           id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
         <OptionalTextField requiredTriggers={['manual;']} fieldLabel={"Required Build Permission"} fieldName={"requirePermission"}
                            description={"Only allow users with the given repository permission or higher to trigger this job."}
-                           id={id} jobInfo={jobInfo} updateText={updateText}/>
+                           id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
         <OptionalTextField requiredTriggers={['pullrequest;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                            fieldLabel={"PR Destination Filter"} fieldName={"prDestinationRegex"}
                            description={"Trigger builds if the pull request destination matches the regex (example: \"release.*|hotfix.*|production\"). " +
                                         "Supported triggers: PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}
-                           id={id} jobInfo={jobInfo} updateText={updateText}/>
+                           id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
+        <hr />
     </div>
 };
 
 const mapStateToJobContainerProps = (state, ownProps) => {
     return {
         jobInfo: state[ownProps.id],
+        errors: ownProps.errors,
         id: ownProps.id
     }
 };

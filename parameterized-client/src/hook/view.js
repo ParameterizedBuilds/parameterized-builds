@@ -32,8 +32,6 @@ const createInitialState = (config) => {
 };
 
 const jobs = (state = [], action) => {
-    console.log("current state is:", state);
-    console.log("action is", action);
     switch (action.type) {
         case 'INITIALIZE':
             return createInitialState(action.baseConfig);
@@ -83,19 +81,20 @@ let AddJob = ({ dispatch }) => {
 AddJob = connect()(AddJob);
 
 
-let JobList = ({jobs}) => {
+let JobList = ({jobs, errors}) => {
     return <div>
         {
             jobs.map(job =>
-                <Job id={job.id}/>
+                <Job id={job.id} errors={errors}/>
             )
         }
     </div>
 };
 
-const jobListStateInjector = state => {
+const jobListStateInjector = (state, ownProps) => {
     return {
-        jobs: state
+        jobs: state,
+        errors: ownProps.errors
     }
 };
 JobList = connect(jobListStateInjector)(JobList);
@@ -107,12 +106,12 @@ class App extends React.Component{
 
     render(){
         return <div className={"parameterized-builds"}>
-            {typeof this.props.errors !== 'undefined' && typeof this.props.errors["jenkins-admin-error"] !== 'undefined' &&
+            {typeof this.props.errors["jenkins-admin-error"] !== 'undefined' &&
             <div className="field-group">
                 <div className="error">{this.props.errors['jenkins-admin-error']}</div>
             </div>
             }
-            <JobList />
+            <JobList errors={this.props.errors}/>
             <AddJob />
         </div>
     }
@@ -127,7 +126,7 @@ parameterizedbuilds.view = function({config, errors}) {
     });
 
     return <Provider store={baseStore}>
-            <App errors={errors}/>
+            <App errors={errors || {}}/>
         </Provider>
 
 };
