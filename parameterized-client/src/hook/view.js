@@ -1,73 +1,10 @@
 import { Provider, connect } from 'react-redux';
 import { createStore } from 'redux';
 import React from 'react';
-import {jobState, Job} from "./job";
+import { jobs, addJob } from "./state-reducers";
+import { Job } from "./job";
 
 window.parameterizedbuilds = window.parameterizedbuilds || {};
-
-
-const createInitialState = (config) => {
-    let i = 0;
-    let initialState = [];
-    while (typeof config["jobName-" + i] !== 'undefined'){
-        let newJob = {
-            id: i,
-            active: false,
-            jobName: config["jobName-" + i],
-            isTag: config["isTag-" + i] == 'true',
-            isPipeline: config["isPipeline-" + i],
-            triggers: config["triggers-" + i],
-            token: config["token-" + i],
-            buildParameters: config["buildParameters-" + i],
-            branchRegex: config["branchRegex-" + i],
-            pathRegex: config["pathRegex-" + i],
-            requirePermission: config["requirePermission-" + i],
-            prDestinationRegex: config["prDestinationRegex-" + i],
-        };
-        initialState.push(newJob);
-        i++;
-    }
-    nextJobId = i;
-    return initialState;
-};
-
-const jobs = (state = [], action) => {
-    switch (action.type) {
-        case 'INITIALIZE':
-            return createInitialState(action.baseConfig);
-        case 'ADD_JOB':
-            return [
-                ...state,
-                jobState(undefined, action)
-            ];
-        case 'TOGGLE_JOB':
-            return state.map(t => jobState(t, action));
-        case 'DELETE_JOB':
-            nextJobId--;
-            return [
-                ...state.slice(0, action.id),
-                ...state.slice(action.id + 1).map(t =>
-                    jobState(t, {
-                        ...action,
-                        type: 'DECREMENT_ID'
-                    }))
-            ];
-        case 'UPDATE_TEXT_FIELD':
-            return state.map(t => jobState(t, action));
-        case 'UPDATE_TRIGGER_FIELD':
-            return state.map(t => jobState(t, action));
-        default:
-            return state
-    }
-};
-
-let nextJobId = 0;
-const addJob = () => {
-    return {
-        type: 'ADD_JOB',
-        id: nextJobId++,
-    }
-};
 
 let AddJob = ({ dispatch }) => {
     return (
@@ -100,15 +37,13 @@ const jobListStateInjector = (state, ownProps) => {
 JobList = connect(jobListStateInjector)(JobList);
 
 class App extends React.Component{
-    componentWillUnmount(){
-        nextJobId = 0;
-    }
-
     render(){
         return <div className={"parameterized-builds"}>
             {typeof this.props.errors["jenkins-admin-error"] !== 'undefined' &&
-            <div className="field-group">
-                <div className="error">{this.props.errors['jenkins-admin-error']}</div>
+            <div className="errors-container">
+                <div className={"aui-message aui-message-error"}>
+                    <p>{this.props.errors['jenkins-admin-error']}</p>
+                </div>
             </div>
             }
             <JobList errors={this.props.errors}/>

@@ -1,68 +1,27 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-
-const getInitialState = () => {
-    return {
-        id: null,
-        active: true,
-        jobName: "",
-        isTag: false,
-        isPipeline: false,
-        triggers: "",
-        token: "",
-        buildParameters: "",
-        branchRegex: "",
-        pathRegex: "",
-        requirePermission: "",
-        prDestinationRegex: "",
-    }
-};
-
-export const jobState = (state=getInitialState(), action) => {
-    switch (action.type) {
-        case 'ADD_JOB':
-            return {
-                ...getInitialState(),
-                id: action.id,
-            };
-        case 'TOGGLE_JOB':
-            return {
-                ...state,
-                active: action.id === state.id ? !state.active : state.active
-            };
-        case 'DECREMENT_ID':
-            return {
-                ...state,
-                id: state.id - 1
-            };
-        case 'UPDATE_TEXT_FIELD':
-            if (action.id !== state.id){
-                return state;
-            }
-            let newState = {
-                ...state,
-            };
-            newState[action.field] = action.value;
-            return newState;
-        case 'UPDATE_TRIGGER_FIELD':
-            if (action.id !== state.id){
-                return state;
-            }
-            if (state.triggers.includes(action.value)){
-                return {
-                    ...state,
-                    triggers: state.triggers.replace(action.value, "")
-                }
-            } else {
-                return {
-                    ...state,
-                    triggers: state.triggers + action.value
-                }
-            }
-        default:
-            return state
-    }
+const GenericField = ({
+                        jobInfo,
+                        id,
+                        errors,
+                        updateText,
+                        fieldName,
+                        fieldLabel,
+                        required,
+                        description = ""
+                      }) => {
+    return <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
+        <label htmlFor={fieldName + "-" + id}>
+            {fieldLabel}
+            {required && <span className={"aui-icon icon-required"}/>}
+        </label>
+        <input id={fieldName + "-" + id} className={"text"} name={fieldName + "-" + id} value={jobInfo[fieldName]}
+               type={"text"} onChange={e => {updateText(id, fieldName, e.target.value)}}/>
+        {description.length > 0 && <div className={"description"}>{description}</div>}
+        {typeof errors[fieldName + "-" + id] !== 'undefined' &&
+        <div className={"error"}>{errors[fieldName + "-" + id]}</div>}
+    </div>
 };
 
 const TriggerButton = ({
@@ -125,22 +84,13 @@ const JobContainer = ({
                 {jobInfo.jobName}
             </a>
         </div>
-        <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
-            <label htmlFor={"jobName-" + id}>
-                Job Name
-                <span className={"aui-icon icon-required"}/>
-            </label>
-            <input id={"jobName-" + id} className={"text"} name={"jobName-" + id} value={jobInfo.jobName}
-                   type={"text"} onChange={e => {updateText(id, 'jobName', e.target.value)}}/>
-            {typeof errors["jobName-" + id] !== 'undefined' &&
-                <div className={"error"}>{errors["jobName-" + id]}</div>}
-        </div>
+        <GenericField jobInfo={jobInfo}  id={id} errors={errors} updateText={updateText} fieldName={"jobName"} fieldLabel={"Job Name"} required={true}/>
         <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
             <label htmlFor={"isTag-" + id}>Ref Type</label>
-            <select id={"isTag-" + id} className={"select"} name={"isTag-" + id}
+            <select id={"isTag-" + id} className={"select"} name={"isTag-" + id} value={jobInfo.isTag}
                     onChange={e => {updateText(id, 'isTag', e.target.value)}}>
-                <option value={false} selected={!jobInfo.isTag}>branch</option>
-                <option value={true} selected={jobInfo.isTag}>tag</option>
+                <option value={false}>branch</option>
+                <option value={true}>tag</option>
             </select>
         </div>
         <fieldset className={"group field-group" + (jobInfo.active ? "" : " hidden") }>
@@ -165,7 +115,7 @@ const JobContainer = ({
                            triggerId={"delete;"} triggerText={"Ref Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
             <TriggerButton triggerClass={"pr-auto-merged"} description={"Triggers when a branch is merged via Bitbucket's Automatic Merge feature"}
                            triggerId={"prautomerged;"} triggerText={"Auto Merged"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
-            <TriggerButton triggerClass={"pr-opened"} description={"Triggers when a pull request is opened, re-opend, or rescoped"}
+            <TriggerButton triggerClass={"pr-opened"} description={"Triggers when a pull request is opened, re-opened, or rescoped"}
                            triggerId={"pullrequest;"} triggerText={"PR Opened"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
             <TriggerButton triggerClass={"pr-merged"} description={"Triggers when a pull request is merged"}
                            triggerId={"prmerged;"} triggerText={"PR Merged"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
@@ -183,14 +133,8 @@ const JobContainer = ({
             <input id={"triggers-" + id} className={"text"} name={"triggers-" + id}
                    type={"text"} value={jobInfo.triggers}/>
         </div>
-        <div className={"field-group" + (jobInfo.active ? "" : " hidden")}>
-            <label htmlFor={"token-" + id}>Token</label>
-            <input id={"token-" + id} className={"text"} name={"token-" + id} value={jobInfo.token}
-                   type={"text"} onChange={e => {updateText(id, 'token', e.target.value)}}/>
-            <div className={"description"}>
-                Trigger builds remotely (e.g., from scripts) or leave blank to use user API token
-            </div>
-        </div>
+        <GenericField jobInfo={jobInfo} id={id} errors={errors} updateText={updateText} fieldName={"token"} fieldLabel={"Token"} required={false}
+            description={"Trigger builds remotely (e.g., from scripts) or leave blank to use user API token"}/>
         <div className={"field-group" + (jobInfo.active ? "" : " hidden")}>
             <label htmlFor={"buildParameters-" + id}>Build Parameters</label>
             <textarea id={"buildParameters-" + id} className={"textarea full-width-field"} name={"buildParameters-" + id}
@@ -211,9 +155,20 @@ const JobContainer = ({
                            description={"Trigger builds if matched files are modified (example: \"directory/.*.txt|foobar/.*\"). " +
                                         "Supported triggers: PUSH EVENT, PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}
                            id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
-        <OptionalTextField requiredTriggers={['manual;']} fieldLabel={"Required Build Permission"} fieldName={"requirePermission"}
-                           description={"Only allow users with the given repository permission or higher to trigger this job."}
-                           id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
+        <div className={"field-group" + (jobInfo.active && jobInfo.triggers.includes('manual;') ? "" : " hidden")}>
+            <label htmlFor={"requirePermission-" + id}>Required Build Permission</label>
+            <select id={"requirePermission-" + id} className={"select"} name={"requirePermission-" + id}
+                   value={jobInfo.requirePermission} onChange={(e) => {updateText(id, "requirePermission", e.target.value)}}>
+                <option value={"REPO_READ"}>Read</option>
+                <option value={"REPO_WRITE"}>Write</option>
+                <option value={"REPO_ADMIN"}>Admin</option>
+            </select>
+            <div className={"description"}>
+                Only allow users with the given repository permission or higher to trigger this job.
+            </div>
+            {typeof errors["requirePermission-" + id] !== 'undefined' &&
+                <div className={"error"}>{errors["requirePermission-" + id]}</div>}
+        </div>
         <OptionalTextField requiredTriggers={['pullrequest;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                            fieldLabel={"PR Destination Filter"} fieldName={"prDestinationRegex"}
                            description={"Trigger builds if the pull request destination matches the regex (example: \"release.*|hotfix.*|production\"). " +
