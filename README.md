@@ -16,7 +16,7 @@ or per project on the project settings page.
 * `Default User` and `Default Token` are optional and used as a fall back 
 authentication for triggering jobs
 * [Build Token Root Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Build+Token+Root+Plugin) 
-uses an alternate alternate address for triggering builds anonymously 
+uses an alternate address for triggering builds anonymously 
  * enable this only if you have this plugin installed in Jenkins
 
 #### Define a job
