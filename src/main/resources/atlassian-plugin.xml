@@ -120,7 +120,7 @@
     <tooltip>Build branch in Jenkins</tooltip>
     <styleClass>parameterized-build-layout</styleClass>
     <dependency>${project.groupId}.${project.artifactId}:pb-blayout-trigger-resource</dependency>
-    <client-condition>function(ctx) { return ctx.atRevisionRef.type.id === 'branch'}</client-condition>
+    <client-condition>function(ctx) { return ctx.atRevisionRef.type.id === 'branch' || ctx.atRevisionRef.type.id === 'tag'}</client-condition>
     <resource name="view" type="soy" location="${project.groupId}.${project.artifactId}:trigger-jenkins/com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.dialogContent"/>
     <conditions type="AND">
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>
