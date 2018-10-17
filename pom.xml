@@ -185,11 +185,48 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.4.0</version>
+				<executions>
+					<execution>
+						<id>exec-npm-install</id>
+						<phase>initialize</phase>
+						<configuration>
+							<workingDirectory>./parameterized-client</workingDirectory>
+							<executable>npm</executable>
+							<arguments>
+								<argument>install</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>exec-npm-build</id>
+						<phase>generate-resources</phase>
+						<configuration>
+							<workingDirectory>./parameterized-client</workingDirectory>
+							<executable>npm</executable>
+							<arguments>
+								<argument>run</argument>
+								<argument>prod-build</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>com.atlassian.maven.plugins</groupId>
 				<artifactId>bitbucket-maven-plugin</artifactId>
 				<version>${amps.version}</version>
 				<extensions>true</extensions>
 				<configuration>
+					<compressResources>false</compressResources>
 					<products>
 						<product>
 							<id>bitbucket</id>
