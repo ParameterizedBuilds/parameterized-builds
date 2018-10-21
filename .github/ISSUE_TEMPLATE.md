@@ -1,10 +1,10 @@
 Issues usually fall in one of three categories: questions, bugs, or enhancement requests
 
-###Questions
+### Questions
 
 Questions should be directed to our [Gitter](https://gitter.im/parameterized-builds/Lobby) first.
 
-###Bugs
+### Bugs
 
 Bug reports should include the following information:
 
@@ -21,7 +21,7 @@ pop-up on Bitbucket 5.4.0, plug-in version 3.2.4, and Jenkins 2.70" is much easi
 Bugs that do not provide enough information may be closed with the "can't reproduce" label.
 
 
-###Enhancement Requests
+### Enhancement Requests
 
 Enhancement requests are highly encouraged and should follow these guidelines:
 
