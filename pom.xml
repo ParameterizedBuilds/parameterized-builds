@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.kylenicholls.stash</groupId>
 	<artifactId>parameterized-builds</artifactId>
-	<version>3.2.6</version>
+	<version>3.2.7</version>
 
 	<organization>
 		<name>Kyle Nicholls</name>

@@ -25,7 +25,9 @@ uses an alternate address for triggering builds anonymously
 Enable Parameterized Builds for Jenkins under the hooks settings for a repository.  
 You can add as many jobs as you want (within reason), 
 they will be triggered in the order they are added.
-* `Job Name`
+* `Job Name` is the name of the jenkins job to trigger. If the job is contained in a
+ [folder](https://wiki.jenkins.io/display/JENKINS/CloudBees+Folders+Plugin) set the job name as
+ _folderName_/job/_jobName_.
 * `Ref Type` will apply your triggers to either branch operations or tag operations
 * [Multibranch Pipeline](#multibranch-pipeline-setup) should only be used to trigger jenkins multibranch pipelines
 * [Triggers](#triggers)
