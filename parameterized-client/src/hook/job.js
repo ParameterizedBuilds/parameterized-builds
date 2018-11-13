@@ -122,16 +122,22 @@ const JobContainer = ({
                                triggerId={"delete;"} triggerText={"Ref Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 <TriggerButton triggerClass={"pr-auto-merged"} description={"Triggers when a branch is merged via Bitbucket's Automatic Merge feature"}
                                triggerId={"prautomerged;"} triggerText={"Auto Merged"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
-                <TriggerButton triggerClass={"pr-opened"} description={"Triggers when a pull request is opened, re-opened, or rescoped"}
-                               triggerId={"pullrequest;"} triggerText={"PR Opened"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+                <TriggerButton triggerClass={"pr-opened"} description={"Triggers when a pull request is opened"}
+                               triggerId={"propened;"} triggerText={"PR Opened"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+                <TriggerButton triggerClass={"pr-reopened"} description={"Triggers when a pull request is re-opened"}
+                               triggerId={"prreopened;"} triggerText={"PR Reopened"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+                <TriggerButton triggerClass={"pr-source-rescoped"} description={"Triggers when a pull request is rescoped on source branch"}
+                               triggerId={"prsourcerescoped;"} triggerText={"PR source rescoped"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+                <TriggerButton triggerClass={"pr-dest-rescoped"} description={"Triggers when a pull request is rescoped on destination branch"}
+                               triggerId={"prdestrescoped;"} triggerText={"PR dest rescoped"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
                 <TriggerButton triggerClass={"pr-merged"} description={"Triggers when a pull request is merged"}
                                triggerId={"prmerged;"} triggerText={"PR Merged"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 <TriggerButton triggerClass={"pr-declined"} description={"Triggers when a pull request is declined"}
                                triggerId={"prdeclined;"} triggerText={"PR Declined"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 <TriggerButton triggerClass={"pr-deleted"} description={"Triggers when a pull request is deleted"}
-                               triggerId={"prdeleted;"} triggerText={"PR Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+                               triggerId={"prdeleted;"} triggerText={"PR Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
                 <TriggerButton triggerClass={"pr-approved"} description={"Triggers when a pull request is approved"}
-                               triggerId={"prapproved;"} triggerText={"PR Approved"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+                               triggerId={"prapproved;"} triggerText={"PR Approved"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 {typeof errors["triggers-" + id] !== 'undefined' &&
                     <div className={"error"}>{errors["triggers-" + id]}</div>}
             </div>
@@ -157,7 +163,7 @@ const JobContainer = ({
                                description={"Trigger builds for matched branches or tags (example: \"release.*|hotfix.*|production\"). " +
                                             "Supported triggers: REF CREATED, PUSH EVENT, REF DELETED"}
                                id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
-            <OptionalTextField requiredTriggers={['push;', 'pullrequest;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
+            <OptionalTextField requiredTriggers={['push;', 'pullrequest;', 'prreopened;', 'prsourcerescoped;', 'prdestrescoped;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                                fieldLabel={"Monitored Paths"} fieldName={"pathRegex"}
                                description={"Trigger builds if matched files are modified (example: \"directory/.*.txt|foobar/.*\"). " +
                                             "Supported triggers: PUSH EVENT, PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}
@@ -176,7 +182,7 @@ const JobContainer = ({
                 {typeof errors["requirePermission-" + id] !== 'undefined' &&
                     <div className={"error"}>{errors["requirePermission-" + id]}</div>}
             </div>
-            <OptionalTextField requiredTriggers={['pullrequest;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
+            <OptionalTextField requiredTriggers={['pullrequest;', 'prreopened;', 'prsourcerescoped;', 'prdestrescoped;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                                fieldLabel={"PR Destination Filter"} fieldName={"prDestinationRegex"}
                                description={"Trigger builds if the pull request destination matches the regex (example: \"release.*|hotfix.*|production\"). " +
                                             "Supported triggers: PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}

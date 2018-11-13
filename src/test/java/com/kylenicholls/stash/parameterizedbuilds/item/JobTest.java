@@ -365,7 +365,7 @@ public class JobTest {
 
 	@Test
 	public void testTriggerIsNotRefChange() {
-		assertFalse(Trigger.PULLREQUEST.isRefChange());
+		assertFalse(Trigger.PROPENED.isRefChange());
 		assertFalse(Trigger.PRMERGED.isRefChange());
 		assertFalse(Trigger.PRDECLINED.isRefChange());
 		assertFalse(Trigger.PRDELETED.isRefChange());

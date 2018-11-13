@@ -289,20 +289,24 @@ public class Job {
 	}
 
 	public enum Trigger {
-		ADD, PUSH, PULLREQUEST, MANUAL, DELETE, PRMERGED, PRAUTOMERGED, PRDECLINED, PRDELETED, PRAPPROVED, NULL;
+		ADD, PUSH, PROPENED, MANUAL, DELETE, PRMERGED, PRAUTOMERGED, PRDECLINED, PRDELETED, PRAPPROVED,
+		PRREOPENED, PRDESTRESCOPED, PRSOURCERESCOPED, NULL;
 
 		@Override
 		public String toString() {
 			switch(this) {
 				case ADD: return "REF CREATED";
 				case PUSH: return "PUSH EVENT";
-				case PULLREQUEST: return "PR OPENED";
+				case PROPENED: return "PR OPENED";
 				case DELETE: return "REF DELETED";
 				case PRMERGED: return "PR MERGED";
 				case PRAUTOMERGED: return "AUTO MERGED";
 				case PRDECLINED: return "PR DECLINED";
 				case PRDELETED: return "PR DELETED";
 				case PRAPPROVED: return "PR APPROVED";
+				case PRSOURCERESCOPED: return "PR SOURCE RESCOPED";
+				case PRDESTRESCOPED: return "PR DEST RESCOPED";
+				case PRREOPENED: return "PR REOPENED";
 				default: return super.toString();
 			}
 		}
@@ -315,13 +319,16 @@ public class Job {
 			switch(toString) {
 				case "REF CREATED": return ADD;
 				case "PUSH EVENT": return PUSH;
-				case "PR OPENED": return PULLREQUEST;
+				case "PR OPENED": return PROPENED;
 				case "REF DELETED": return DELETE;
 				case "PR MERGED": return PRMERGED;
 				case "AUTO MERGED": return PRAUTOMERGED;
 				case "PR DECLINED": return PRDECLINED;
 				case "PR DELETED": return PRDELETED;
 				case "PR APPROVED": return PRAPPROVED;
+				case "PR DEST RESCOPED": return PRDESTRESCOPED;
+				case "PR SOURCE RESCOPED": return PRSOURCERESCOPED;
+				case "PR REOPENED": return PRREOPENED;
 				default: return NULL;
 			}
 		}

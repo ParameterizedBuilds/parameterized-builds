@@ -44,17 +44,19 @@ public class PullRequestHook {
 
 	@EventListener
 	public void onPullRequestReOpened(PullRequestReopenedEvent event) throws IOException {
-		runHandler(new PROpenedHandler(settingsService, pullRequestService, jenkins, event, url));
+		runHandler(new PRReopenedHandler(settingsService, pullRequestService, jenkins, event, url));
 	}
 
 	@EventListener
 	public void onPullRequestRescoped(PullRequestRescopedEvent event) throws IOException {
 		PullRequest pullRequest = event.getPullRequest();
 		// Rescoped event is triggered if the source OR destination branch is
-		// updated. We only want to trigger builds if the source commit hash
-		// changes
-		if (!event.getPreviousFromHash().equals(pullRequest.getFromRef().getLatestCommit())) {
-			runHandler(new PROpenedHandler(settingsService, pullRequestService, jenkins, event, url));
+		// updated. If last and current hash on source branch is equal, we assume destination branch
+		// has changed
+		if (event.getPreviousFromHash().equals(pullRequest.getFromRef().getLatestCommit())) {
+			runHandler(new PRDestRescopedHandler(settingsService, pullRequestService, jenkins, event, url));
+		} else {
+			runHandler(new PRSourceRescopedHandler(settingsService, pullRequestService, jenkins, event, url));
 		}
 	}
 
