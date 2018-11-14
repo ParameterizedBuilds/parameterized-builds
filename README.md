@@ -17,7 +17,8 @@ or per project on the project settings page.
 authentication for triggering jobs
 * [Build Token Root Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Build+Token+Root+Plugin) 
 uses an alternate address for triggering builds anonymously 
- * enable this only if you have this plugin installed in Jenkins
+* CSRF: Enable this if your Jenkins is CSRF protected
+* enable this only if you have this plugin installed in Jenkins
 
 #### Define a job
 ![Jenkins hook settings](readme/img/jenkins_hook2.png)  
@@ -85,8 +86,15 @@ You can use any combination of triggers.
   * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
 * `PR OPENED`
   * triggers a build for pull request creation events
+  * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+* `PR REOPENED`  
   * triggers a build if the pull request is re-opened
-  * triggers a build if the pull request is pushed to
+  * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+* `PR SOURCE RESCOPED`  
+  * triggers a build if changes are pushed to the source branch (e.g. "feature/yourfeature")
+  * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
+* `PR DEST RESCOPED`  
+  * triggers a build if changes are pushed to the destination branch (e.g. "master")
   * the files modified in the PR must match the `Monitored Paths` parameter (leave blank to match all)
 * `PR MERGED`
   * triggers a build for pull request merge events

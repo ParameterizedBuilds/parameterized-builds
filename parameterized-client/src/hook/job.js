@@ -127,15 +127,15 @@ const JobContainer = ({
                 <TriggerButton triggerClass={"pr-reopened"} description={"Triggers when a pull request is re-opened"}
                                triggerId={"prreopened;"} triggerText={"PR Reopened"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 <TriggerButton triggerClass={"pr-source-rescoped"} description={"Triggers when a pull request is rescoped on source branch"}
-                               triggerId={"prsourcerescoped;"} triggerText={"PR source rescoped"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+                               triggerId={"prsourcerescoped;"} triggerText={"PR source rescoped"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
                 <TriggerButton triggerClass={"pr-dest-rescoped"} description={"Triggers when a pull request is rescoped on destination branch"}
-                               triggerId={"prdestrescoped;"} triggerText={"PR dest rescoped"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+                               triggerId={"prdestrescoped;"} triggerText={"PR dest rescoped"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 <TriggerButton triggerClass={"pr-merged"} description={"Triggers when a pull request is merged"}
                                triggerId={"prmerged;"} triggerText={"PR Merged"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 <TriggerButton triggerClass={"pr-declined"} description={"Triggers when a pull request is declined"}
-                               triggerId={"prdeclined;"} triggerText={"PR Declined"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
+                               triggerId={"prdeclined;"} triggerText={"PR Declined"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
                 <TriggerButton triggerClass={"pr-deleted"} description={"Triggers when a pull request is deleted"}
-                               triggerId={"prdeleted;"} triggerText={"PR Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/><br/>
+                               triggerId={"prdeleted;"} triggerText={"PR Deleted"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 <TriggerButton triggerClass={"pr-approved"} description={"Triggers when a pull request is approved"}
                                triggerId={"prapproved;"} triggerText={"PR Approved"} id={id} jobInfo={jobInfo} updateTrigger={updateTrigger}/>&nbsp;
                 {typeof errors["triggers-" + id] !== 'undefined' &&
@@ -166,7 +166,7 @@ const JobContainer = ({
             <OptionalTextField requiredTriggers={['push;', 'pullrequest;', 'prreopened;', 'prsourcerescoped;', 'prdestrescoped;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                                fieldLabel={"Monitored Paths"} fieldName={"pathRegex"}
                                description={"Trigger builds if matched files are modified (example: \"directory/.*.txt|foobar/.*\"). " +
-                                            "Supported triggers: PUSH EVENT, PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}
+                                            "Supported triggers: PUSH EVENT, PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED"}
                                id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
             <div className={"field-group" + (jobInfo.active && jobInfo.triggers.includes('manual;') ? "" : " hidden")}>
                 <label htmlFor={"requirePermission-" + id}>Required Build Permission</label>
@@ -185,7 +185,7 @@ const JobContainer = ({
             <OptionalTextField requiredTriggers={['pullrequest;', 'prreopened;', 'prsourcerescoped;', 'prdestrescoped;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                                fieldLabel={"PR Destination Filter"} fieldName={"prDestinationRegex"}
                                description={"Trigger builds if the pull request destination matches the regex (example: \"release.*|hotfix.*|production\"). " +
-                                            "Supported triggers: PR OPENED, PR MERGED, PR DECLINED, PR DELETED"}
+                                            "Supported triggers: PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED"}
                                id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
             <hr />
         </div>
