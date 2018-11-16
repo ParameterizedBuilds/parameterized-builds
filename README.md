@@ -15,10 +15,9 @@ or per project on the project settings page.
 * `Base URL` should be the http/https root address to you jenkins server
 * `Default User` and `Default Token` are optional and used as a fall back 
 authentication for triggering jobs
-* [Build Token Root Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Build+Token+Root+Plugin) 
-uses an alternate address for triggering builds anonymously 
-* CSRF: Enable this if your Jenkins is CSRF protected
-* enable this only if you have this plugin installed in Jenkins
+* `Build Token Root Plugin` 
+uses an alternate address for triggering builds anonymously. Enable this only if you have the [Build Token Root Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Build+Token+Root+Plugin) installed in Jenkins 
+* `CSRF` if your Jenkins is [CSRF](https://wiki.jenkins.io/display/JENKINS/CSRF+Protection) protected, enable this option
 
 #### Define a job
 ![Jenkins hook settings](readme/img/jenkins_hook2.png)  

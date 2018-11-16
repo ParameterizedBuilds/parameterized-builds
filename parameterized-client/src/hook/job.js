@@ -163,7 +163,7 @@ const JobContainer = ({
                                description={"Trigger builds for matched branches or tags (example: \"release.*|hotfix.*|production\"). " +
                                             "Supported triggers: REF CREATED, PUSH EVENT, REF DELETED"}
                                id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
-            <OptionalTextField requiredTriggers={['push;', 'pullrequest;', 'prreopened;', 'prsourcerescoped;', 'prdestrescoped;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
+            <OptionalTextField requiredTriggers={['push;', 'propened;', 'prreopened;', 'prsourcerescoped;', 'prdestrescoped;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                                fieldLabel={"Monitored Paths"} fieldName={"pathRegex"}
                                description={"Trigger builds if matched files are modified (example: \"directory/.*.txt|foobar/.*\"). " +
                                             "Supported triggers: PUSH EVENT, PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED"}
@@ -182,7 +182,7 @@ const JobContainer = ({
                 {typeof errors["requirePermission-" + id] !== 'undefined' &&
                     <div className={"error"}>{errors["requirePermission-" + id]}</div>}
             </div>
-            <OptionalTextField requiredTriggers={['pullrequest;', 'prreopened;', 'prsourcerescoped;', 'prdestrescoped;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
+            <OptionalTextField requiredTriggers={['propened;', 'prreopened;', 'prsourcerescoped;', 'prdestrescoped;', 'prmerged;', 'prdeclined;', 'prdeleted;']}
                                fieldLabel={"PR Destination Filter"} fieldName={"prDestinationRegex"}
                                description={"Trigger builds if the pull request destination matches the regex (example: \"release.*|hotfix.*|production\"). " +
                                             "Supported triggers: PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED"}
