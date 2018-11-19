@@ -92,6 +92,7 @@ public class SettingsService {
 								parameterMap, false))
 						.triggers(parameterMap
 								.get(entry.getKey().replace(JOB_PREFIX, TRIGGER_PREFIX)).toString()
+								.replace("pullrequest;", "propened;prreopened;prsourcerescoped;")
 								.split(";"))
 						.buildParameters(parameterMap
 								.get(entry.getKey().replace(JOB_PREFIX, PARAM_PREFIX)).toString())

@@ -134,4 +134,23 @@ public class SettingsServiceTest {
 
 		assertTrue(jobs.get(0).getIsPipeline());
 	}
+
+	@Test
+	public void testGetJobWithOldPullrequestOpenTrigger() {
+		Map<String, Object> jobConfig = new HashMap<>();
+		jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
+		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "pullrequest;");
+		jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
+		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
+		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
+		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+		List<Job> jobs = settingsService.getJobs(jobConfig);
+
+		assertTrue(jobs.get(0).getTriggers().contains(Trigger.PROPENED));
+		assertTrue(jobs.get(0).getTriggers().contains(Trigger.PRREOPENED));
+		assertTrue(jobs.get(0).getTriggers().contains(Trigger.PRSOURCERESCOPED));
+	}
+
 }

@@ -82,7 +82,7 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPRSourceRescopedTriggersBuild() throws IOException {
-		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
+		Job job = jobBuilder.triggers(new String[] { "PRSOURCERESCOPED" }).build();
 		jobs.add(job);
 		PullRequestRescopedEvent rescopedEvent = eventFactory.getMockedRescopedEvent(repository);
 		when(rescopedEvent.getPreviousFromHash()).thenReturn("newhash");
@@ -94,12 +94,12 @@ public class PullRequestHookTest {
 
 	@Test
 	public void testPRDestRescopedDoesntTriggerBuild() throws IOException {
-		Job job = jobBuilder.triggers(new String[] { "PULLREQUEST" }).build();
+		Job job = jobBuilder.triggers(new String[] { "PRDESTRESCOPED" }).build();
 		jobs.add(job);
 		PullRequestRescopedEvent rescopedEvent = eventFactory.getMockedRescopedEvent(repository);
 		when(rescopedEvent.getPreviousFromHash()).thenReturn(COMMIT);
 		hook.onPullRequestRescoped(rescopedEvent);
 
-		verify(jenkins, times(0)).triggerJob(any(), any(), any(), any());
+		verify(jenkins, times(1)).triggerJob(any(), any(), any(), any());
 	}
 }

@@ -48,13 +48,6 @@
     <context>bitbucket.page.pullRequest.view</context>
   </web-resource>
 
-  <!-- Pullrequest condition resource -->
-  <web-resource key="pb-pr-condition-resource">
-    <resource type="download" name="pb-pr-conditions.js" location="/scripts/jenkins/pb-pr-conditions.js"/>
-    <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
-    <context>bitbucket.page.pullRequest.view</context>
-  </web-resource>
-  
   <!-- Layout trigger button resource -->
   <web-resource key="pb-blayout-trigger-resource" name="Jenkins branch build layout resource">
     <resource name="pb-blayout-trigger.js" type="download" location="/scripts/jenkins/pb-blayout-trigger.js"/>

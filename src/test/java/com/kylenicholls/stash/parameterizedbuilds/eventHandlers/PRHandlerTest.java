@@ -123,7 +123,7 @@ public class PRHandlerTest {
         Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
         jobs.add(job);
         PullRequestOpenedEvent openedEvent = eventFactory.getMockedOpenedEvent(repository);
-        PRHandler handler = new PRHandler(settingsService, pullRequestService, jenkins, openedEvent, PR_URL, Job.Trigger.PULLREQUEST);
+        PRHandler handler = new PRHandler(settingsService, pullRequestService, jenkins, openedEvent, PR_URL, Job.Trigger.PROPENED);
         PRHandler spyHandler = spy(handler);
         spyHandler.run();
 

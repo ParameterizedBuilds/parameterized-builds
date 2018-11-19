@@ -79,6 +79,9 @@ const createInitialState = (config) => {
             requirePermission: config["requirePermission-" + i],
             prDestinationRegex: config["prDestinationRegex-" + i],
         };
+        if(newJob.triggers !== null) {
+            newJob.triggers = newJob.triggers.replace('pullrequest;', 'propened;prreopened;prsourcerescoped;');
+        }
         initialState.push(newJob);
         i++;
     }
