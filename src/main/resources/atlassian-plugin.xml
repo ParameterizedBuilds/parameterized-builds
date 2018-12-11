@@ -8,6 +8,7 @@
     <param name="plugin-icon">images/icon.png</param>
     <param name="plugin-logo">images/icon.png</param>
     <param name="atlassian-data-center-compatible">true</param>
+    <param name="atlassian-data-center-status">compatible</param>
   </plugin-info>
   
   <!-- add our i18n resource -->
