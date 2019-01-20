@@ -30,6 +30,7 @@ import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
+import com.google.common.collect.Lists;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -37,6 +38,7 @@ import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables.Builder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
 
 @Path(ResourcePatterns.REPOSITORY_URI)
@@ -104,6 +106,24 @@ public class BuildResource extends RestResource {
 			}
 		}
 		return Response.status(Response.Status.FORBIDDEN).build();
+	}
+
+	@GET
+	@Path(value = "getJenkinsServers")
+	public Response getJenkinsServers(@Context final Repository repository){
+		if (authContext.isAuthenticated()) {
+			String projectKey = repository.getProject().getKey();
+			String projectServer = Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
+					.map(Server::getBaseUrl).orElse("");
+			String globalServer = Optional.ofNullable(jenkins.getJenkinsServer())
+					.map(Server::getBaseUrl).orElse("");
+			Map<String, String> data = new HashMap<>();
+			data.put("global", globalServer);
+			data.put("project", projectServer);
+			return Response.ok(data).build();
+		} else {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
 	}
 
 	@GET
