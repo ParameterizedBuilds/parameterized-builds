@@ -22,6 +22,7 @@ public class SettingsService {
 	private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 	private static final String KEY = "com.kylenicholls.stash.parameterized-builds:parameterized-build-hook";
 	public static final String JOB_PREFIX = "jobName-";
+	public static final String SERVER_PREFIX = "jenkinsServer-";
 	public static final String ISTAG_PREFIX = "isTag-";
 	public static final String TRIGGER_PREFIX = "triggers-";
 	public static final String TOKEN_PREFIX = "token-";
@@ -88,6 +89,8 @@ public class SettingsService {
 		for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
 			if (entry.getKey().startsWith(JOB_PREFIX)) {
 				Job job = new Job.JobBuilder(jobsList.size()).jobName(entry.getValue().toString())
+						.jenkinsServer(fetchValue(entry.getKey().replace(JOB_PREFIX, SERVER_PREFIX),
+								parameterMap, ""))
 						.isTag(fetchValue(entry.getKey().replace(JOB_PREFIX, ISTAG_PREFIX),
 								parameterMap, false))
 						.triggers(parameterMap

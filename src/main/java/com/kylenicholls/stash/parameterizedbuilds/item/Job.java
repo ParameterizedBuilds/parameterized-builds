@@ -17,6 +17,7 @@ public class Job {
 	private static final Logger logger = LoggerFactory.getLogger(Job.class);
 	private final int jobId;
 	private final String jobName;
+	private final String jenkinsServer;
 	private final boolean isTag;
 	private final List<Trigger> triggers;
 	private final String token;
@@ -30,6 +31,7 @@ public class Job {
 	private Job(JobBuilder builder) {
 		this.jobId = builder.jobId;
 		this.jobName = builder.jobName;
+		this.jenkinsServer = builder.jenkinsServer;
 		this.isTag = builder.isTag;
 		this.triggers = builder.triggers;
 		this.token = builder.token;
@@ -107,6 +109,7 @@ public class Job {
 	public static class JobBuilder {
 		private final int jobId;
 		private String jobName;
+		private String jenkinsServer;
 		private boolean isTag;
 		private List<Trigger> triggers;
 		private String token;
@@ -123,6 +126,11 @@ public class Job {
 
 		public JobBuilder jobName(String jobName) {
 			this.jobName = jobName;
+			return this;
+		}
+
+		public JobBuilder jenkinsServer(String jenkinsServer){
+			this.jenkinsServer = jenkinsServer;
 			return this;
 		}
 
@@ -221,9 +229,9 @@ public class Job {
 	}
 
 	public JobBuilder copy(){
-		return new JobBuilder(jobId).jobName(jobName).isTag(isTag).triggers(triggers).token(token)
-				.buildParameters(buildParameters).branchRegex(branchRegex).pathRegex(pathRegex).permissions(permissions)
-				.prDestRegex(prDestRegex).isPipeline(isPipeline);
+		return new JobBuilder(jobId).jobName(jobName).jenkinsServer(jenkinsServer).isTag(isTag).triggers(triggers)
+				.token(token).buildParameters(buildParameters).branchRegex(branchRegex).pathRegex(pathRegex)
+				.permissions(permissions).prDestRegex(prDestRegex).isPipeline(isPipeline);
 	}
 
 	public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,
