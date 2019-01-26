@@ -3,7 +3,7 @@ const getInitialState = () => {
         id: null,
         active: true,
         jobName: "",
-        jenkinsServers: null,
+        jenkinsServer: null,
         isTag: false,
         isPipeline: false,
         triggers: "",
@@ -57,11 +57,6 @@ const jobState = (state=getInitialState(), action) => {
                     triggers: state.triggers + action.value
                 }
             }
-        case 'UPDATE_JENKINS_SERVERS':
-            return {
-                ...state,
-                jenkinsServers: action.servers
-            }
         default:
             return state
     }
@@ -75,7 +70,7 @@ const createInitialState = (config) => {
             id: i,
             active: false,
             jobName: config["jobName-" + i],
-            jenkinsServers: config["jenkinsServer-" + i],
+            jenkinsServer: config["jenkinsServer-" + i],
             isTag: config["isTag-" + i] == 'true',
             isPipeline: config["isPipeline-" + i],
             triggers: config["triggers-" + i],
@@ -119,14 +114,12 @@ const jobs = (state = [], action) => {
             return state.map(t => jobState(t, action));
         case 'UPDATE_TRIGGER_FIELD':
             return state.map(t => jobState(t, action));
-        case 'UPDATE_JENKINS_SERVERS':
-            return state.map(t => jobState(t, action));
         default:
             return state
     }
 };
 
-export const jobDefinitions = (state = {jobs: [], jenkinsServers: {}}, action) => {
+export const jobDefinitions = (state = {jobs: [], jenkinsServers: []}, action) => {
     switch (action.type){
         case 'UPDATE_JENKINS_SERVERS':
             return {

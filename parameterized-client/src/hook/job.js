@@ -79,18 +79,16 @@ const JobContainer = ({
     updateText,
     updateTrigger
 }) => {
-    let serverOptions;
-    if (jenkinsServers == null){
-        serverOptions = [
-            <option value={"project"}>project</option>, 
-            <option value={"global"}>global</option>
-        ]
-    } else {
-        serverOptions = [
-            <option value={jenkinsServers["project"]}>{"Project (" + jenkinsServers["project"] + ")"}</option>,
-            <option value={jenkinsServers["global"]}>{"Global (" + jenkinsServers["global"] + ")"}</option>
-        ]
+    let serverValues = jenkinsServers == null ? []: jenkinsServers;
+    let serverOptions = [<option value={""}>Choose an option</option>];
+    serverValues.forEach(server => {
+        let serverText = server["url"] + " (" + server["scope"] + ")"
+        serverOptions.push(<option value={server["project"]}>{serverText}</option>)
+    });
+    if (!serverValues.map(server => server["project"]).includes(jobInfo.jenkinsServer) && jobInfo.jenkinsServer){
+        serverOptions.push(<option value={jobInfo.jenkinsServer}>{jobInfo.jenkinsServer}</option>)
     }
+
     return (
         <div id={"job-" + id}>
             <div className={"delete-job inline-button"}>

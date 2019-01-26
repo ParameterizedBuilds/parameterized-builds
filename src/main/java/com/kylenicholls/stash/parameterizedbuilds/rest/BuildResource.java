@@ -113,17 +113,26 @@ public class BuildResource extends RestResource {
 	public Response getJenkinsServers(@Context final Repository repository){
 		if (authContext.isAuthenticated()) {
 			String projectKey = repository.getProject().getKey();
-			String projectServer = Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
-					.map(Server::getBaseUrl).orElse("");
-			String globalServer = Optional.ofNullable(jenkins.getJenkinsServer())
-					.map(Server::getBaseUrl).orElse("");
-			Map<String, String> data = new HashMap<>();
-			data.put("global", globalServer);
-			data.put("project", projectServer);
-			return Response.ok(data).build();
+			List<Map<String, String>> servers = new ArrayList<>();
+			
+			Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
+					.map(x -> createServerMap(x, projectKey)).ifPresent(servers::add);
+			Optional.ofNullable(jenkins.getJenkinsServer())
+					.map(x -> createServerMap(x, null)).ifPresent(servers::add);
+
+			return Response.ok(servers).build();
 		} else {
 			return Response.status(Response.Status.FORBIDDEN).build();
 		}
+	}
+
+	private Map createServerMap(Server server, String projectKey){
+		Map<String, String> serverMap = new HashMap<>();
+		serverMap.put("url", server.getBaseUrl());
+		serverMap.put("scope", projectKey == null ? "global": "project");
+		serverMap.put("project", projectKey);
+		serverMap.put("default_user", server.getUser());
+		return serverMap;
 	}
 
 	@GET
