@@ -51,6 +51,10 @@ public class Job {
 		return jobName;
 	}
 
+	public String getJenkinsServer() {
+		return jenkinsServer;
+	}
+
 	public boolean getIsTag() {
 		return isTag;
 	}

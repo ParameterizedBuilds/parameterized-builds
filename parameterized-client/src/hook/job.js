@@ -85,8 +85,12 @@ const JobContainer = ({
         let serverText = server["url"] + " (" + server["scope"] + ")"
         serverOptions.push(<option value={server["project"]}>{serverText}</option>)
     });
-    if (!serverValues.map(server => server["project"]).includes(jobInfo.jenkinsServer) && jobInfo.jenkinsServer){
-        serverOptions.push(<option value={jobInfo.jenkinsServer}>{jobInfo.jenkinsServer}</option>)
+
+    let jenkinsErrors;
+    if (jenkinsServers == null || jenkinsServers.length == 0) {
+        jenkinsErrors = <div className={"error"}>{"No jenkins servers are defined"}</div>
+    } else if (errors["jenkinsServer-" + id] !== 'undefined'){
+        jenkinsErrors = <div className={"error"}>{errors["jenkinsServer-" + id]}</div>
     }
 
     return (
@@ -104,12 +108,14 @@ const JobContainer = ({
             </div>
             <GenericField jobInfo={jobInfo}  id={id} errors={errors} updateText={updateText} fieldName={"jobName"} fieldLabel={"Job Name"} required={true}/>
             <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
-                            <label htmlFor={"jenkinsServer-" + id}>Jenkins Server</label>
-                            <select id={"jenkinsServer-" + id} className={"select"} name={"jenkinsServer-" + id} value={jobInfo.jenkinsServer}
-                                    onChange={e => {updateText(id, 'jenkinsServer', e.target.value)}}>
-                                {serverOptions}
-                            </select>
-                        </div>
+                <label htmlFor={"jenkinsServer-" + id}>Jenkins Server <span className={"aui-icon icon-required"}/></label>
+                <select id={"jenkinsServer-" + id} className={"select"} name={"jenkinsServer-" + id} value={jobInfo.jenkinsServer}
+                        onChange={e => {updateText(id, 'jenkinsServer', e.target.value)}}
+                        disabled={jenkinsServers == null || jenkinsServers.length == 0}>
+                    {serverOptions}
+                </select>
+                {jenkinsErrors}
+            </div>
             <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
                 <label htmlFor={"isTag-" + id}>Ref Type</label>
                 <select id={"isTag-" + id} className={"select"} name={"isTag-" + id} value={jobInfo.isTag}

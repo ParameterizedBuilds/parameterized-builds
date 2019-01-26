@@ -114,7 +114,7 @@ public class BuildResource extends RestResource {
 		if (authContext.isAuthenticated()) {
 			String projectKey = repository.getProject().getKey();
 			List<Map<String, String>> servers = new ArrayList<>();
-			
+
 			Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
 					.map(x -> createServerMap(x, projectKey)).ifPresent(servers::add);
 			Optional.ofNullable(jenkins.getJenkinsServer())

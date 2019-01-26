@@ -101,6 +101,10 @@ public class ParameterizedBuildHook
 				errors.addFieldError(SettingsService.JOB_PREFIX + i, "Field is required");
 			}
 
+			if (job.getJenkinsServer().isEmpty()) {
+				errors.addFieldError(SettingsService.SERVER_PREFIX + i, "You must choose a jenkins server");
+			}
+
 			if (job.getTriggers().contains(Trigger.NULL)) {
 				errors.addFieldError(SettingsService.TRIGGER_PREFIX
 						+ i, "You must choose at least one trigger");

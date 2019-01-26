@@ -198,8 +198,8 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfJobNameEmpty() {
-        Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("")
-                .branchRegex("").pathRegex("").build();
+        Job job = new Job.JobBuilder(1).jobName("").jenkinsServer("test").triggers("add".split(";"))
+                .buildParameters("").branchRegex("").pathRegex("").build();
         jobs.add(job);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
@@ -208,9 +208,20 @@ public class ParameterizedBuildHookTest {
     }
 
     @Test
+    public void testShowErrorIfJenkinsServerEmpty() {
+        Job job = new Job.JobBuilder(1).jobName("name").jenkinsServer("").triggers("add".split(";"))
+                .buildParameters("").branchRegex("").pathRegex("").build();
+        jobs.add(job);
+        buildHook.validate(settings, validationErrors, repositoryScope);
+
+        verify(validationErrors, times(1))
+                .addFieldError(SettingsService.SERVER_PREFIX + "0", "You must choose a jenkins server");
+    }
+
+    @Test
     public void testShowErrorIfTriggersEmpty() {
-        Job job = new Job.JobBuilder(1).jobName("name").triggers("".split(";")).buildParameters("")
-                .branchRegex("").pathRegex("").build();
+        Job job = new Job.JobBuilder(1).jobName("name").jenkinsServer("test").triggers("".split(";"))
+                .buildParameters("").branchRegex("").pathRegex("").build();
         jobs.add(job);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
@@ -220,8 +231,8 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfBranchRegexInvalid() {
-        Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";"))
-                .buildParameters("").branchRegex("(").pathRegex("").build();
+        Job job = new Job.JobBuilder(1).jobName("name").jenkinsServer("test")
+                .triggers("add".split(";")).buildParameters("").branchRegex("(").pathRegex("").build();
         jobs.add(job);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
@@ -231,7 +242,7 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfPathRegexInvalid() {
-        Job job = new Job.JobBuilder(1).jobName("name").triggers("add".split(";"))
+        Job job = new Job.JobBuilder(1).jobName("name").jenkinsServer("test").triggers("add".split(";"))
                 .buildParameters("").branchRegex("").pathRegex("(").build();
         jobs.add(job);
         buildHook.validate(settings, validationErrors, repositoryScope);
