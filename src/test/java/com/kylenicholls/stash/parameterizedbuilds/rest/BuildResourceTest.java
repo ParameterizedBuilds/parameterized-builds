@@ -78,7 +78,7 @@ public class BuildResourceTest {
 		when(authContext.getCurrentUser()).thenReturn(user);
 		when(settingsService.getSettings(repository)).thenReturn(settings);
 		when(repository.getProject()).thenReturn(project);
-		when(jenkins.getJenkinsServer()).thenReturn(globalServer);
+		when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
 		when(repository.getSlug()).thenReturn(REPO_SLUG);
 		when(project.getKey()).thenReturn(PROJECT_KEY);
 		when(propertiesService.getBaseUrl()).thenReturn(new URI(URI));

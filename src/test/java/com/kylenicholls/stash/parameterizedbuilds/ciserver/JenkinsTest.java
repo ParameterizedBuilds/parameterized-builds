@@ -108,7 +108,7 @@ public class JenkinsTest {
 	@Test
 	public void testGetJenkinsServerSettingsNull() {
 		when(pluginSettings.get(".jenkinsSettings")).thenReturn(null);
-		Server actual = jenkins.getJenkinsServer();
+		Server actual = jenkins.getJenkinsServer(null);
 
 		assertEquals(null, actual);
 	}
@@ -116,7 +116,7 @@ public class JenkinsTest {
 	@Test
 	public void testGetJenkinsServerSettingsLegacyNoAltUrl() {
 		when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token");
-		Server actual = jenkins.getJenkinsServer();
+		Server actual = jenkins.getJenkinsServer(null);
 
 		assertEquals("url", actual.getBaseUrl());
 		assertEquals("user", actual.getUser());
@@ -127,7 +127,7 @@ public class JenkinsTest {
 	@Test
 	public void testGetJenkinsServerSettingsLegacyAltUrlTrue() {
 		when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token;true");
-		Server actual = jenkins.getJenkinsServer();
+		Server actual = jenkins.getJenkinsServer(null);
 
 		assertEquals("url", actual.getBaseUrl());
 		assertEquals("user", actual.getUser());
@@ -138,7 +138,7 @@ public class JenkinsTest {
 	@Test
 	public void testGetJenkinsServerSettingsLegacyAltUrlFalse() {
 		when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token;false");
-		Server actual = jenkins.getJenkinsServer();
+		Server actual = jenkins.getJenkinsServer(null);
 
 		assertEquals("url", actual.getBaseUrl());
 		assertEquals("user", actual.getUser());
@@ -150,7 +150,7 @@ public class JenkinsTest {
 	public void testGetJenkinsServerSettings() {
 		Server expected = new Server("url", "user", "token", false, false);
 		when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
-		Server actual = jenkins.getJenkinsServer();
+		Server actual = jenkins.getJenkinsServer(null);
 
 		assertEquals(expected.asMap(), actual.asMap());
 	}
@@ -257,6 +257,40 @@ public class JenkinsTest {
 	}
 
 	@Test
+	public void testTriggerJobUseJobServer(){
+		String userToken = USER_SLUG + ":token";
+		String userCSRF = null;
+		Server expected = new Server("globalurl", user.getDisplayName(), "token", false, false);
+		when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+		when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY)).thenReturn("token");
+
+		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("").jenkinsServer(PROJECT_KEY)
+				.pathRegex("").prDestRegex("").build();
+		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().add("$TRIGGER", () -> Job.Trigger.ADD.toString()).build();
+		Jenkins jenkinsSpy = spy(jenkins);
+		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
+
+		verify(jenkinsSpy, times(1)).sanitizeTrigger("globalurl/job/build", userToken, userCSRF, false);
+	}
+
+	@Test
+	public void testTriggerJobUseJobServerGlobal(){
+		String userToken = USER_SLUG + ":token";
+		String userCSRF = null;
+		Server expected = new Server("globalurl", user.getDisplayName(), "token", false, false);
+		when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+		when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY)).thenReturn("token");
+
+		Job job = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("").jenkinsServer(PROJECT_KEY)
+				.pathRegex("").prDestRegex("").build();
+		BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder().add("$TRIGGER", () -> Job.Trigger.ADD.toString()).build();
+		Jenkins jenkinsSpy = spy(jenkins);
+		jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
+
+		verify(jenkinsSpy, times(1)).sanitizeTrigger("globalurl/job/build", userToken, userCSRF, false);
+	}
+
+	@Test
 	public void testTriggerJobUseProjectServerAndUserToken(){
 		String userToken = USER_SLUG + ":token";
 		String userCSRF = null;
@@ -336,7 +370,7 @@ public class JenkinsTest {
 	public void testGetJoinedGlobalToken() {
 		String token = "token";
 		when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn("token");
-		String actual = jenkins.getJoinedUserToken(user);
+		String actual = jenkins.getJoinedUserToken(user, null);
 
 		assertEquals(USER_SLUG + ":" + token, actual);
 	}
@@ -344,14 +378,14 @@ public class JenkinsTest {
 	@Test
 	public void testGetJoinedGlobalTokenNullToken() {
 		when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
-		String actual = jenkins.getJoinedUserToken(user);
+		String actual = jenkins.getJoinedUserToken(user, null);
 
 		assertEquals(null, actual);
 	}
 
 	@Test
 	public void testGetJoinedGlobalTokenNullUser() {
-		String actual = jenkins.getJoinedUserToken(null);
+		String actual = jenkins.getJoinedUserToken(null, null);
 
 		assertEquals(null, actual);
 	}

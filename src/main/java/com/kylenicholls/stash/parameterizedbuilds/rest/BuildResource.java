@@ -117,7 +117,7 @@ public class BuildResource extends RestResource {
 
 			Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
 					.map(x -> createServerMap(x, projectKey)).ifPresent(servers::add);
-			Optional.ofNullable(jenkins.getJenkinsServer())
+			Optional.ofNullable(jenkins.getJenkinsServer(null))
 					.map(x -> createServerMap(x, null)).ifPresent(servers::add);
 
 			return Response.ok(servers).build();

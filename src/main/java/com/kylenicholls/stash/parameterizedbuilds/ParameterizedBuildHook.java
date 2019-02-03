@@ -87,7 +87,7 @@ public class ParameterizedBuildHook
 	public void validate(Settings settings, SettingsValidationErrors errors, Scope scope) {
 		String projectKey = scope.accept(new ScopeProjectVisitor()).getKey();
 		Server projectServer = jenkins.getJenkinsServer(projectKey);
-		Server server = jenkins.getJenkinsServer();
+		Server server = jenkins.getJenkinsServer(null);
 
 		if ((server == null || server.getBaseUrl().isEmpty())
 				&& (projectServer == null || projectServer.getBaseUrl().isEmpty())) {

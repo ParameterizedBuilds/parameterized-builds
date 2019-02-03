@@ -106,7 +106,7 @@ public class Jenkins {
 	 * @return the global Jenkins server or null if there is not one
 	 */
 	@Nullable
-	public Server getJenkinsServer() {
+	private Server getJenkinsServer() {
 		Object settingObj = pluginSettings.get(JENKINS_SETTINGS);
 		if (settingObj != null) {
 			if (settingObj instanceof java.util.Map) {
@@ -131,6 +131,10 @@ public class Jenkins {
 	 */
 	@Nullable
 	public Server getJenkinsServer(String projectKey) {
+		if (projectKey == null || projectKey.equals("global-settings")) {
+			return getJenkinsServer();
+		}
+
 		Object settingObj = pluginSettings.get(JENKINS_SETTINGS_PROJECT + projectKey);
 		if (settingObj != null && settingObj instanceof java.util.Map) {
 			@SuppressWarnings("unchecked")
@@ -150,7 +154,7 @@ public class Jenkins {
 	 *            anonymous
 	 */
 	@Nullable
-	public String getJoinedUserToken(@Nullable ApplicationUser user) {
+	private String getJoinedUserToken(@Nullable ApplicationUser user) {
 		String userToken = getUserToken(user, null);
 		if (userToken != null) {
 			return user.getSlug() + ":" + userToken;
@@ -172,6 +176,10 @@ public class Jenkins {
 	 */
 	@Nullable
 	public String getJoinedUserToken(@Nullable ApplicationUser user, String projectKey) {
+		if (projectKey == null || projectKey.equals("global-settings")) {
+			return getJoinedUserToken(user);
+		}
+
 		String userToken = getUserToken(user, projectKey);
 		if (userToken != null) {
 			return user.getSlug() + ":" + userToken;
@@ -255,7 +263,7 @@ public class Jenkins {
 	 *            the build url to trigger
 	 * @param joinedToken
 	 *            the authentication token to use in the request
-	 * @param csrfToken
+	 * @param csrfHeader
 	 *            the token to use in case cross site protection is enabled
 	 * @param promptUser
 	 *            prompt the user to link their jenkins account
@@ -271,11 +279,21 @@ public class Jenkins {
 	}
 
 	public JenkinsResponse triggerJob(String projectKey, ApplicationUser user, Job job, BitbucketVariables bitbucketVariables) {
-		Server jenkinsServer = getJenkinsServer(projectKey);
-		String joinedUserToken = getJoinedUserToken(user, projectKey);
-		if (jenkinsServer == null) {
-			jenkinsServer = getJenkinsServer();
-			joinedUserToken = getJoinedUserToken(user);
+		Server jenkinsServer;
+		String joinedUserToken;
+		if (job.getJenkinsServer() != null){
+			jenkinsServer = getJenkinsServer(job.getJenkinsServer());
+			joinedUserToken = getJoinedUserToken(user, job.getJenkinsServer());
+		} else {
+			// legacy behaviour
+			Server projectServer = getJenkinsServer(projectKey);
+			if (projectServer != null){
+				jenkinsServer = projectServer;
+				joinedUserToken = getJoinedUserToken(user, projectKey);
+			} else {
+				jenkinsServer = getJenkinsServer(null);
+				joinedUserToken = getJoinedUserToken(user);
+			}
 		}
 
 		String buildUrl = job

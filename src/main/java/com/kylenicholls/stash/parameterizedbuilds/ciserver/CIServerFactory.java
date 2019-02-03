@@ -33,7 +33,7 @@ public class CIServerFactory {
             Server server = jenkins.getJenkinsServer(projectKey);
             return new ProjectServer(jenkins, server, projectKey);
         } else {
-            Server server =jenkins.getJenkinsServer();
+            Server server =jenkins.getJenkinsServer(null);
             return new GlobalServer(jenkins, server);
         }
     }

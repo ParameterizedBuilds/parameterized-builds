@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 public class ParameterizedBuildHookTest {
     private final String BRANCH_REF = "refs/heads/branch";
     private final String COMMIT = "commithash";
+    private final String PROJECT_KEY = "projectkey";
     private final String REPO_SLUG = "reposlug";
     private final String URI = "http://uri";
     private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
@@ -98,9 +99,10 @@ public class ParameterizedBuildHookTest {
         when(repository.getSlug()).thenReturn(REPO_SLUG);
         when(repository.getProject()).thenReturn(project);
         when(repositoryScope.accept(any())).thenReturn(project);
-        when(jenkins.getJenkinsServer()).thenReturn(globalServer);
+        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(projectServer);
         when(propertiesService.getBaseUrl()).thenReturn(new URI(URI));
+        when(project.getKey()).thenReturn(PROJECT_KEY);
 
         when(minimalRef.getId()).thenReturn(BRANCH_REF);
         jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
@@ -135,7 +137,7 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfJenkinsSettingsNull() {
-        when(jenkins.getJenkinsServer()).thenReturn(null);
+        when(jenkins.getJenkinsServer(null)).thenReturn(null);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
@@ -146,7 +148,7 @@ public class ParameterizedBuildHookTest {
     @Test
     public void testShowErrorIfBaseUrlEmpty() {
         Server server = new Server("", null, null, false, false);
-        when(jenkins.getJenkinsServer()).thenReturn(server);
+        when(jenkins.getJenkinsServer(null)).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
@@ -157,7 +159,7 @@ public class ParameterizedBuildHookTest {
     @Test
     public void testShowErrorIfJenkinsSettingsUrlEmpty() {
         Server server = new Server("", null, null, false, false);
-        when(jenkins.getJenkinsServer()).thenReturn(server);
+        when(jenkins.getJenkinsServer(null)).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
@@ -167,7 +169,7 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfProjectSettingsUrlEmpty() {
-        when(jenkins.getJenkinsServer()).thenReturn(null);
+        when(jenkins.getJenkinsServer(null)).thenReturn(null);
         Server server = new Server("", null, null, false, false);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
         buildHook.validate(settings, validationErrors, repositoryScope);
@@ -178,7 +180,7 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testNoErrorIfOnlyJenkinsSettingsNull() {
-        when(jenkins.getJenkinsServer()).thenReturn(null);
+        when(jenkins.getJenkinsServer(null)).thenReturn(null);
         Server server = new Server("baseurl", null, null, false, false);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
         buildHook.validate(settings, validationErrors, repositoryScope);
@@ -189,7 +191,7 @@ public class ParameterizedBuildHookTest {
     @Test
     public void testNoErrorIfOnlyProjectSettingsNull() {
         Server server = new Server("baseurl", null, null, false, false);
-        when(jenkins.getJenkinsServer()).thenReturn(server);
+        when(jenkins.getJenkinsServer(null)).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
         buildHook.validate(settings, validationErrors, repositoryScope);
 

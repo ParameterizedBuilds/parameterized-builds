@@ -82,8 +82,9 @@ const JobContainer = ({
     let serverValues = jenkinsServers == null ? []: jenkinsServers;
     let serverOptions = [<option value={""}>Choose an option</option>];
     serverValues.forEach(server => {
-        let serverText = server["url"] + " (" + server["scope"] + ")"
-        serverOptions.push(<option value={server["project"]}>{serverText}</option>)
+        let serverText = server["url"] + " (" + server["scope"] + ")";
+        let serverValue = server["scope"] == "project" ? server["project"] : "global-settings" ;
+        serverOptions.push(<option value={serverValue}>{serverText}</option>)
     });
 
     let jenkinsErrors;
