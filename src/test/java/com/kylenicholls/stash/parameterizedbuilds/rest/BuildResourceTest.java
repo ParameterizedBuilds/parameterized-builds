@@ -4,11 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -16,6 +12,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.pull.PullRequestRef;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -57,6 +54,7 @@ public class BuildResourceTest {
 	private List<Job> jobs;
 	private RepositoryHook hook;
 	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
+	private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken", false, false);
 
 	@Before
 	public void setup() throws Exception {
@@ -132,6 +130,74 @@ public class BuildResourceTest {
 
 		assertEquals(Response.Status.OK.getStatusCode(), results.getStatus());
 		assertEquals(message.getMessage(), results.getEntity());
+	}
+
+	@Test
+	public void testGetJenkinsServersNotAuthed() {
+		when(authContext.isAuthenticated()).thenReturn(false);
+		Response actual = rest.getJenkinsServers(repository);
+
+		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), actual.getStatus());
+	}
+
+	@Test
+	public void testGetJenkinsServersOnlyProjectDefined() {
+		when(jenkins.getJenkinsServer(null)).thenReturn(null);
+		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
+		Response actual = rest.getJenkinsServers(repository);
+
+		Map<String, String> expected = new HashMap<String, String>() {{
+			put("url", projectServer.getBaseUrl());
+			put("scope", "project");
+			put("project", PROJECT_KEY);
+			put("default_user", projectServer.getUser());
+		}};
+
+		assertEquals(Collections.singletonList(expected), actual.getEntity());
+	}
+
+	@Test
+	public void testGetJenkinsServersOnlyGlobalDefined() {
+		Response actual = rest.getJenkinsServers(repository);
+
+		Map<String, String> expected = new HashMap<String, String>() {{
+			put("url", globalServer.getBaseUrl());
+			put("scope", "global");
+			put("project", null);
+			put("default_user", globalServer.getUser());
+		}};
+
+		assertEquals(Collections.singletonList(expected), actual.getEntity());
+	}
+
+	@Test
+	public void testGetJenkinsServersProjectAndGlobalDefined() {
+		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
+		Response actual = rest.getJenkinsServers(repository);
+
+		Map<String, String> expectedProject = new HashMap<String, String>() {{
+			put("url", projectServer.getBaseUrl());
+			put("scope", "project");
+			put("project", PROJECT_KEY);
+			put("default_user", projectServer.getUser());
+		}};
+
+		Map<String, String> expectedGlobal = new HashMap<String, String>() {{
+			put("url", globalServer.getBaseUrl());
+			put("scope", "global");
+			put("project", null);
+			put("default_user", globalServer.getUser());
+		}};
+
+		assertEquals(Lists.newArrayList(expectedProject, expectedGlobal), actual.getEntity());
+	}
+
+	@Test
+	public void testGetJenkinsServersNoServersDefined() {
+		when(jenkins.getJenkinsServer(null)).thenReturn(null);
+		Response actual = rest.getJenkinsServers(repository);
+
+		assertEquals(Lists.newArrayList(), actual.getEntity());
 	}
 
 	@Test
