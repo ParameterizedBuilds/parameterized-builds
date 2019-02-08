@@ -3,6 +3,7 @@ const getInitialState = () => {
         id: null,
         active: true,
         jobName: "",
+        jenkinsServer: null,
         isTag: false,
         isPipeline: false,
         triggers: "",
@@ -69,6 +70,7 @@ const createInitialState = (config) => {
             id: i,
             active: false,
             jobName: config["jobName-" + i],
+            jenkinsServer: config["jenkinsServer-" + i],
             isTag: config["isTag-" + i] == 'true',
             isPipeline: config["isPipeline-" + i],
             triggers: config["triggers-" + i],
@@ -88,7 +90,7 @@ const createInitialState = (config) => {
     return initialState;
 };
 
-export const jobs = (state = [], action) => {
+const jobs = (state = [], action) => {
     switch (action.type) {
         case 'INITIALIZE':
             return createInitialState(action.baseConfig);
@@ -114,6 +116,21 @@ export const jobs = (state = [], action) => {
             return state.map(t => jobState(t, action));
         default:
             return state
+    }
+};
+
+export const jobDefinitions = (state = {jobs: [], jenkinsServers: []}, action) => {
+    switch (action.type){
+        case 'UPDATE_JENKINS_SERVERS':
+            return {
+                ...state,
+                jenkinsServers: action.servers
+            }
+        default:
+            return {
+                ...state,
+                jobs: jobs(state.jobs, action)
+            }
     }
 };
 

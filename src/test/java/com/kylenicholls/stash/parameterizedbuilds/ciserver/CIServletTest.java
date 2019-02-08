@@ -75,7 +75,7 @@ public class CIServletTest {
 	public void testDoGetGlobalServer() throws ServletException, IOException, SoyException {
 		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
 		Server server = new Server("baseurl", null, null, false, false);
-		when(jenkins.getJenkinsServer()).thenReturn(server);
+		when(jenkins.getJenkinsServer(null)).thenReturn(server);
 		servlet.doGet(req, resp);
 
 		Map<String, Object> data = ImmutableMap.of(
@@ -89,7 +89,7 @@ public class CIServletTest {
 	@Test
 	public void testDoGetGlobalServerNull() throws ServletException, IOException, SoyException {
 		when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-		when(jenkins.getJenkinsServer()).thenReturn(null);
+		when(jenkins.getJenkinsServer(null)).thenReturn(null);
 		servlet.doGet(req, resp);
 
 		Map<String, Object> data = ImmutableMap.of(
@@ -104,7 +104,7 @@ public class CIServletTest {
 	public void testDoGetAccountServerNull() throws ServletException, IOException, SoyException {
 		List<UserToken> projectTokens = new ArrayList<>();
 		when(req.getPathInfo()).thenReturn(ACCOUNT_PATH);
-		when(jenkins.getJenkinsServer()).thenReturn(null);
+		when(jenkins.getJenkinsServer(null)).thenReturn(null);
 		when(jenkins.getAllUserTokens(user, new ArrayList<String>(), projectService))
 				.thenReturn(projectTokens);
 		servlet.doGet(req, resp);

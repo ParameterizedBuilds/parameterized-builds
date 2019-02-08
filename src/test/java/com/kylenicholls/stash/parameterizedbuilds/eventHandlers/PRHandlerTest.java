@@ -56,7 +56,7 @@ public class PRHandlerTest {
         when(project.getName()).thenReturn(PROJECT_NAME);
         when(project.getKey()).thenReturn(PROJECT_KEY);
         when(settingsService.getSettings(repository)).thenReturn(settings);
-        when(jenkins.getJenkinsServer()).thenReturn(globalServer);
+        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
         when(settingsService.getHook(any())).thenReturn(repoHook);
         when(repoHook.isEnabled()).thenReturn(true);
 

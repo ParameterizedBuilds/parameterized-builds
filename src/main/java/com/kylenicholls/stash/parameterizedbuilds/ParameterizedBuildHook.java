@@ -87,7 +87,7 @@ public class ParameterizedBuildHook
 	public void validate(Settings settings, SettingsValidationErrors errors, Scope scope) {
 		String projectKey = scope.accept(new ScopeProjectVisitor()).getKey();
 		Server projectServer = jenkins.getJenkinsServer(projectKey);
-		Server server = jenkins.getJenkinsServer();
+		Server server = jenkins.getJenkinsServer(null);
 
 		if ((server == null || server.getBaseUrl().isEmpty())
 				&& (projectServer == null || projectServer.getBaseUrl().isEmpty())) {
@@ -99,6 +99,10 @@ public class ParameterizedBuildHook
 			Job job = jobList.get(i);
 			if (job.getJobName().isEmpty()) {
 				errors.addFieldError(SettingsService.JOB_PREFIX + i, "Field is required");
+			}
+
+			if (job.getJenkinsServer().isEmpty()) {
+				errors.addFieldError(SettingsService.SERVER_PREFIX + i, "You must choose a jenkins server");
 			}
 
 			if (job.getTriggers().contains(Trigger.NULL)) {

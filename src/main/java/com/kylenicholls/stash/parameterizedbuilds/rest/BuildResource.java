@@ -30,6 +30,7 @@ import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
+import com.google.common.collect.Lists;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -37,6 +38,7 @@ import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables.Builder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
 
 @Path(ResourcePatterns.REPOSITORY_URI)
@@ -104,6 +106,33 @@ public class BuildResource extends RestResource {
 			}
 		}
 		return Response.status(Response.Status.FORBIDDEN).build();
+	}
+
+	@GET
+	@Path(value = "getJenkinsServers")
+	public Response getJenkinsServers(@Context final Repository repository){
+		if (authContext.isAuthenticated()) {
+			String projectKey = repository.getProject().getKey();
+			List<Map<String, String>> servers = new ArrayList<>();
+
+			Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
+					.map(x -> createServerMap(x, projectKey)).ifPresent(servers::add);
+			Optional.ofNullable(jenkins.getJenkinsServer(null))
+					.map(x -> createServerMap(x, null)).ifPresent(servers::add);
+
+			return Response.ok(servers).build();
+		} else {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
+	}
+
+	private Map createServerMap(Server server, String projectKey){
+		Map<String, String> serverMap = new HashMap<>();
+		serverMap.put("url", server.getBaseUrl());
+		serverMap.put("scope", projectKey == null ? "global": "project");
+		serverMap.put("project", projectKey);
+		serverMap.put("default_user", server.getUser());
+		return serverMap;
 	}
 
 	@GET

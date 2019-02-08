@@ -72,12 +72,28 @@ const JobContainer = ({
     jobInfo,
     errors,
     id,
+    jenkinsServers,
     children,
     toggleJob,
     deleteJob,
     updateText,
     updateTrigger
 }) => {
+    let serverValues = jenkinsServers == null ? []: jenkinsServers;
+    let serverOptions = [<option value={""}>Choose an option</option>];
+    serverValues.forEach(server => {
+        let serverText = server["url"] + " (" + server["scope"] + ")";
+        let serverValue = server["scope"] == "project" ? server["project"] : "global-settings" ;
+        serverOptions.push(<option value={serverValue}>{serverText}</option>)
+    });
+
+    let jenkinsErrors;
+    if (jenkinsServers == null || jenkinsServers.length == 0) {
+        jenkinsErrors = <div className={"error"}>{"No jenkins servers are defined"}</div>
+    } else if (errors["jenkinsServer-" + id] !== 'undefined'){
+        jenkinsErrors = <div className={"error"}>{errors["jenkinsServer-" + id]}</div>
+    }
+
     return (
         <div id={"job-" + id}>
             <div className={"delete-job inline-button"}>
@@ -92,6 +108,15 @@ const JobContainer = ({
                 </a>
             </div>
             <GenericField jobInfo={jobInfo}  id={id} errors={errors} updateText={updateText} fieldName={"jobName"} fieldLabel={"Job Name"} required={true}/>
+            <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
+                <label htmlFor={"jenkinsServer-" + id}>Jenkins Server <span className={"aui-icon icon-required"}/></label>
+                <select id={"jenkinsServer-" + id} className={"select"} name={"jenkinsServer-" + id} value={jobInfo.jenkinsServer}
+                        onChange={e => {updateText(id, 'jenkinsServer', e.target.value)}}
+                        disabled={jenkinsServers == null || jenkinsServers.length == 0}>
+                    {serverOptions}
+                </select>
+                {jenkinsErrors}
+            </div>
             <div className={"field-group" + (jobInfo.active ? "" : " hidden") }>
                 <label htmlFor={"isTag-" + id}>Ref Type</label>
                 <select id={"isTag-" + id} className={"select"} name={"isTag-" + id} value={jobInfo.isTag}
@@ -194,9 +219,10 @@ const JobContainer = ({
 
 const mapStateToJobContainerProps = (state, ownProps) => {
     return {
-        jobInfo: state[ownProps.id],
+        jobInfo: state.jobs[ownProps.id],
         errors: ownProps.errors,
-        id: ownProps.id
+        id: ownProps.id,
+        jenkinsServers: state.jenkinsServers,
     }
 };
 

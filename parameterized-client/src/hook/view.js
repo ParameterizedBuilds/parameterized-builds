@@ -1,10 +1,20 @@
 import { Provider, connect } from 'react-redux';
 import { createStore } from 'redux';
 import React from 'react';
-import { jobs, addJob } from "./state-reducers";
+import { jobDefinitions, addJob } from "./state-reducers";
 import { Job } from "./job";
+import axios from 'axios';
 
 window.parameterizedbuilds = window.parameterizedbuilds || {};
+
+const getJenkinsServers = () => {
+    const urlRegex = /(.+?)(\/projects\/\w+?\/repos\/\w+?\/)settings.*/
+    let urlParts = window.location.href.match(urlRegex);
+    let restUrl = urlParts[1] + "/rest/parameterized-builds/latest" + urlParts[2] + "getJenkinsServers";
+    return axios.get(restUrl, {
+        timeout: 1000 * 60
+    });
+}
 
 let AddJob = ({ dispatch }) => {
     return (
@@ -32,7 +42,7 @@ let JobList = ({jobs, errors}) => {
 
 const jobListStateInjector = (state, ownProps) => {
     return {
-        jobs: state,
+        jobs: state.jobs,
         errors: ownProps.errors
     }
 };
@@ -55,11 +65,18 @@ const App = ({errors}) => {
 };
 
 parameterizedbuilds.view = function({config, errors}) {
-    const baseStore = createStore(jobs);
+    const baseStore = createStore(jobDefinitions);
 
     baseStore.dispatch({
         type: "INITIALIZE",
         baseConfig: config,
+    });
+
+    getJenkinsServers().then(response => {
+        baseStore.dispatch({
+            type: "UPDATE_JENKINS_SERVERS",
+            servers: response.data,
+        });
     });
 
     return (
