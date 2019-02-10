@@ -53,8 +53,8 @@ public class BuildResourceTest {
 	private ApplicationUser user;
 	private List<Job> jobs;
 	private RepositoryHook hook;
-	private final Server globalServer = new Server("globalurl", null, "globaluser", "globaltoken", false, false);
-	private final Server projectServer = new Server("projecturl", null, "projectuser", "projecttoken", false, false);
+	private final Server globalServer = new Server("globalurl", "global server", "globaluser", "globaltoken", false, false);
+	private final Server projectServer = new Server("projecturl", "project server", "projectuser", "projecttoken", false, false);
 
 	@Before
 	public void setup() throws Exception {
@@ -148,6 +148,7 @@ public class BuildResourceTest {
 
 		Map<String, String> expected = new HashMap<String, String>() {{
 			put("url", projectServer.getBaseUrl());
+			put("alias", projectServer.getAlias());
 			put("scope", "project");
 			put("project", PROJECT_KEY);
 			put("default_user", projectServer.getUser());
@@ -162,6 +163,7 @@ public class BuildResourceTest {
 
 		Map<String, String> expected = new HashMap<String, String>() {{
 			put("url", globalServer.getBaseUrl());
+			put("alias", globalServer.getAlias());
 			put("scope", "global");
 			put("project", null);
 			put("default_user", globalServer.getUser());
@@ -177,6 +179,7 @@ public class BuildResourceTest {
 
 		Map<String, String> expectedProject = new HashMap<String, String>() {{
 			put("url", projectServer.getBaseUrl());
+			put("alias", projectServer.getAlias());
 			put("scope", "project");
 			put("project", PROJECT_KEY);
 			put("default_user", projectServer.getUser());
@@ -184,6 +187,8 @@ public class BuildResourceTest {
 
 		Map<String, String> expectedGlobal = new HashMap<String, String>() {{
 			put("url", globalServer.getBaseUrl());
+			put("alias", globalServer.getAlias());
+			put("scope", "global");
 			put("scope", "global");
 			put("project", null);
 			put("default_user", globalServer.getUser());

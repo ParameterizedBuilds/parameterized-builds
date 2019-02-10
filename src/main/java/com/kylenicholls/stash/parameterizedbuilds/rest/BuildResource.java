@@ -128,6 +128,7 @@ public class BuildResource extends RestResource {
 	private Map createServerMap(Server server, String projectKey){
 		Map<String, String> serverMap = new HashMap<>();
 		serverMap.put("url", server.getBaseUrl());
+		serverMap.put("alias", server.getAlias());
 		serverMap.put("scope", projectKey == null ? "global": "project");
 		serverMap.put("project", projectKey);
 		serverMap.put("default_user", server.getUser());

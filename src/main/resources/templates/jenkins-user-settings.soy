@@ -45,11 +45,12 @@
  * @param userToken
  */
 {template .anotherParam}
+	<h3>{$userToken.projectName} Servers</h3><br>
 	<input type="hidden" name="projectKey-{$userToken.projectKey}" value="{$userToken.projectKey}">
 	{call aui.form.passwordField}
         {param id: 'jenkinsToken-' + $userToken.projectKey /}
         {param value: $userToken.token /}
-        {param labelContent: $userToken.projectName + ' Token' /}
+        {param labelContent: ($userToken.alias ?: $userToken.projectName) + ' Token' /}
         {param autocomplete: 'off' /}
     {/call}
 	{if $userToken.baseUrl}
