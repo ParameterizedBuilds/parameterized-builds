@@ -2,20 +2,15 @@ package com.kylenicholls.stash.parameterizedbuilds.item;
 
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.ws.rs.core.MultivaluedMap;
-
-import org.apache.commons.collections.map.HashedMap;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import static org.junit.Assert.*;
 
