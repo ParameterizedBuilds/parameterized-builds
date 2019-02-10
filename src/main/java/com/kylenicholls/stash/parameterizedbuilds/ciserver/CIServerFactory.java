@@ -43,7 +43,8 @@ public class CIServerFactory {
                 && "on".equals(parameters.get("jenkinsAltUrl")[0]) ? true : false;
         boolean jenkinsCSRF = parameters.get("jenkinsCSRF") != null
                 && "on".equals(parameters.get("jenkinsCSRF")[0]) ? true : false;
-        return new Server(parameters.get("jenkinsUrl")[0], parameters.get("jenkinsUser")[0],
+        String jenkinsAlias = parameters.getOrDefault("jenkinsAlias", new String[]{""})[0];
+        return new Server(parameters.get("jenkinsUrl")[0], jenkinsAlias, parameters.get("jenkinsUser")[0],
                 parameters.get("jenkinsToken")[0], jenkinsAltUrl, jenkinsCSRF);
     }
 }

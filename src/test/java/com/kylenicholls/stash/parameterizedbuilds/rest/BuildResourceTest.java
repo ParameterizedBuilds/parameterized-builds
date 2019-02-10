@@ -53,8 +53,8 @@ public class BuildResourceTest {
 	private ApplicationUser user;
 	private List<Job> jobs;
 	private RepositoryHook hook;
-	private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
-	private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken", false, false);
+	private final Server globalServer = new Server("globalurl", null, "globaluser", "globaltoken", false, false);
+	private final Server projectServer = new Server("projecturl", null, "projectuser", "projecttoken", false, false);
 
 	@Before
 	public void setup() throws Exception {

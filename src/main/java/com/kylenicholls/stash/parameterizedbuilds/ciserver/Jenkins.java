@@ -118,7 +118,7 @@ public class Jenkins {
 			String[] serverProps = settingObj.toString().split(";");
 			boolean altUrl = serverProps.length > 3 && "true".equals(serverProps[3]) ? true : false;
 			boolean csrfEnabled = true;
-			return new Server(serverProps[0], serverProps[1], serverProps[2], altUrl, csrfEnabled);
+			return new Server(serverProps[0], null, serverProps[1], serverProps[2], altUrl, csrfEnabled);
 		}
 		return null;
 	}

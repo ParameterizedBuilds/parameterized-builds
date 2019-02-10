@@ -46,8 +46,8 @@ public class ParameterizedBuildHookTest {
     private final String PROJECT_KEY = "projectkey";
     private final String REPO_SLUG = "reposlug";
     private final String URI = "http://uri";
-    private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
-    private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken",
+    private final Server globalServer = new Server("globalurl", null, "globaluser", "globaltoken", false, false);
+    private final Server projectServer = new Server("projecturl", null, "projectuser", "projecttoken",
             false, false);
     private RepositoryHookRequest request;
     private Settings settings;
@@ -147,7 +147,7 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfBaseUrlEmpty() {
-        Server server = new Server("", null, null, false, false);
+        Server server = new Server("", null, null, null, false, false);
         when(jenkins.getJenkinsServer(null)).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
         buildHook.validate(settings, validationErrors, repositoryScope);
@@ -158,7 +158,7 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfJenkinsSettingsUrlEmpty() {
-        Server server = new Server("", null, null, false, false);
+        Server server = new Server("", null, null, null, false, false);
         when(jenkins.getJenkinsServer(null)).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
         buildHook.validate(settings, validationErrors, repositoryScope);
@@ -170,7 +170,7 @@ public class ParameterizedBuildHookTest {
     @Test
     public void testShowErrorIfProjectSettingsUrlEmpty() {
         when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Server server = new Server("", null, null, false, false);
+        Server server = new Server("", null, null, null, false, false);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
@@ -181,7 +181,7 @@ public class ParameterizedBuildHookTest {
     @Test
     public void testNoErrorIfOnlyJenkinsSettingsNull() {
         when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Server server = new Server("baseurl", null, null, false, false);
+        Server server = new Server("baseurl", null, null, null, false, false);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
@@ -190,7 +190,7 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testNoErrorIfOnlyProjectSettingsNull() {
-        Server server = new Server("baseurl", null, null, false, false);
+        Server server = new Server("baseurl", null, null, null, false, false);
         when(jenkins.getJenkinsServer(null)).thenReturn(server);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
         buildHook.validate(settings, validationErrors, repositoryScope);

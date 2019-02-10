@@ -150,7 +150,7 @@ public class JobTest {
 	@Test
 	public void testBuildUrlNoUserTokenAndUseAltUrl() {
 		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", true, false);
+		Server server = new Server("http://baseurl", null, "", "", true, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 
@@ -160,7 +160,7 @@ public class JobTest {
 	@Test
 	public void testBuildUrlUserTokenAndUseAltUrl() {
 		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", true, false);
+		Server server = new Server("http://baseurl", null, "", "", true, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
 		String actual = job.buildUrl(server, bitbucketVariables, true);
 
@@ -170,7 +170,7 @@ public class JobTest {
 	@Test
 	public void testBuildUrlNoUserTokenAndNoUseAltUrl() {
 		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 
@@ -181,7 +181,7 @@ public class JobTest {
 	public void testBuildUrlNoUserTokenAndLegacyToken() {
 		String jobName = "jobname";
 		String token = "token";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").token(token).build();
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 
@@ -192,7 +192,7 @@ public class JobTest {
 	public void testBuildUrlUserTokenAndLegacyToken() {
 		String jobName = "jobname";
 		String token = "token";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").token(token).build();
 		String actual = job.buildUrl(server, bitbucketVariables, true);
 
@@ -202,7 +202,7 @@ public class JobTest {
 	@Test
 	public void testBuildUrlNoUserTokenAndLegacyTokenEmpty() {
 		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").token("").build();
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 
@@ -212,7 +212,7 @@ public class JobTest {
 	@Test
 	public void testBuildUrlNotParameterized() {
 		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 
@@ -222,7 +222,7 @@ public class JobTest {
 	@Test
 	public void testBuildPipelineNotParameterizedAndBuild() {
 		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").isPipeline(true).build();
 		String branch = "test_branch";
 
@@ -238,7 +238,7 @@ public class JobTest {
 	@Test
 	public void testBuildPipelineNotParameterizedAndScan() {
 		String jobName = "jobname";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").isPipeline(true).build();
 		String branch = "test_branch";
 
@@ -251,7 +251,7 @@ public class JobTest {
 	public void testBuildUrlParameterized() {
 		String jobName = "jobname";
 		String params = "param1=value1";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 
@@ -263,7 +263,7 @@ public class JobTest {
 	public void testBuildUrlParameterizedButScan() {
 		String jobName = "jobname";
 		String params = "param1=value1";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).isPipeline(true).build();
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 
@@ -274,7 +274,7 @@ public class JobTest {
 	public void testBuildPipelineParameterizedAndBuild() {
 		String jobName = "jobname";
 		String params = "param1=value1";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).isPipeline(true).build();
 		String branch = "test_branch";
 
@@ -292,7 +292,7 @@ public class JobTest {
 	public void testBuildUrlChoiceParameters() {
 		String jobName = "jobname";
 		String params = "param1=1;2;3";
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 
@@ -307,7 +307,7 @@ public class JobTest {
 		String branch = "branchname";
 		BitbucketVariables vars = new BitbucketVariables.Builder().add("$BRANCH", () -> branch)
 				.add("$TRIGGER", Trigger.ADD::toString).build();
-		Server server = new Server("http://baseurl", "", "", false, false);
+		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
 		String actual = job.buildUrl(server, vars, false);
 

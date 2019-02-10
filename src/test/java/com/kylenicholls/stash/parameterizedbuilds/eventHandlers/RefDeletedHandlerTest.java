@@ -28,7 +28,7 @@ public class RefDeletedHandlerTest {
     private final String PROJECT_KEY = "projectkey";
     private final String COMMIT = "commithash";
     private final String url = "http://url";
-    private final Server projectServer = new Server("projecturl", "projectuser", "projecttoken",
+    private final Server projectServer = new Server("projecturl", null, "projectuser", "projecttoken",
             false, false);
     private Settings settings;
     private RefChange refChange;
