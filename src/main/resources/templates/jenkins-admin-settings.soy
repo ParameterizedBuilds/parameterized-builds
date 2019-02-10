@@ -16,6 +16,7 @@
     {param server: $server /}
     {param errors: $errors /}
     {param testMessage: $testMessage /}
+    {param scope: 'Global' /}
 {/call}
 {/template}
 
@@ -37,6 +38,7 @@
     {param server: $server /}
     {param errors: $errors /}
     {param testMessage: $testMessage /}
+    {param scope: $projectKey /}
 {/call}
 {/template}
 
@@ -44,6 +46,7 @@
  * @param server
  * @param errors
  * @param testMessage
+ * @param scope
  */
 {template .body}
 <body>
@@ -51,6 +54,7 @@
 	<form class="aui prevent-double-submit  pull-request-settings" action="" method="post" accept-charset="UTF-8">
 		{call .anotherParam}
 			{param server: $server /}
+            {param scope: $scope /}
 		{/call}
 		{if $errors}
 			<div class="field-group"><div class="error">{$errors}</div></div>
@@ -87,6 +91,7 @@
 
 /**
  * @param server
+ * @param scope
  */
 {template .anotherParam}
     {call aui.form.textField}
@@ -94,6 +99,13 @@
         {param value: $server.baseUrl /}
         {param labelContent: 'Base URL'  /}
         {param isRequired: true /}
+    {/call}
+    {call aui.form.textField}
+        {param id: 'jenkinsAlias' /}
+        {param value: $server.alias ?: $scope + ' Server' /}
+        {param labelContent: 'Server Nickname'  /}
+        {param isRequired: true /}
+        {param autocomplete: 'off' /}
     {/call}
     {call aui.form.textField}
         {param id: 'jenkinsUser' /}
