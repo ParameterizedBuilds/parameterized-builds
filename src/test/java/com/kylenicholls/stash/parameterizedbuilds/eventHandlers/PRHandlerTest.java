@@ -16,7 +16,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -30,7 +29,7 @@ public class PRHandlerTest {
     private final String PROJECT_KEY = "projectkey";
     private final String PROJECT_NAME = "projectname";
     private final String PR_URL = "http://pruri";
-    private final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
+    private final Server globalServer = new Server("globalurl", null, "globaluser", "globaltoken", false, false);
     private SettingsService settingsService;
     private Jenkins jenkins;
     private Repository repository;

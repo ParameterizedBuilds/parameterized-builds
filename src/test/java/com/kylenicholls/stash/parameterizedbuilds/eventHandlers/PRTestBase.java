@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class PRTestBase {
 
     final String PR_URL = "http://pruri";
-    final Server globalServer = new Server("globalurl", "globaluser", "globaltoken", false, false);
+    final Server globalServer = new Server("globalurl", null, "globaluser", "globaltoken", false, false);
     SettingsService settingsService;
     Jenkins jenkins;
     Repository repository;

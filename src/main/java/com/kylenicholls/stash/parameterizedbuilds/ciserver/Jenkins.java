@@ -118,7 +118,7 @@ public class Jenkins {
 			String[] serverProps = settingObj.toString().split(";");
 			boolean altUrl = serverProps.length > 3 && "true".equals(serverProps[3]) ? true : false;
 			boolean csrfEnabled = true;
-			return new Server(serverProps[0], serverProps[1], serverProps[2], altUrl, csrfEnabled);
+			return new Server(serverProps[0], null, serverProps[1], serverProps[2], altUrl, csrfEnabled);
 		}
 		return null;
 	}
@@ -237,7 +237,7 @@ public class Jenkins {
 		String globalUserTokenString = getUserToken(user, null);
 		Server globalServer = getJenkinsServer();
 		if (globalServer != null) {
-			UserToken globalUserToken = new UserToken(globalServer.getBaseUrl(), "", "Global",
+			UserToken globalUserToken = new UserToken(globalServer.getBaseUrl(), globalServer.getAlias(), "", "Global",
 					user.getSlug(), globalUserTokenString);
 			userTokens.add(globalUserToken);
 		}
@@ -246,7 +246,7 @@ public class Jenkins {
 			Server projectServer = getJenkinsServer(projectKey);
 			String projectUserTokenString = getUserToken(user, projectKey);
 			if (projectServer != null) {
-				UserToken projectUserToken = new UserToken(projectServer.getBaseUrl(), projectKey,
+				UserToken projectUserToken = new UserToken(projectServer.getBaseUrl(), projectServer.getAlias(), projectKey,
 						projectService.getByKey(projectKey).getName(), user.getSlug(),
 						projectUserTokenString);
 				userTokens.add(projectUserToken);

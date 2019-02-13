@@ -30,7 +30,6 @@ import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
-import com.google.common.collect.Lists;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -129,6 +128,7 @@ public class BuildResource extends RestResource {
 	private Map createServerMap(Server server, String projectKey){
 		Map<String, String> serverMap = new HashMap<>();
 		serverMap.put("url", server.getBaseUrl());
+		serverMap.put("alias", server.getAlias());
 		serverMap.put("scope", projectKey == null ? "global": "project");
 		serverMap.put("project", projectKey);
 		serverMap.put("default_user", server.getUser());

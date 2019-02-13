@@ -11,7 +11,6 @@ import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
-import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import org.junit.Before;
 import org.junit.Test;
 
