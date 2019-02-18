@@ -1,12 +1,12 @@
 define('jenkins/parameterized-build-pullrequest', [
-    'aui',
+    'aui/dialog2',
     'jquery',
     'bitbucket/util/state',
     'bitbucket/util/server',
     'lodash',
     'aui/flag'
 ], function(
-    AJS,
+    dialog2,
     $,
     pageState,
     server_util,
@@ -14,6 +14,8 @@ define('jenkins/parameterized-build-pullrequest', [
     flag
 ) {
     var allJobs;
+    var urlRegex = /(.+?)\/projects\/\w+?\/repos\/\w+?\/.*/
+    var urlParts = window.location.href.match(urlRegex);
 
     $(".parameterized-build-pullrequest").click(function() {
         var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
@@ -42,7 +44,7 @@ define('jenkins/parameterized-build-pullrequest', [
     });
 
     function getResourceUrl(resourceType){
-        return AJS.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
+        return urlParts[1] + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
             + pageState.getRepository().slug + '/' + resourceType;
     }
 
@@ -55,9 +57,9 @@ define('jenkins/parameterized-build-pullrequest', [
     }
 
     function showManualBuildDialog(buildUrl, branch, jobs) {
-        var dialog = AJS.dialog2(com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.fullDialog({
+        var dialog = dialog2(com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.fullDialog({
             jobs: jobs,
-            title: AJS.I18n.getText('Build with Parameters')
+            title: 'Build with Parameters'
         })).show();
 
         var jobSelector = document.getElementById("job");
@@ -160,7 +162,7 @@ define('jenkins/parameterized-build-pullrequest', [
                 });
             } else if (data.prompt) {
                 var promptCookie = getCookie("jenkinsPrompt");
-                var settingsPath = AJS.contextPath() + "/plugins/servlet/account/jenkins";
+                var settingsPath = urlParts[1] + "/plugins/servlet/account/jenkins";
                 if (promptCookie !== "ignore") {
                     flag({
                         type: 'info',
@@ -196,6 +198,6 @@ define('jenkins/parameterized-build-pullrequest', [
     }
 });
 
-require('aui').$(document).ready(function() {
+$(document).ready(function() {
     require('jenkins/parameterized-build-pullrequest');
 });

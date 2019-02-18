@@ -14,6 +14,6 @@ define('jenkins/parameterized-build-layout', [
     };
 });
 
-require('aui').$(document).ready(function () {
+$(document).ready(function () {
     require('jenkins/parameterized-build-layout').onReady();
 });
