@@ -1,5 +1,5 @@
 define('trigger/build-dialog', [
-    'aui',
+    'aui/dialog2',
     'jquery',
     'exports',
     'bitbucket/util/state',
@@ -7,7 +7,7 @@ define('trigger/build-dialog', [
     'lodash',
     'aui/flag'
 ], function(
-    AJS,
+    dialog2,
     $,
     exports,
     pageState,
@@ -16,6 +16,9 @@ define('trigger/build-dialog', [
     flag
 ) {
     var allJobs;
+
+    var urlRegex = /(.+?)\/projects\/\w+?\/repos\/\w+?\/.*/
+    var urlParts = window.location.href.match(urlRegex);
 
     function bindToDropdownLink(linkSelector, dropDownSelector, getBranchNameFunction) {
         $(document).on('aui-dropdown2-show', dropDownSelector, function () {
@@ -55,7 +58,7 @@ define('trigger/build-dialog', [
     }
     
     function getResourceUrl(resourceType){
-        return AJS.contextPath() + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
+        return urlParts[1] + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
         + pageState.getRepository().slug + '/' + resourceType;
     }
     
@@ -68,9 +71,9 @@ define('trigger/build-dialog', [
     }
 
     function showManualBuildDialog(buildUrl, branch, jobs) {
-        var dialog = AJS.dialog2(com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.fullDialog({
+        var dialog = dialog2(com.kylenicholls.stash.parameterizedbuilds.jenkins.branchBuild.fullDialog({
                 jobs: jobs,
-                title: AJS.I18n.getText('Build with Parameters')
+                title: 'Build with Parameters'
         })).show();
         
         var jobSelector = document.getElementById("job");
@@ -173,7 +176,7 @@ define('trigger/build-dialog', [
                 });
             } else if (data.prompt) {
                 var promptCookie = getCookie("jenkinsPrompt");
-                var settingsPath = AJS.contextPath() + "/plugins/servlet/account/jenkins";
+                var settingsPath = urlParts[1] + "/plugins/servlet/account/jenkins";
                 if (promptCookie !== "ignore") {
                     flag({
                         type: 'info',

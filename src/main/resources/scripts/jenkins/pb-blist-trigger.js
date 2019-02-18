@@ -14,6 +14,6 @@ define('jenkins/parameterized-build-branchlist', [
     };
 });
 
-require('aui').$(document).ready(function () {
+$(document).ready(function () {
     require('jenkins/parameterized-build-branchlist').onReady();
 });
