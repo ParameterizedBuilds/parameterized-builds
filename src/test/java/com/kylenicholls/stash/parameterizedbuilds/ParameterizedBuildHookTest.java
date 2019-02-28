@@ -20,7 +20,6 @@ import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.RefDeletedHandle
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.RefHandler;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
-import com.kylenicholls.stash.parameterizedbuilds.item.Job.JobBuilder;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import org.junit.Assert;
 import org.junit.Before;
@@ -63,7 +62,6 @@ public class ParameterizedBuildHookTest {
     private SettingsValidationErrors validationErrors;
     private Project project;
     private ApplicationUser user;
-    private JobBuilder jobBuilder;
     List<Job> jobs;
 
     @Before
@@ -105,8 +103,6 @@ public class ParameterizedBuildHookTest {
         when(project.getKey()).thenReturn(PROJECT_KEY);
 
         when(minimalRef.getId()).thenReturn(BRANCH_REF);
-        jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
-                .pathRegex("");
         jobs = new ArrayList<>();
         when(settingsService.getJobs(any())).thenReturn(jobs);
 

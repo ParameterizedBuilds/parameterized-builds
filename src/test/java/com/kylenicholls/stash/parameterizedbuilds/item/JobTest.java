@@ -240,7 +240,6 @@ public class JobTest {
 		String jobName = "jobname";
 		Server server = new Server("http://baseurl", null, "", "", false, false);
 		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").isPipeline(true).build();
-		String branch = "test_branch";
 
 		String actual = job.buildUrl(server, bitbucketVariables, false);
 

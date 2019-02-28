@@ -125,7 +125,7 @@ public class BuildResource extends RestResource {
 		}
 	}
 
-	private Map createServerMap(Server server, String projectKey){
+	private Map<String, String> createServerMap(Server server, String projectKey){
 		Map<String, String> serverMap = new HashMap<>();
 		serverMap.put("url", server.getBaseUrl());
 		serverMap.put("alias", server.getAlias());

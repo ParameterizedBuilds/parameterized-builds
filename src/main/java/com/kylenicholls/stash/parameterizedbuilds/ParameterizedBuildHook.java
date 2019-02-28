@@ -32,7 +32,7 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
 public class ParameterizedBuildHook
-		implements PostRepositoryHook, SettingsValidator {
+		implements PostRepositoryHook<RepositoryHookRequest>, SettingsValidator {
 
 	private final SettingsService settingsService;
 	private final CommitService commitService;
