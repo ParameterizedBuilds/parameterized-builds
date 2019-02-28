@@ -119,7 +119,7 @@ public class SettingsService {
 		return jobsList;
 	}
 
-	public boolean fetchValue(String attr, Map parameterMap, boolean defaultVal){
+	public boolean fetchValue(String attr, Map<String, Object> parameterMap, boolean defaultVal){
 		boolean val = defaultVal;
 		Object fetchedVal = parameterMap.get(attr);
 		if (fetchedVal != null) {
@@ -128,7 +128,7 @@ public class SettingsService {
 		return val;
 	}
 
-	public String fetchValue(String attr, Map parameterMap, String defaultVal){
+	public String fetchValue(String attr, Map<String, Object> parameterMap, String defaultVal){
 		String val = defaultVal;
 		Object fetchedVal = parameterMap.get(attr);
 		if (fetchedVal != null) {

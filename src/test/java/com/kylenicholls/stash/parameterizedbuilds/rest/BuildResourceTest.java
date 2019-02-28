@@ -146,6 +146,7 @@ public class BuildResourceTest {
 		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
 		Response actual = rest.getJenkinsServers(repository);
 
+		@SuppressWarnings("serial")
 		Map<String, String> expected = new HashMap<String, String>() {{
 			put("url", projectServer.getBaseUrl());
 			put("alias", projectServer.getAlias());
@@ -161,6 +162,7 @@ public class BuildResourceTest {
 	public void testGetJenkinsServersOnlyGlobalDefined() {
 		Response actual = rest.getJenkinsServers(repository);
 
+		@SuppressWarnings("serial")
 		Map<String, String> expected = new HashMap<String, String>() {{
 			put("url", globalServer.getBaseUrl());
 			put("alias", globalServer.getAlias());
@@ -177,6 +179,7 @@ public class BuildResourceTest {
 		when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
 		Response actual = rest.getJenkinsServers(repository);
 
+		@SuppressWarnings("serial")
 		Map<String, String> expectedProject = new HashMap<String, String>() {{
 			put("url", projectServer.getBaseUrl());
 			put("alias", projectServer.getAlias());
@@ -185,6 +188,7 @@ public class BuildResourceTest {
 			put("default_user", projectServer.getUser());
 		}};
 
+		@SuppressWarnings("serial")
 		Map<String, String> expectedGlobal = new HashMap<String, String>() {{
 			put("url", globalServer.getBaseUrl());
 			put("alias", globalServer.getAlias());

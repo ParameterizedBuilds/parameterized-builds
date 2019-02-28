@@ -79,15 +79,8 @@ public class PullRequestHook {
 	}
 
 	@EventListener
-	public void onPullRequestDeleted(PullRequestEvent event) throws IOException {
-		try {
-			Class PRDeletedEvent = Class.forName("com.atlassian.bitbucket.event.pull.PullRequestDeletedEvent");
-			if (PRDeletedEvent.isInstance(event)) {
-				runHandler(new PRDeletedHandler(settingsService, pullRequestService, jenkins, event, url));
-			}
-		} catch (ClassNotFoundException e) {
-			return;
-		}
+	public void onPullRequestDeleted(PullRequestDeletedEvent event) throws IOException {
+		runHandler(new PRDeletedHandler(settingsService, pullRequestService, jenkins, event, url));
 	}
 
 	@EventListener

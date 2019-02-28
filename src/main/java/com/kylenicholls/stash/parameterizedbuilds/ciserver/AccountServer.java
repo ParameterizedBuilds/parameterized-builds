@@ -45,6 +45,7 @@ public class AccountServer extends CIServer {
     public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
         List<UserToken> projectTokens = jenkins
                 .getAllUserTokens(user, projectService.findAllKeys(), projectService);
+        @SuppressWarnings("serial")
         Map<String, Object> baseMap = new HashMap<String, Object>() {{
             put(USER_KEY, user);
             put(PROJECT_TOKENS_KEY, projectTokens);

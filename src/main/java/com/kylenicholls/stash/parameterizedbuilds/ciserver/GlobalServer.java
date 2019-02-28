@@ -27,6 +27,7 @@ public class GlobalServer extends CIServer{
 
     public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
         Object server = this.server != null ? this.server: "";
+        @SuppressWarnings("serial")
         Map<String, Object> baseMap = new HashMap<String, Object>() {{
             put(SERVER,server);
             put(ERRORS,"");
