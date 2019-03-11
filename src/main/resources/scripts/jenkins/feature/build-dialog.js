@@ -17,7 +17,7 @@ define('trigger/build-dialog', [
 ) {
     var allJobs;
 
-    var urlRegex = /(.+?)\/projects\/\w+?\/repos\/\w+?\/.*/
+    var urlRegex = /(.+?)\/projects\/[\w_ -]+?\/repos\/[\w_ -]+?\/.*/
     var urlParts = window.location.href.match(urlRegex);
 
     function bindToDropdownLink(linkSelector, dropDownSelector, getBranchNameFunction) {
