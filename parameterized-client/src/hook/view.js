@@ -8,7 +8,7 @@ import axios from 'axios';
 window.parameterizedbuilds = window.parameterizedbuilds || {};
 
 const getJenkinsServers = () => {
-    const urlRegex = /(.+?)(\/projects\/[\w_ -]+?\/repos\/[\w_ -]+?\/)settings.*/
+    const urlRegex = /(.+?)(\/projects\/.+?\/repos\/.+?\/)settings.*/
     let urlParts = window.location.href.match(urlRegex);
     let restUrl = urlParts[1] + "/rest/parameterized-builds/latest" + urlParts[2] + "getJenkinsServers";
     return axios.get(restUrl, {
