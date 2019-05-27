@@ -5,6 +5,7 @@ module.exports = {
     mode: 'production',
     entry: {
         'hook/parameterized_build_hook': ['./src/hook/view.js'],
+        'jenkins_settings/server_form': ['/src/jenkins_settings/view.js']
     },
     output: {
         path: path.join(__dirname, '../src/main/resources/'),

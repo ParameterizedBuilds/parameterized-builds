@@ -27,6 +27,9 @@ import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.soy.renderer.SoyException;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
+import com.atlassian.webresource.api.assembler.PageBuilderService;
+import com.atlassian.webresource.api.assembler.RequiredResources;
+import com.atlassian.webresource.api.assembler.WebResourceAssembler;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
@@ -49,6 +52,7 @@ public class CIServletTest {
 	private ApplicationUser user;
 	private Project project;
 	private ProjectService projectService;
+	private PageBuilderService pageBuilderService;
 
 	@Before
 	public void setup() throws IOException {
@@ -57,7 +61,8 @@ public class CIServletTest {
 		NavBuilder navBuilder = mock(NavBuilder.class);
 		jenkins = mock(Jenkins.class);
 		projectService = mock(ProjectService.class);
-		servlet = new CIServlet(renderer, authContext, navBuilder, jenkins, projectService);
+		pageBuilderService = mock(PageBuilderService.class);
+		servlet = new CIServlet(renderer, authContext, navBuilder, jenkins, projectService, pageBuilderService);
 
 		req = mock(HttpServletRequest.class);
 		resp = mock(HttpServletResponse.class);
@@ -69,6 +74,13 @@ public class CIServletTest {
 		when(user.getSlug()).thenReturn(USER_SLUG);
 		when(project.getKey()).thenReturn(PROJECT_KEY);
 		when(projectService.getByKey(PROJECT_KEY)).thenReturn(project);
+
+		WebResourceAssembler mockAssembler = mock(WebResourceAssembler.class);
+		RequiredResources mockResources = mock(RequiredResources.class);
+
+		when(pageBuilderService.assembler()).thenReturn(mockAssembler);
+		when(mockAssembler.resources()).thenReturn(mockResources);
+		when(mockResources.requireWebResource(any())).thenReturn(null);
 	}
 
 	@Test

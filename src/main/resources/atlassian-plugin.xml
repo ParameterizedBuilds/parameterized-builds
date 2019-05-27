@@ -59,6 +59,11 @@
     <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
   </web-resource>
   
+  <!-- Javascript for jenkins server settings form -->
+  <web-resource key="jenkins-settings-form" name="Jenkins Settings Form">
+    <resource name="server_form.js" type="download" location="/jenkins_settings/server_form.js"/>
+  </web-resource>
+
   <!-- Jenkins JS build feature -->
   <web-resource name="Jenkins Branch Build Feature" i18n-name-key="build-dialog.name" key="build-dialog">
     <transformation extension="soy">

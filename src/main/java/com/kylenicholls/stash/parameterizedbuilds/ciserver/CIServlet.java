@@ -16,6 +16,7 @@ import com.atlassian.bitbucket.nav.NavBuilder;
 import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.soy.renderer.SoyException;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
+import com.atlassian.webresource.api.assembler.PageBuilderService;
 
 @SuppressWarnings("serial")
 public class CIServlet extends HttpServlet {
@@ -25,14 +26,17 @@ public class CIServlet extends HttpServlet {
 	private final transient NavBuilder navBuilder;
 	private final transient Jenkins jenkins;
 	private final transient ProjectService projectService;
+	private final transient PageBuilderService pageBuilderService;
 
 	public CIServlet(SoyTemplateRenderer soyTemplateRenderer, AuthenticationContext authContext,
-			NavBuilder navBuilder, Jenkins jenkins, ProjectService projectService) {
+			NavBuilder navBuilder, Jenkins jenkins, ProjectService projectService,
+			PageBuilderService pageBuilderService) {
 		this.soyTemplateRenderer = soyTemplateRenderer;
 		this.authContext = authContext;
 		this.navBuilder = navBuilder;
 		this.jenkins = jenkins;
 		this.projectService = projectService;
+		this.pageBuilderService = pageBuilderService;
 	}
 
 	@Override
@@ -80,6 +84,9 @@ public class CIServlet extends HttpServlet {
 
 	private void render(HttpServletResponse resp, String templateName, Map<String, Object> data)
 			throws IOException, ServletException {
+
+		pageBuilderService.assembler().resources().requireWebResource("com.kylenicholls.stash.parameterized-builds:jenkins-settings-form");
+		
 		resp.setContentType("text/html;charset=UTF-8");
 		try {
 			soyTemplateRenderer.render(resp
