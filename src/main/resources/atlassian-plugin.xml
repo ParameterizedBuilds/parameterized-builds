@@ -61,7 +61,7 @@
   
   <!-- Javascript for jenkins server settings form -->
   <web-resource key="jenkins-settings-form" name="Jenkins Settings Form">
-    <resource name="server_form.js" type="download" location="/jenkins_settings/server_form.js"/>
+    <resource name="server_form.js" type="download" location="/jenkins_settings/server_form.pack.js"/>
   </web-resource>
 
   <!-- Jenkins JS build feature -->

@@ -21,10 +21,8 @@
 {/template}
 
 /**
- * @param server
  * @param projectKey
- * @param errors
- * @param testMessage
+ * @param bitbucketContext
  */
 {template .settingsProjectAdmin}
 <html>
@@ -34,12 +32,14 @@
     <meta name="activeTab" content="jenkins-admin-project-tab">
     <title>Jenkins Settings</title>
 </head>
-{call .body}
-    {param server: $server /}
-    {param errors: $errors /}
-    {param testMessage: $testMessage /}
-    {param scope: $projectKey /}
-{/call}
+<body>
+    <h2 class="page-panel-content-header">Jenkins Settings</h2>
+    <div id="jenkins-settings">
+        <div id="project-key" style="display: none;">{$projectKey}</div>
+        <div id="bitbucket-context" style="display: none;">{$bitbucketContext}</div>
+    </div>
+</body>
+</html>
 {/template}
 
 /**

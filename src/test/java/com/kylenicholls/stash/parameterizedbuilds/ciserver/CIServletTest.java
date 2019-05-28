@@ -43,6 +43,8 @@ public class CIServletTest {
 	private final String GLOBAL_PATH = "/plugins/servlet/jenkins";
 	private final String PROJECT_PATH = "/plugins/servlet/jenkins/project/";
 	private final String ACCOUNT_PATH = "/plugins/servlet/jenkins/account";
+	private final String CONTEXT_KEY = "bitbucketContext";
+	private final String BITBUCKET_CONTEXT = "/bitbucket";
 	private CIServlet servlet;
 	private SoyTemplateRenderer renderer;
 	private Jenkins jenkins;
@@ -81,6 +83,7 @@ public class CIServletTest {
 		when(pageBuilderService.assembler()).thenReturn(mockAssembler);
 		when(mockAssembler.resources()).thenReturn(mockResources);
 		when(mockResources.requireWebResource(any())).thenReturn(null);
+		when(navBuilder.buildRelative()).thenReturn(BITBUCKET_CONTEXT);
 	}
 
 	@Test
@@ -93,7 +96,8 @@ public class CIServletTest {
 		Map<String, Object> data = ImmutableMap.of(
 				CIServer.SERVER, server,
 				CIServer.ERRORS, "",
-				CIServer.TESTMESSAGE, "");
+				CIServer.TESTMESSAGE, "",
+				CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
 	}
@@ -107,7 +111,8 @@ public class CIServletTest {
 		Map<String, Object> data = ImmutableMap.of(
 				CIServer.SERVER, "",
 				CIServer.ERRORS, "",
-				CIServer.TESTMESSAGE, "");
+				CIServer.TESTMESSAGE, "",
+				CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
 	}
@@ -122,7 +127,11 @@ public class CIServletTest {
 		servlet.doGet(req, resp);
 
 		Map<String, Object> data = ImmutableMap
-				.<String, Object> of("user", user, "projectTokens", projectTokens, "errors", "");
+				.<String, Object> of(
+					"user", user, 
+					"projectTokens", projectTokens, 
+					"errors", "",
+					CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.user.settings", data);
 	}
@@ -138,7 +147,8 @@ public class CIServletTest {
 				CIServer.SERVER, server,
 				ProjectServer.PROJECT_KEY, PROJECT_KEY,
 				CIServer.ERRORS, "",
-				CIServer.TESTMESSAGE, "");
+				CIServer.TESTMESSAGE, "",
+				CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settingsProjectAdmin", data);
 	}
@@ -153,7 +163,8 @@ public class CIServletTest {
 				CIServer.SERVER, "",
 				ProjectServer.PROJECT_KEY, PROJECT_KEY,
 				CIServer.ERRORS, "",
-				CIServer.TESTMESSAGE, "");
+				CIServer.TESTMESSAGE, "",
+				CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settingsProjectAdmin", data);
 	}
