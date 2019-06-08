@@ -1,9 +1,7 @@
 {namespace jenkins.admin}
 
 /**
- * @param server
- * @param errors
- * @param testMessage
+ * @param bitbucketContext
  */
 {template .settings}
 <html>
@@ -12,12 +10,14 @@
     <meta name="activeTab" content="jenkins-admin-tab">
     <title>Jenkins Settings</title>
 </head>
-{call .body}
-    {param server: $server /}
-    {param errors: $errors /}
-    {param testMessage: $testMessage /}
-    {param scope: 'Global' /}
-{/call}
+<body>
+    <h2 class="page-panel-content-header">Jenkins Settings</h2>
+    <div id="jenkins-settings">
+        <div id="project-key" style="display: none;"></div>
+        <div id="bitbucket-context" style="display: none;">{$bitbucketContext}</div>
+    </div>
+</body>
+</html>
 {/template}
 
 /**
@@ -40,99 +40,4 @@
     </div>
 </body>
 </html>
-{/template}
-
-/**
- * @param server
- * @param errors
- * @param testMessage
- * @param scope
- */
-{template .body}
-<body>
-	<h2 class="page-panel-content-header">Jenkins Settings</h2>
-	<form class="aui prevent-double-submit  pull-request-settings" action="" method="post" accept-charset="UTF-8">
-		{call .anotherParam}
-			{param server: $server /}
-            {param scope: $scope /}
-		{/call}
-		{if $errors}
-			<div class="field-group"><div class="error">{$errors}</div></div>
-		{/if}
-		<p>
-		{call aui.form.submit}
-          {param id: 'testButton' /}
-          {param name: 'submit' /}
-          {param text: 'Test Jenkins Settings' /}
-          {param extraClasses: 'aui-button' /}
-        {/call}
-        </p>
-        {if $testMessage}
-            {if strContains($testMessage, 'success') or strContains($testMessage, 'Success')}
-                <div class="aui-message success">{$testMessage}</div>
-            {else}
-                <div class="aui-message error">{$testMessage}</div>
-            {/if}
-            <div class=>
-        {/if}
-        <p>
-	    {call aui.form.submit}
-	      {param id: 'saveButton' /}
-	      {param name: 'submit' /}
-	      {param text: 'Save' /}
-	      {param type: 'submit' /}
-		  {param extraClasses: 'aui-button-primary' /}
-	    {/call}
-	    </p>
-    </form>
-</body>
-</html>
-{/template}
-
-/**
- * @param server
- * @param scope
- */
-{template .anotherParam}
-    {call aui.form.textField}
-	    {param id: 'jenkinsUrl' /}
-        {param value: $server.baseUrl /}
-        {param labelContent: 'Base URL'  /}
-        {param isRequired: true /}
-    {/call}
-    {call aui.form.textField}
-        {param id: 'jenkinsAlias' /}
-        {param value: $server.alias ?: $scope + ' Server' /}
-        {param labelContent: 'Server Nickname'  /}
-        {param isRequired: true /}
-        {param autocomplete: 'off' /}
-    {/call}
-    {call aui.form.textField}
-        {param id: 'jenkinsUser' /}
-        {param value: $server.user /}
-        {param labelContent: 'Default User'  /}
-        {param isRequired: false /}
-        {param autocomplete: 'off' /}
-    {/call}
-	{call aui.form.passwordField}
-        {param id: 'jenkinsToken' /}
-        {param value: $server.token /}
-        {param labelContent: 'Default Token'  /}
-        {param isRequired: false /}
-        {param autocomplete: 'off' /}
-    {/call}
-    {call widget.aui.form.checkbox}
-    	{param id:'jenkinsAltUrl' /}
-		{param checked: $server.altUrl /}
-    	{param labelContent: 'Build Token Root Plugin (uses an alternate url for triggering builds)' /}
-    {/call}
-    {call widget.aui.form.checkbox}
-        {param id:'jenkinsCSRF' /}
-        {param checked: $server.csrfEnabled /}
-        {param labelContent: 'CSRF protection' /}
-    {/call}
-    {call widget.aui.form.checkbox}
-    	{param id:'clear-settings' /}
-    	{param labelContent: 'Clear Settings' /}
-    {/call}
 {/template}

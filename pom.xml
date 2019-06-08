@@ -307,10 +307,10 @@
 		</plugins>
 	</build>
 	<properties>
-		<bitbucket.server.version>6.0.0</bitbucket.server.version>
-		<bitbucket.data.version>6.0.0</bitbucket.data.version>
-		<atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
-		<amps.version>6.3.21</amps.version>
-		<plugin.testrunner.version>1.2.0</plugin.testrunner.version>
+		<bitbucket.server.version>6.3.0</bitbucket.server.version>
+		<bitbucket.data.version>6.3.0</bitbucket.data.version>
+		<atlassian.spring.scanner.version>2.1.7</atlassian.spring.scanner.version>
+		<amps.version>8.0.0</amps.version>
+		<plugin.testrunner.version>2.0.1</plugin.testrunner.version>
 	</properties>
 </project>

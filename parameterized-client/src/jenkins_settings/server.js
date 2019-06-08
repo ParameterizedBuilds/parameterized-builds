@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { TextInput, Checkbox } from '../common/aui'
+import { TextInput, Checkbox, ButtonGroup, Button } from '../common/aui'
 
 const ServerContainer = ({
     serverData,
@@ -18,6 +18,12 @@ const ServerContainer = ({
                       id="jenkinsAltUrl" value={serverData.root_token_enabled} />
             <Checkbox labelText="CSRF protection" id="jenkinsCSRF"
                       value={serverData.csrf_enabled} />
+            <ButtonGroup>
+                <Button id="saveButton" name="submit" buttonText="Save"
+                        extraClasses={["aui-button-primary"] } />
+                <Button id="testButton" name="submit" buttonText="Test Jenkins Settings" />
+                <Button id="clearButton" name="submit" buttonText="Clear Jenkins Settings" />
+            </ButtonGroup>
         </div>
     );
 }

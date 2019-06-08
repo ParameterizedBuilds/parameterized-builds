@@ -44,6 +44,24 @@ export const Checkbox = ({
     </fieldset>
 )
 
+export const Button = ({
+    id,
+    name,
+    buttonText,
+    onClick= () => {},
+    type = "submit",
+    extraClasses = [],
+}) => (
+    <input id={id} className={"aui-button " + extraClasses.join(' ')}
+           name={name} value={buttonText} type={type} onClick={onClick} />
+)
+
+export const ButtonGroup = ({ children }) => (
+    <div className="aui-buttons">
+        {children}
+    </div>
+)
+
 export const Form = ({ children }) => (
     <form className="aui prevent-double-submit" acceptCharset="UTF-8">
         {children}

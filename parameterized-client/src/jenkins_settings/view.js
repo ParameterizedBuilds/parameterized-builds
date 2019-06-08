@@ -27,15 +27,24 @@ const serverListStateInjector = (state, ownProps) => {
 ServerList = connect(serverListStateInjector)(ServerList);
 
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("Initializing form...")
     const baseStore = createStore(serverDefinitions);
 
     const projectKey = document.getElementById('project-key').innerHTML;
     const bitbucketContext = document.getElementById('bitbucket-context').innerHTML;
     getJenkinsServers(bitbucketContext, projectKey).then(response => {
-        baseStore.dispatch({
-            type: "INITIALIZE",
-            baseConfig: response.data
-        })
+        const servers = response.data;
+        console.log("Got servers: ", servers)
+        if (servers.length == 0){
+            baseStore.dispatch({
+                type: "ADD_SERVER"
+            });
+        } else {
+            baseStore.dispatch({
+                type: "INITIALIZE",
+                baseConfig: servers
+            });
+        }
     }).catch(response => {
         console.error(response);
     });
