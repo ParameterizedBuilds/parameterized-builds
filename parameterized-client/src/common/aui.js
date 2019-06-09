@@ -26,7 +26,7 @@ export const TextInput = ({
 export const Checkbox = ({
     id,
     labelText,
-    value = false,
+    checked = false,
     onChange = () => {},
     description = "",
     errorMessage = ""
@@ -34,7 +34,7 @@ export const Checkbox = ({
     <fieldset className="group checkbox">
         <div className="checkbox">
             <input id={id} className="checkbox" type="checkbox" 
-                    name={id} value={value} onChange={onChange}/>
+                    name={id} checked={checked} onChange={onChange}/>
             <label htmlFor={id}>{labelText}</label>
         </div>
         {description.length > 0 &&
@@ -58,6 +58,16 @@ export const Button = ({
 
 export const ButtonGroup = ({ children }) => (
     <div className="aui-buttons">
+        {children}
+    </div>
+)
+
+export const Message = ({
+    messageClass,
+    closeable = false,
+    children
+}) => (
+    <div className={`aui-message ${messageClass} ${closeable ? "closeable" : ""}`}>
         {children}
     </div>
 )

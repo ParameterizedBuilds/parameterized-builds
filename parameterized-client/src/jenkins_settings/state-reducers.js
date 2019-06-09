@@ -6,6 +6,8 @@ const createServer = initialState => {
         default_user: "",
         root_token_enabled: false,
         csrf_enabled: false,
+        action_message: "",
+        action_state: null,
         ...initialState
     }
 };
@@ -23,7 +25,7 @@ const server = (state=createServer(), action) => {
                 ...state,
                 id: state.id - 1
             };
-        case 'UPDATE_TEXT_FIELD':
+        case 'UPDATE_FIELD':
             let newState = {
                 ...state,
             };
@@ -59,7 +61,11 @@ const servers = (state = [], action) => {
                     }))
             ];
         case 'UPDATE_FIELD':
-            return server(state[action.id], action);
+            return [
+                ...state.slice(0, action.id),
+                server(state[action.id], action),
+                ...state.slice(action.id + 1)
+            ];
         default:
             return state
     }
