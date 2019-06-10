@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { saveJenkinsServer } from '../common/rest'
+import { saveJenkinsServer, deleteJenkinsServer } from '../common/rest'
 import { TextInput, Checkbox, ButtonGroup, Button, Message } from '../common/aui'
 
 const ActionDialog = ({
@@ -33,10 +33,11 @@ const ServerContainer = ({
     serverData,
     project,
     context,
-    updateServer
+    updateServer,
+    removeServer
 }) => {
 
-    const postData = e => {
+    const saveServer = e => {
         e.preventDefault();
         updateServer(serverData.id, "action_message", "Saving settings...")
         updateServer(serverData.id, "action_state", "LOADING")
@@ -46,9 +47,27 @@ const ServerContainer = ({
         }).catch(response => {
             updateServer(serverData.id, "action_message", "Failed to save settings")
             updateServer(serverData.id, "action_state", "ERROR")
-            console.error(response)
         });
     }
+
+    const deleteServer = e => {
+        e.preventDefault();
+        updateServer(serverData.id, "action_message", "Removing settings...")
+        updateServer(serverData.id, "action_state", "LOADING")
+        deleteJenkinsServer(context, project, serverData.alias).then(response => {
+            removeServer(serverData.id)
+        }).catch(response => {
+            updateServer(serverData.id, "action_message", "Could not remove jenkins server")
+            updateServer(serverData.id, "action_state", "ERROR")
+        });
+    }
+
+    const tokenField = serverData.default_token === null ?
+    <Button id="editToken" buttonText="Edit Token"
+            onClick={() => updateServer(serverData.id, "default_token", "")}/> :
+    <TextInput labelText="Default Token" id="defaultToken"
+               value={serverData.default_token}
+               onChange={(e) => updateServer(serverData.id, "default_token", e.target.value)}/>;
 
     return (
         <div>
@@ -61,6 +80,7 @@ const ServerContainer = ({
             <TextInput labelText="Default User" id="jenkinsUser" 
                        value={serverData.default_user}
                        onChange={(e) => updateServer(serverData.id, "default_user", e.target.value)}/>
+            {tokenField}
             <Checkbox labelText="Build Token Root Plugin (uses an alternate url for triggering builds)"
                       id="jenkinsAltUrl" checked={serverData.root_token_enabled}
                       onChange={(e) => updateServer(serverData.id, "root_token_enabled", e.target.checked)} />
@@ -70,9 +90,10 @@ const ServerContainer = ({
             <ButtonGroup>
                 <Button id="saveButton" name="submit" buttonText="Save"
                         extraClasses={["aui-button-primary"]}
-                        onClick={e => postData(e)} />
+                        onClick={saveServer} />
                 <Button id="testButton" name="submit" buttonText="Test Jenkins Settings"/>
-                <Button id="clearButton" name="submit" buttonText="Clear Jenkins Settings" />
+                <Button id="clearButton" name="submit" buttonText="Clear Jenkins Settings"
+                        onClick={deleteServer} />
             </ButtonGroup>
             {serverData.action_message !== "" && 
                 <ActionDialog message={serverData.action_message} state={serverData.action_state}/>}
@@ -97,6 +118,12 @@ const mapDispatchToServerContainerProps = dispatch => {
                 field: fieldName,
                 value: fieldValue
             });
+        },
+        removeServer: (id) => {
+            dispatch({
+                type: 'DELETE_SERVER',
+                id: id
+            })
         }
     }
 }

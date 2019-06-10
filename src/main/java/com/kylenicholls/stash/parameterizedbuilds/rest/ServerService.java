@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -29,6 +30,10 @@ public interface ServerService {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
     public Response addServer(@Context UriInfo ui, Server server);
+
+    @DELETE
+    @Path("/servers/{serverAlias}")
+    public Response removeServer(@Context UriInfo ui);
 
     default Map<String, Object> createServerMap(Server server, String projectKey){
         Map<String, Object> serverMap = new HashMap<>();

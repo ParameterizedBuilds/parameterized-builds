@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -77,6 +78,17 @@ public class GlobalResource extends RestResource implements ServerService{
             int returnStatus = oldServer == null ? 201 : 200;
             jenkins.saveJenkinsServer(server, null);
             return Response.status(returnStatus).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+    }
+
+    @DELETE
+    @Path("/servers/{serverAlias}")
+    public Response removeServer(@Context UriInfo ui){
+        if (authContext.isAuthenticated()) {
+            jenkins.saveJenkinsServer(null, null);
+            return Response.status(Response.Status.NO_CONTENT).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }

@@ -41,3 +41,14 @@ export const saveJenkinsServer = (context, projectKey, serverData) => {
         }
     })
 }
+
+export const deleteJenkinsServer = (context, projectKey, serverName) => {
+    const baseUrl = getRestUrl(context);
+    let fullUrl = projectKey === "" ?
+        `${baseUrl}/global/servers/${serverName}` :
+        `${baseUrl}/projects/${projectKey}/servers/${serverName}`;
+
+    return axios.delete(fullUrl, {
+        timeout: 1000 * 60,
+    })
+}

@@ -3,6 +3,7 @@ package com.kylenicholls.stash.parameterizedbuilds.rest;
 import java.util.*;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -76,6 +77,18 @@ public class ProjectResource extends RestResource implements ServerService {
             int returnStatus = oldServer == null ? 201 : 200;
             jenkins.saveJenkinsServer(server, projectKey);
             return Response.status(returnStatus).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+    }
+
+    @DELETE
+    @Path("/servers/{serverAlias}")
+    public Response removeServer(@Context UriInfo ui){
+        if (authContext.isAuthenticated()) {
+            String projectKey = ui.getPathParameters().getFirst("projectKey");
+            jenkins.saveJenkinsServer(null, projectKey);
+            return Response.status(Response.Status.NO_CONTENT).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }

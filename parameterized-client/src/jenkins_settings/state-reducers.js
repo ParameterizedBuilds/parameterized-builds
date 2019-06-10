@@ -54,7 +54,7 @@ const servers = (state = [], action) => {
                 server(undefined, {...action, id: state.length})
             ];
         case 'DELETE_SERVER':
-            return [
+            let newState = [
                 ...state.slice(0, action.id),
                 ...state.slice(action.id + 1).map(t =>
                     server(t, {
@@ -62,6 +62,14 @@ const servers = (state = [], action) => {
                         type: 'DECREMENT_ID'
                     }))
             ];
+            // always render an empty form
+            if (newState.length == 0){
+                return [
+                    server(undefined, {type: 'ADD_SERVER', id: 0})
+                ]
+            } else {
+                return newState
+            }
         case 'UPDATE_FIELD':
             return [
                 ...state.slice(0, action.id),
