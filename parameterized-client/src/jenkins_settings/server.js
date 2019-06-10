@@ -38,9 +38,14 @@ const ServerContainer = ({
 
     const postData = e => {
         e.preventDefault();
+        updateServer(serverData.id, "action_message", "Saving settings...")
+        updateServer(serverData.id, "action_state", "LOADING")
         saveJenkinsServer(context, project, serverData).then(response => {
-            console.log(response)
+            updateServer(serverData.id, "action_message", "Settings saved!")
+            updateServer(serverData.id, "action_state", "SUCCESS")
         }).catch(response => {
+            updateServer(serverData.id, "action_message", "Failed to save settings")
+            updateServer(serverData.id, "action_state", "ERROR")
             console.error(response)
         });
     }
