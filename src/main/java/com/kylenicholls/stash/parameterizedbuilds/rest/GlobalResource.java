@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -19,6 +20,7 @@ import com.atlassian.bitbucket.i18n.I18nService;
 import com.atlassian.bitbucket.rest.RestResource;
 import com.atlassian.bitbucket.rest.util.RestUtils;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
 
 
@@ -43,11 +45,38 @@ public class GlobalResource extends RestResource implements ServerService{
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
     public Response getServers(@Context UriInfo ui){
         if (authContext.isAuthenticated()) {
-            List<Map<String, String>> servers = new ArrayList<>();
+            List<Map<String, Object>> servers = new ArrayList<>();
             Optional.ofNullable(jenkins.getJenkinsServer(null))
                 .map(x -> createServerMap(x, null)).ifPresent(servers::add);
 
             return Response.ok(servers).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+    }
+
+    @PUT
+    @Path("/servers/{serverAlias}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
+    public Response addServer(@Context UriInfo ui, Server server){
+        if (authContext.isAuthenticated()){
+            Server oldServer = jenkins.getJenkinsServer(null);
+            // if the new server didn't edit the token attribute and the server
+            // credentials should be the same, save the old token
+            if (oldServer != null &&
+                    server.getToken() == null &&
+                    oldServer.getBaseUrl() == server.getBaseUrl() &&
+                    oldServer.getUser() == server.getUser()) {
+                server.setToken(oldServer.getToken());
+            }
+            if (server.getToken() == null){
+                server.setToken("");
+            }
+
+            int returnStatus = oldServer == null ? 201 : 200;
+            jenkins.saveJenkinsServer(server, null);
+            return Response.status(returnStatus).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }

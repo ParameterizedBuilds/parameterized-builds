@@ -43,7 +43,7 @@ public class Jenkins {
 	 * @param server
 	 *            the global server
 	 */
-	protected void saveJenkinsServer(@Nullable Server server) {
+	private void saveJenkinsServer(@Nullable Server server) {
 		saveJenkinsServerToDB(JENKINS_SETTINGS, server);
 	}
 
@@ -56,8 +56,12 @@ public class Jenkins {
 	 * @param projectKey
 	 *            the project key
 	 */
-	protected void saveJenkinsServer(@Nullable Server server, String projectKey) {
-		saveJenkinsServerToDB(JENKINS_SETTINGS_PROJECT + projectKey, server);
+	public void saveJenkinsServer(@Nullable Server server, String projectKey) {
+		if (projectKey == null || projectKey == ""){
+			saveJenkinsServerToDB(JENKINS_SETTINGS, server);
+		} else {
+			saveJenkinsServerToDB(JENKINS_SETTINGS_PROJECT + projectKey, server);
+		}
 	}
 
 	/**

@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { saveJenkinsServer } from '../common/rest'
 import { TextInput, Checkbox, ButtonGroup, Button, Message } from '../common/aui'
 
 const ActionDialog = ({
@@ -30,8 +31,20 @@ const ActionDialog = ({
 
 const ServerContainer = ({
     serverData,
+    project,
+    context,
     updateServer
 }) => {
+
+    const postData = e => {
+        e.preventDefault();
+        saveJenkinsServer(context, project, serverData).then(response => {
+            console.log(response)
+        }).catch(response => {
+            console.error(response)
+        });
+    }
+
     return (
         <div>
             <TextInput labelText="Base URL" id="jenkinsUrl" 
@@ -51,8 +64,9 @@ const ServerContainer = ({
                       onChange={(e) => updateServer(serverData.id, "csrf_enabled", e.target.checked)} />
             <ButtonGroup>
                 <Button id="saveButton" name="submit" buttonText="Save"
-                        extraClasses={["aui-button-primary"]} />
-                <Button id="testButton" name="submit" buttonText="Test Jenkins Settings" />
+                        extraClasses={["aui-button-primary"]}
+                        onClick={e => postData(e)} />
+                <Button id="testButton" name="submit" buttonText="Test Jenkins Settings"/>
                 <Button id="clearButton" name="submit" buttonText="Clear Jenkins Settings" />
             </ButtonGroup>
             {serverData.action_message !== "" && 
@@ -63,7 +77,9 @@ const ServerContainer = ({
 
 const mapStateToServerContainerProps = (state, ownProps) => {
     return {
-        serverData: state.servers[ownProps.id]
+        serverData: state.servers[ownProps.id],
+        project: state.project,
+        context: state.context,
     };
 };
 

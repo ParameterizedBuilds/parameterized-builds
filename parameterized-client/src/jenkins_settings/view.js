@@ -33,14 +33,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const bitbucketContext = document.getElementById('bitbucket-context').innerHTML;
     getJenkinsServers(bitbucketContext, projectKey).then(response => {
         const servers = response.data;
+
+        baseStore.dispatch({
+            type: "INITIALIZE",
+            baseConfig: servers,
+            project: projectKey,
+            context: bitbucketContext
+        });
+
         if (servers.length == 0){
             baseStore.dispatch({
                 type: "ADD_SERVER"
-            });
-        } else {
-            baseStore.dispatch({
-                type: "INITIALIZE",
-                baseConfig: servers
             });
         }
     }).catch(response => {

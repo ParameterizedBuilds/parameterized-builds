@@ -45,7 +45,7 @@ public class JenkinsTest {
 
 	@Test
 	public void testSaveGlobalJenkinsServerNull() {
-		jenkins.saveJenkinsServer(null);
+		jenkins.saveJenkinsServer(null, null);
 
 		verify(pluginSettings, times(1)).remove(".jenkinsSettings");
 	}
@@ -60,7 +60,7 @@ public class JenkinsTest {
 	@Test
 	public void testSaveGlobalJenkinsServer() {
 		Server server = new Server("url", null, "user", "token", true, true);
-		jenkins.saveJenkinsServer(server);
+		jenkins.saveJenkinsServer(server, null);
 
 		verify(pluginSettings, times(1)).put(".jenkinsSettings", server.asMap());
 	}

@@ -4,6 +4,7 @@ const createServer = initialState => {
         url: "",
         alias: "",
         default_user: "",
+        default_token: null,
         root_token_enabled: false,
         csrf_enabled: false,
         action_message: "",
@@ -40,9 +41,10 @@ const server = (state=createServer(), action) => {
 const servers = (state = [], action) => {
     switch (action.type) {
         case 'INITIALIZE':
-            return action.baseConfig.map(serverConfig => 
+            return action.baseConfig.map((serverConfig, index) =>
                 server(state, {
                     ...action,
+                    id: index,
                     serverConfig: serverConfig,
                     type: 'ADD_SERVER'
                 }))
@@ -71,8 +73,15 @@ const servers = (state = [], action) => {
     }
 };
 
-export const serverDefinitions = (state = {servers: []}, action) => {
+export const serverDefinitions = (state = {servers: [], project: null}, action) => {
     switch (action.type){
+        case 'INITIALIZE':
+            return {
+                ...state,
+                project: action.project,
+                context: action.context,
+                servers: servers(state.servers, action)
+            }
         default:
             return {
                 ...state,

@@ -16,11 +16,11 @@ public class GlobalServer extends CIServer{
 
     public Map<String, Object> postSettings(boolean clearSettings){
         if (clearSettings) {
-            jenkins.saveJenkinsServer(null);
+            jenkins.saveJenkinsServer(null, null);
         } else if (server.getBaseUrl().isEmpty()) {
             return renderMap(ImmutableMap.of(ERRORS, "Base URL required"));
         } else {
-            jenkins.saveJenkinsServer(server);
+            jenkins.saveJenkinsServer(server, null);
         }
         return null;
     }

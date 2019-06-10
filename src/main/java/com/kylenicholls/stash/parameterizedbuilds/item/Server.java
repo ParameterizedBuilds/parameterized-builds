@@ -11,6 +11,9 @@ public class Server {
 	private boolean altUrl;
 	private boolean csrfEnabled;
 
+	public Server(){
+	}
+
 	public Server(String baseUrl, String alias, String user, String token, boolean altUrl, boolean csrfEnabled) {
 		this.baseUrl = baseUrl;
 		this.alias = alias;
@@ -36,24 +39,48 @@ public class Server {
 		return baseUrl;
 	}
 
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
+
 	public String getAlias() {
 		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 	public String getUser() {
 		return user;
 	}
 
+	public void setUser(String user) {
+		this.user = user;
+	}
+
 	public String getToken() {
 		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	public boolean getCsrfEnabled() {
 		return csrfEnabled;
 	}
 
+	public void setCsrfEnabled(Boolean csrfEnabled) {
+		this.csrfEnabled = csrfEnabled;
+	}
+
 	public boolean getAltUrl() {
 		return altUrl;
+	}
+
+	public void setAltUrl(Boolean altUrl) {
+		this.altUrl = altUrl;
 	}
 
 	public Map<String, Object> asMap() {

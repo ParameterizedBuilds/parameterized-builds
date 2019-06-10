@@ -2,6 +2,7 @@ package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -213,7 +214,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(1)).saveJenkinsServer(any(Server.class));
+		verify(jenkins, times(1)).saveJenkinsServer(any(Server.class), isNull());
 		verify(renderer, times(1)).render(any(), any(), any(), any());
 	}
 
@@ -257,7 +258,7 @@ public class CIServletTest {
 		servlet.doPost(req, resp);
 
 		Server expected = new Server(baseUrl, null, defaultUser, defaultToken, false, false);
-		verify(jenkins, times(1)).saveJenkinsServer(expected);
+		verify(jenkins, times(1)).saveJenkinsServer(expected, null);
 	}
 
 	// @Test
@@ -284,7 +285,7 @@ public class CIServletTest {
 		servlet.doPost(req, resp);
 
 		Server expected = new Server(baseUrl[0], null, defaultUser[0], defaultToken[0], false, false);
-		verify(jenkins, times(1)).saveJenkinsServer(expected);
+		verify(jenkins, times(1)).saveJenkinsServer(expected, null);
 	}
 
 	@Test
@@ -311,7 +312,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(1)).saveJenkinsServer(null);
+		verify(jenkins, times(1)).saveJenkinsServer(null, null);
 	}
 
 	@Test
@@ -338,7 +339,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(0)).saveJenkinsServer(null);
+		verify(jenkins, times(0)).saveJenkinsServer(null, null);
 	}
 
 	@Test
@@ -364,7 +365,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(0)).saveJenkinsServer(null);
+		verify(jenkins, times(0)).saveJenkinsServer(null, null);
 	}
 
 	@Test
