@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { saveJenkinsServer, deleteJenkinsServer } from '../common/rest'
+import { saveJenkinsServer, deleteJenkinsServer, testJenkinsServer } from '../common/rest'
 import { TextInput, Checkbox, ButtonGroup, Button, Message } from '../common/aui'
 
 const ActionDialog = ({
@@ -44,7 +44,7 @@ const ServerContainer = ({
         saveJenkinsServer(context, project, serverData).then(response => {
             updateServer(serverData.id, "action_message", "Settings saved!")
             updateServer(serverData.id, "action_state", "SUCCESS")
-        }).catch(response => {
+        }).catch(error => {
             updateServer(serverData.id, "action_message", "Failed to save settings")
             updateServer(serverData.id, "action_state", "ERROR")
         });
@@ -56,8 +56,21 @@ const ServerContainer = ({
         updateServer(serverData.id, "action_state", "LOADING")
         deleteJenkinsServer(context, project, serverData.alias).then(response => {
             removeServer(serverData.id)
-        }).catch(response => {
+        }).catch(error => {
             updateServer(serverData.id, "action_message", "Could not remove jenkins server")
+            updateServer(serverData.id, "action_state", "ERROR")
+        });
+    }
+
+    const testServer = e => {
+        e.preventDefault();
+        updateServer(serverData.id, "action_message", "Testing settings...")
+        updateServer(serverData.id, "action_state", "LOADING")
+        testJenkinsServer(context, project, serverData).then(response => {
+            updateServer(serverData.id, "action_message", response.data)
+            updateServer(serverData.id, "action_state", "SUCCESS")
+        }).catch(error => {
+            updateServer(serverData.id, "action_message", error.response.data)
             updateServer(serverData.id, "action_state", "ERROR")
         });
     }
@@ -91,7 +104,8 @@ const ServerContainer = ({
                 <Button id="saveButton" name="submit" buttonText="Save"
                         extraClasses={["aui-button-primary"]}
                         onClick={saveServer} />
-                <Button id="testButton" name="submit" buttonText="Test Jenkins Settings"/>
+                <Button id="testButton" name="submit" buttonText="Test Jenkins Settings"
+                        onClick={testServer}/>
                 <Button id="clearButton" name="submit" buttonText="Clear Jenkins Settings"
                         onClick={deleteServer} />
             </ButtonGroup>

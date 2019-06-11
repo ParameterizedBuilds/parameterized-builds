@@ -5,6 +5,7 @@ import java.util.*;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -49,6 +50,24 @@ public class ProjectResource extends RestResource implements ServerService {
                 .ifPresent(servers::add);
 
             return Response.ok(servers).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+    }
+
+    @POST
+    @Path("/servers/validate")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
+    public Response validate(@Context UriInfo ui, Server server){
+        if (authContext.isAuthenticated()) {
+            String message = jenkins.testConnection(server);
+
+            if(message.equals("Connection successful")){
+                return Response.ok(message).build();
+            }
+
+            return Response.status(400).entity(message).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }

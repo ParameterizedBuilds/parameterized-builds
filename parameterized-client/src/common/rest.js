@@ -52,3 +52,27 @@ export const deleteJenkinsServer = (context, projectKey, serverName) => {
         timeout: 1000 * 60,
     })
 }
+
+
+export const testJenkinsServer = (context, projectKey, serverData) => {
+    const baseUrl = getRestUrl(context);
+    let fullUrl = projectKey === "" ?
+        `${baseUrl}/global/servers/validate` :
+        `${baseUrl}/projects/${projectKey}/servers/validate`;
+
+        const data = {
+            baseUrl: serverData.url,
+            alias: serverData.alias,
+            user: serverData.default_user,
+            token: serverData.default_token,
+            altUrl: serverData.root_token_enabled,
+            csrfEnabled: serverData.csrf_enabled
+        }
+
+    return axios.post(fullUrl, data, {
+        timeout: 1000 * 60,
+        headers: {
+            'content-type': 'application/json'
+        }
+    })
+}
