@@ -77,3 +77,30 @@ export const Form = ({ children }) => (
         {children}
     </form>
 )
+
+export const Modal = ({
+    id,
+    hidden=false,
+    extraClasses = [],
+    toggleFunction,
+    title="",
+    footerButtons=[],
+    children, }) => (
+    <section id={id} className={"aui-dialog2 aui-layer aui-dialog2-small " + extraClasses.join(' ')}
+             role="dialog" aria-hidden={hidden}>
+        <header className="aui-dialog2-header">
+            <h2 className="aui-dialog2-header-main">{title}</h2>
+            <a className="aui-dialog2-header-close" onClick={toggleFunction}>
+                <span className="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span>
+            </a>
+        </header>
+        <div className="aui-dialog2-content">
+            {children}
+        </div>
+        <footer className="aui-dialog2-footer">
+            <div className="aui-dialog2-footer-actions">
+                {footerButtons}
+            </div>
+        </footer>
+    </section>
+)

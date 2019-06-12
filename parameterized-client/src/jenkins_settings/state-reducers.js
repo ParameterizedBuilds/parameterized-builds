@@ -9,6 +9,7 @@ const createServer = initialState => {
         csrf_enabled: false,
         action_message: "",
         action_state: null,
+        show_clear_modal: false,
         ...initialState
     }
 };

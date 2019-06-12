@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { saveJenkinsServer, deleteJenkinsServer, testJenkinsServer } from '../common/rest'
-import { TextInput, Checkbox, ButtonGroup, Button, Message } from '../common/aui'
+import { TextInput, Checkbox, ButtonGroup, Button, Message, Modal } from '../common/aui'
 
 const ActionDialog = ({
     message,
@@ -52,6 +52,7 @@ const ServerContainer = ({
 
     const deleteServer = e => {
         e.preventDefault();
+        updateServer(serverData.id, "show_clear_modal", false)
         updateServer(serverData.id, "action_message", "Removing settings...")
         updateServer(serverData.id, "action_state", "LOADING")
         deleteJenkinsServer(context, project, serverData.alias).then(response => {
@@ -73,6 +74,11 @@ const ServerContainer = ({
             updateServer(serverData.id, "action_message", error.response.data)
             updateServer(serverData.id, "action_state", "ERROR")
         });
+    }
+
+    const toggleModal = (e, newVal) => {
+        e.preventDefault();
+        updateServer(serverData.id, "show_clear_modal", newVal)
     }
 
     const tokenField = serverData.default_token === null ?
@@ -104,13 +110,22 @@ const ServerContainer = ({
                 <Button id="saveButton" name="submit" buttonText="Save"
                         extraClasses={["aui-button-primary"]}
                         onClick={saveServer} />
-                <Button id="testButton" name="submit" buttonText="Test Jenkins Settings"
+                <Button id="testButton" name="button" buttonText="Test Jenkins Settings"
                         onClick={testServer}/>
-                <Button id="clearButton" name="submit" buttonText="Clear Jenkins Settings"
-                        onClick={deleteServer} />
+                <Button id="clearButton" name="button" buttonText="Clear Jenkins Settings"
+                        onClick={(e) => toggleModal(e, true)} />
             </ButtonGroup>
             {serverData.action_message !== "" && 
                 <ActionDialog message={serverData.action_message} state={serverData.action_state}/>}
+            <Modal id="confirmDelete" extraClasses={["aui-dialog2-small", "aui-dialog2-warning"]}
+                   hidden={!serverData.show_clear_modal}
+                   toggleFunction={(e) => toggleModal(e, false)}
+                   title="Confirm Clear Settings" footerButtons={[(
+                    <Button id="confirmDeleteButton" name="button" buttonText="Clear Settings"
+                            onClick={deleteServer} />
+                   )]}>
+                <p>Are you sure you want to clear settings for {serverData.alias}?</p>
+            </Modal>
         </div>
     );
 }
