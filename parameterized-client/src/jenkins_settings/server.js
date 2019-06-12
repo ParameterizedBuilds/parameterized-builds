@@ -45,17 +45,19 @@ const ServerContainer = ({
             updateServer(serverData.id, "action_message", "Settings saved!")
             updateServer(serverData.id, "action_state", "SUCCESS")
         }).catch(error => {
-            updateServer(serverData.id, "action_message", "Failed to save settings")
+            const message = `Failed to save settings:\n${error.response.data.errors.join('\n')}`
+            updateServer(serverData.id, "action_message", message)
             updateServer(serverData.id, "action_state", "ERROR")
         });
     }
 
     const deleteServer = e => {
         e.preventDefault();
+        const alias = serverData.old_alias !== undefined ? serverData.old_alias : serverData.alias;
         updateServer(serverData.id, "show_clear_modal", false)
         updateServer(serverData.id, "action_message", "Removing settings...")
         updateServer(serverData.id, "action_state", "LOADING")
-        deleteJenkinsServer(context, project, serverData.alias).then(response => {
+        deleteJenkinsServer(context, project, alias).then(response => {
             removeServer(serverData.id)
         }).catch(error => {
             updateServer(serverData.id, "action_message", "Could not remove jenkins server")

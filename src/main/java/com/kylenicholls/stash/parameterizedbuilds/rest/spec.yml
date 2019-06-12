@@ -74,6 +74,8 @@ paths:
           description: Server created
         '403':
           $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/BadInput'
         '5XX':
           $ref: '#/components/responses/Unexpected'
     delete:
@@ -156,6 +158,8 @@ paths:
                 type: string
         '403':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Project not found
         '5XX':
           $ref: '#/components/responses/Unexpected'
 
@@ -187,6 +191,10 @@ paths:
           description: Server created
         '403':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Project not found
+        '422':
+          $ref: '#/components/responses/BadInput'
         '5XX':
           $ref: '#/components/responses/Unexpected'
     delete:
@@ -214,6 +222,8 @@ paths:
           description: Server removed
         '403':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Project not found
         '5XX':
           $ref: '#/components/responses/Unexpected'
 
@@ -250,4 +260,16 @@ components:
       description: Unauthorized
     Unexpected:
       description: Unexpected error
-
+    BadInput:
+      description: Request body rejected
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            required:
+              - errors

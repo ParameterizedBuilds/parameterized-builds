@@ -1,6 +1,8 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -52,6 +54,18 @@ public interface ServerService {
         serverMap.put("root_token_enabled", server.getAltUrl());
         serverMap.put("csrf_enabled", server.getCsrfEnabled());
         return serverMap;
+    }
+
+    default List<String> sanitizeServerInput(Server server){
+        List<String> errors = new ArrayList<>(2);
+        if (server.getBaseUrl() == null || server.getBaseUrl().isEmpty()){
+            errors.add("Base Url required.");
+        }
+        if (server.getAlias() == null || server.getAlias().isEmpty()){
+            errors.add("Alias required.");
+        }
+
+        return errors;
     }
 
     default Server mapToServer(Map<String, Object> serverMap){

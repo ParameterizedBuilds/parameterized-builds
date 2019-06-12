@@ -21,6 +21,9 @@ import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.i18n.I18nService;
 import com.atlassian.bitbucket.rest.RestResource;
 import com.atlassian.bitbucket.rest.util.RestUtils;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
@@ -81,6 +84,17 @@ public class GlobalResource extends RestResource implements ServerService{
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
     public Response addServer(@Context UriInfo ui, Server server){
         if (authContext.isAuthenticated()){
+            List<String> errors = sanitizeServerInput(server);
+            if (!errors.isEmpty()) {
+                JsonArray errorMessages = new JsonArray();
+                errors.forEach(error -> errorMessages.add(new JsonPrimitive(error)));
+                JsonObject response = new JsonObject();
+                response.add("errors", errorMessages);
+                System.out.println(response);
+
+                return Response.status(422).entity(response.toString()).build();
+            }
+
             Server oldServer = jenkins.getJenkinsServer(null);
             // if the new server didn't edit the token attribute and the server
             // credentials should be the same, save the old token
