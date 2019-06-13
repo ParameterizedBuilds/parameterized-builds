@@ -37,17 +37,6 @@ public class Jenkins {
 	}
 
 	/**
-	 * Saves or removes the global Jenkins server. If the server is null then
-	 * the global server will be removed.
-	 * 
-	 * @param server
-	 *            the global server
-	 */
-	private void saveJenkinsServer(@Nullable Server server) {
-		saveJenkinsServerToDB(JENKINS_SETTINGS, server);
-	}
-
-	/**
 	 * Saves or removes a Jenkins server for a specfic project. If the server is
 	 * null then the global server will be removed for the project.
 	 *

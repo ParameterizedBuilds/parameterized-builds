@@ -88,7 +88,6 @@ public class ProjectResource extends RestResource implements ServerService {
                 errors.forEach(error -> errorMessages.add(new JsonPrimitive(error)));
                 JsonObject response = new JsonObject();
                 response.add("errors", errorMessages);
-                System.out.println(response);
 
                 return Response.status(422).entity(response.toString()).build();
             }
