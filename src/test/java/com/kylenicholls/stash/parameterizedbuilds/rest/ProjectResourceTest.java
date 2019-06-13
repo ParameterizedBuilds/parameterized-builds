@@ -42,6 +42,8 @@ public class ProjectResourceTest {
         authContext = mock(AuthenticationContext.class);
         rest = new ProjectResource(i18nService, jenkins, authContext);
         ui = mock(UriInfo.class);
+        
+        @SuppressWarnings("unchecked")
         MultivaluedMap<String, String> paramMap = mock(MultivaluedMap.class);
 
         when(authContext.isAuthenticated()).thenReturn(true);
@@ -189,6 +191,7 @@ public class ProjectResourceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testAddServerReturnsErrorMessageOnMissingUrl(){
         projectServer.setBaseUrl("");
         when(jenkins.getJenkinsServer(projectKey)).thenReturn(null);
@@ -201,6 +204,7 @@ public class ProjectResourceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testAddServerReturnsAllErrorMessages(){
         projectServer.setBaseUrl("");
         projectServer.setAlias("");

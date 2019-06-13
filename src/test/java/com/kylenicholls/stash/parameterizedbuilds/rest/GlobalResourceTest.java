@@ -183,6 +183,7 @@ public class GlobalResourceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testAddServerReturnsErrorMessageOnMissingUrl(){
         globalServer.setBaseUrl("");
         when(jenkins.getJenkinsServer(null)).thenReturn(null);
@@ -195,6 +196,7 @@ public class GlobalResourceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testAddServerReturnsAllErrorMessages(){
         globalServer.setBaseUrl("");
         globalServer.setAlias("");
