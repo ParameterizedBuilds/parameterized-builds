@@ -13,6 +13,8 @@ or per project on the project settings page.
 
 ![Jenkins administration settings](readme/img/jenkins_admin.png)  
 * `Base URL` should be the http/https root address to you jenkins server
+* `Server Nickname` is a unique name for this server. This is used by job settings to choose which
+Bitbucket Server to run the job on.
 * `Default User` and `Default Token` are optional and used as a fall back 
 authentication for triggering jobs
 * `Build Token Root Plugin` 

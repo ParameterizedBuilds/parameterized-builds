@@ -44,6 +44,7 @@ import com.sun.jersey.spi.resource.Singleton;
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
 @Singleton
+@Deprecated
 @AnonymousAllowed
 public class BuildResource extends RestResource {
 	private SettingsService settingsService;

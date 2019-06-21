@@ -2,6 +2,7 @@ package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,6 +28,9 @@ import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.soy.renderer.SoyException;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
+import com.atlassian.webresource.api.assembler.PageBuilderService;
+import com.atlassian.webresource.api.assembler.RequiredResources;
+import com.atlassian.webresource.api.assembler.WebResourceAssembler;
 import com.google.common.collect.ImmutableMap;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
@@ -40,6 +44,8 @@ public class CIServletTest {
 	private final String GLOBAL_PATH = "/plugins/servlet/jenkins";
 	private final String PROJECT_PATH = "/plugins/servlet/jenkins/project/";
 	private final String ACCOUNT_PATH = "/plugins/servlet/jenkins/account";
+	private final String CONTEXT_KEY = "bitbucketContext";
+	private final String BITBUCKET_CONTEXT = "/bitbucket";
 	private CIServlet servlet;
 	private SoyTemplateRenderer renderer;
 	private Jenkins jenkins;
@@ -49,6 +55,7 @@ public class CIServletTest {
 	private ApplicationUser user;
 	private Project project;
 	private ProjectService projectService;
+	private PageBuilderService pageBuilderService;
 
 	@Before
 	public void setup() throws IOException {
@@ -57,7 +64,8 @@ public class CIServletTest {
 		NavBuilder navBuilder = mock(NavBuilder.class);
 		jenkins = mock(Jenkins.class);
 		projectService = mock(ProjectService.class);
-		servlet = new CIServlet(renderer, authContext, navBuilder, jenkins, projectService);
+		pageBuilderService = mock(PageBuilderService.class);
+		servlet = new CIServlet(renderer, authContext, navBuilder, jenkins, projectService, pageBuilderService);
 
 		req = mock(HttpServletRequest.class);
 		resp = mock(HttpServletResponse.class);
@@ -69,6 +77,14 @@ public class CIServletTest {
 		when(user.getSlug()).thenReturn(USER_SLUG);
 		when(project.getKey()).thenReturn(PROJECT_KEY);
 		when(projectService.getByKey(PROJECT_KEY)).thenReturn(project);
+
+		WebResourceAssembler mockAssembler = mock(WebResourceAssembler.class);
+		RequiredResources mockResources = mock(RequiredResources.class);
+
+		when(pageBuilderService.assembler()).thenReturn(mockAssembler);
+		when(mockAssembler.resources()).thenReturn(mockResources);
+		when(mockResources.requireWebResource(any())).thenReturn(null);
+		when(navBuilder.buildRelative()).thenReturn(BITBUCKET_CONTEXT);
 	}
 
 	@Test
@@ -81,7 +97,8 @@ public class CIServletTest {
 		Map<String, Object> data = ImmutableMap.of(
 				CIServer.SERVER, server,
 				CIServer.ERRORS, "",
-				CIServer.TESTMESSAGE, "");
+				CIServer.TESTMESSAGE, "",
+				CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
 	}
@@ -95,7 +112,8 @@ public class CIServletTest {
 		Map<String, Object> data = ImmutableMap.of(
 				CIServer.SERVER, "",
 				CIServer.ERRORS, "",
-				CIServer.TESTMESSAGE, "");
+				CIServer.TESTMESSAGE, "",
+				CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
 	}
@@ -110,7 +128,11 @@ public class CIServletTest {
 		servlet.doGet(req, resp);
 
 		Map<String, Object> data = ImmutableMap
-				.<String, Object> of("user", user, "projectTokens", projectTokens, "errors", "");
+				.<String, Object> of(
+					"user", user, 
+					"projectTokens", projectTokens, 
+					"errors", "",
+					CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.user.settings", data);
 	}
@@ -126,7 +148,8 @@ public class CIServletTest {
 				CIServer.SERVER, server,
 				ProjectServer.PROJECT_KEY, PROJECT_KEY,
 				CIServer.ERRORS, "",
-				CIServer.TESTMESSAGE, "");
+				CIServer.TESTMESSAGE, "",
+				CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settingsProjectAdmin", data);
 	}
@@ -141,7 +164,8 @@ public class CIServletTest {
 				CIServer.SERVER, "",
 				ProjectServer.PROJECT_KEY, PROJECT_KEY,
 				CIServer.ERRORS, "",
-				CIServer.TESTMESSAGE, "");
+				CIServer.TESTMESSAGE, "",
+				CONTEXT_KEY, BITBUCKET_CONTEXT);
 		verify(renderer, times(1))
 				.render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settingsProjectAdmin", data);
 	}
@@ -190,7 +214,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(1)).saveJenkinsServer(any(Server.class));
+		verify(jenkins, times(1)).saveJenkinsServer(any(Server.class), isNull());
 		verify(renderer, times(1)).render(any(), any(), any(), any());
 	}
 
@@ -234,7 +258,7 @@ public class CIServletTest {
 		servlet.doPost(req, resp);
 
 		Server expected = new Server(baseUrl, null, defaultUser, defaultToken, false, false);
-		verify(jenkins, times(1)).saveJenkinsServer(expected);
+		verify(jenkins, times(1)).saveJenkinsServer(expected, null);
 	}
 
 	// @Test
@@ -261,7 +285,7 @@ public class CIServletTest {
 		servlet.doPost(req, resp);
 
 		Server expected = new Server(baseUrl[0], null, defaultUser[0], defaultToken[0], false, false);
-		verify(jenkins, times(1)).saveJenkinsServer(expected);
+		verify(jenkins, times(1)).saveJenkinsServer(expected, null);
 	}
 
 	@Test
@@ -288,7 +312,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(1)).saveJenkinsServer(null);
+		verify(jenkins, times(1)).saveJenkinsServer(null, null);
 	}
 
 	@Test
@@ -315,7 +339,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(0)).saveJenkinsServer(null);
+		verify(jenkins, times(0)).saveJenkinsServer(null, null);
 	}
 
 	@Test
@@ -341,7 +365,7 @@ public class CIServletTest {
 		when(req.getParameter("submit")).thenReturn(saveButton);
 		servlet.doPost(req, resp);
 
-		verify(jenkins, times(0)).saveJenkinsServer(null);
+		verify(jenkins, times(0)).saveJenkinsServer(null, null);
 	}
 
 	@Test

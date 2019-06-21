@@ -37,17 +37,6 @@ public class Jenkins {
 	}
 
 	/**
-	 * Saves or removes the global Jenkins server. If the server is null then
-	 * the global server will be removed.
-	 * 
-	 * @param server
-	 *            the global server
-	 */
-	protected void saveJenkinsServer(@Nullable Server server) {
-		saveJenkinsServerToDB(JENKINS_SETTINGS, server);
-	}
-
-	/**
 	 * Saves or removes a Jenkins server for a specfic project. If the server is
 	 * null then the global server will be removed for the project.
 	 *
@@ -56,8 +45,12 @@ public class Jenkins {
 	 * @param projectKey
 	 *            the project key
 	 */
-	protected void saveJenkinsServer(@Nullable Server server, String projectKey) {
-		saveJenkinsServerToDB(JENKINS_SETTINGS_PROJECT + projectKey, server);
+	public void saveJenkinsServer(@Nullable Server server, String projectKey) {
+		if (projectKey == null || projectKey == ""){
+			saveJenkinsServerToDB(JENKINS_SETTINGS, server);
+		} else {
+			saveJenkinsServerToDB(JENKINS_SETTINGS_PROJECT + projectKey, server);
+		}
 	}
 
 	/**
