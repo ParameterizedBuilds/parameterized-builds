@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.atlassian.bitbucket.project.Project;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestParticipant;
 import com.atlassian.bitbucket.pull.PullRequestRef;
@@ -24,10 +25,12 @@ public class BitbucketVariablesTest {
 	private Repository repository;
 
 	private final String projectKey = "projectkey";
+	private final String forkProjectKey = "forkprojectkey";
 	private final Trigger trigger = Trigger.NULL;
 	private final String url = "http://uri";
 	private final String PR_TITLE = "prtitle";
 	private final String REPO_SLUG = "reposlug";
+	private final String FORK_REPO_SLUG = "forkreposlug";
 	private final Long PR_ID = 15L;
 	private final String PR_DESCRIPTION = "Description of this PR";
 	private final String PR_AUTHOR = "this guy";
@@ -40,6 +43,8 @@ public class BitbucketVariablesTest {
 		pullRequest = mock(PullRequest.class);
 		refChange = mock(RefChange.class);
 		repository = mock(Repository.class);
+		Repository forkRepository = mock(Repository.class);
+		Project forkProject = mock(Project.class);
 		branch = mock(Branch.class);
 
 		PullRequestParticipant author = mock(PullRequestParticipant.class);
@@ -59,11 +64,14 @@ public class BitbucketVariablesTest {
 		when(branch.getLatestCommit()).thenReturn(COMMIT);
 		when(author.getUser()).thenReturn(user);
 		when(user.getDisplayName()).thenReturn(PR_AUTHOR);
-		when(prFromRef.getRepository()).thenReturn(repository);
+		when(prFromRef.getRepository()).thenReturn(forkRepository);
 		when(prFromRef.getDisplayId()).thenReturn(SOURCE_BRANCH);
 		when(prFromRef.getLatestCommit()).thenReturn(COMMIT);
 		when(prToRef.getDisplayId()).thenReturn(DEST_BRANCH);
 		when(repository.getSlug()).thenReturn(REPO_SLUG);
+		when(forkRepository.getSlug()).thenReturn(FORK_REPO_SLUG);
+		when(forkRepository.getProject()).thenReturn(forkProject);
+		when(forkProject.getKey()).thenReturn(forkProjectKey);
 	}
 
 	@Test
@@ -170,6 +178,22 @@ public class BitbucketVariablesTest {
 				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
 		assertEquals(trigger.toString(), actual.fetch("$TRIGGER"));
+	}
+
+	@Test
+	public void testPopulateFromPRSetsSourceProject() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
+
+		assertEquals(forkProjectKey, actual.fetch("$PRSOURCEPROJECT"));
+	}
+
+	@Test
+	public void testPopulateFromPRSetsSourceRepository() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
+
+		assertEquals(FORK_REPO_SLUG, actual.fetch("$PRSOURCEREPOSITORY"));
 	}
 
 	@Test

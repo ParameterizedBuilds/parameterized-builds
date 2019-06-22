@@ -16,7 +16,7 @@ public class BitbucketVariables {
 	private final String [] SET_VALUES = {
 			"$BRANCH", "$COMMIT", "$URL", "$REPOSITORY", "$PROJECT", "$PRID",
 			"$PRAUTHOR", "$PRTITLE", "$PRDESCRIPTION", "$PRDESTINATION",
-			"$PRURL", "$TRIGGER", "$MERGECOMMIT",};
+			"$PRURL", "$TRIGGER", "$MERGECOMMIT","$PRSOURCEPROJECT", "$PRSOURCEREPOSITORY",};
 	private final Set<String> allowedVariables = new HashSet<>(Arrays.asList(SET_VALUES));
 
 	private BitbucketVariables(Builder builder){
@@ -64,6 +64,8 @@ public class BitbucketVariables {
 					.add("$PRDESTINATION", () ->  pullRequest.getToRef().getDisplayId())
 					.add("$PRURL", () -> url + "/projects/" + projectKey + "/repos/" +
 							repository.getSlug() + "/pull-requests/" + prId)
+					.add("$PRSOURCEPROJECT",  () -> pullRequest.getFromRef().getRepository().getProject().getKey())
+					.add("$PRSOURCEREPOSITORY", () -> pullRequest.getFromRef().getRepository().getSlug())
 					.add("$TRIGGER", trigger::toString);
 		}
 

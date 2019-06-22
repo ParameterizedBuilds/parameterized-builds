@@ -181,7 +181,7 @@ const JobContainer = ({
                 <div className={"description"}>
                     {"Key=Value pairs separated by new line. For choice parameters separate values with a semicolon. " +
                      "Available Bitbucket variables: $BRANCH, $COMMIT, $REPOSITORY, $PROJECT, $TRIGGER (for PR triggers " +
-                     "also $PRID, $PRTITLE, $PRDESTINATION, $PRAUTHOR, $PRDESCRIPTION, $PRURL, and for PR MERGED triggers " +
+                     "also $PRID, $PRTITLE, $PRDESTINATION, $PRAUTHOR, $PRDESCRIPTION, $PRURL, $PRSOURCEPROJECT, $PRSOURCEREPOSITORY, and for PR MERGED triggers " +
                      "$MERGECOMMIT))"}
                 </div>
             </div>

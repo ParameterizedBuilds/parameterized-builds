@@ -133,6 +133,8 @@ Built-in variables:
   * $PRDESCRIPTION: description of the PR (may be empty)
   * $PRAUTHOR: display name of the author of the PR
   * $PRURL: bitbucket URL of the PR
+  * $PRSOURCEPROJECT: the project where the source branch of a PR resides (if not using a fork then this is the same as $PROJECT)
+  * $PRSOURCEREPOSITORY: the repository where the source branch of a PR resides (if not using a fork then this is the same as $REPOSITORY)
   * $MERGECOMMIT: the commit hash of the commit on the destination branch caused by the PR merge. Only available to `PR MERGED` trigger
 
 Parameter Types:
