@@ -1,9 +1,9 @@
-const createServer = initialState => {
+const createServer = (initialState = {}) => {
     return {
         id: null,
         url: "",
         alias: "",
-        old_alias: initialState.alias,
+        old_alias: initialState.alias || "",
         default_user: "",
         default_token: null,
         root_token_enabled: false,
