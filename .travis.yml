@@ -4,4 +4,3 @@ jdk:
 cache:
   directories:
   - $HOME/.m2
-script: mvn test -B -Dmaven.javadoc.skip=true

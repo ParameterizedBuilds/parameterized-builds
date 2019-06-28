@@ -96,7 +96,6 @@
       <param-name>extension.filter.excludes</param-name>
       <param-value>.*</param-value>
     </init-param>
-    <package>com.kylenicholls.stash.parameterizedbuilds.rest</package>
   </rest>
   
   <!-- web items -->
