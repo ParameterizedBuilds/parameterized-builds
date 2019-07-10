@@ -39,11 +39,13 @@ const ServerContainer = ({
 
     const saveServer = e => {
         e.preventDefault();
-        updateServer(serverData.id, "action_message", "Saving settings...")
-        updateServer(serverData.id, "action_state", "LOADING")
+        updateServer(serverData.id, "action_message", "Saving settings...");
+        updateServer(serverData.id, "action_state", "LOADING");
+        const newAlias = serverData.alias;
         saveJenkinsServer(context, project, serverData).then(response => {
             updateServer(serverData.id, "action_message", "Settings saved!")
             updateServer(serverData.id, "action_state", "SUCCESS")
+            updateServer(serverData.id, "old_alias", newAlias)
         }).catch(error => {
             const message = `Failed to save settings:\n${error.response.data.errors.join('\n')}`
             updateServer(serverData.id, "action_message", message)
@@ -53,7 +55,7 @@ const ServerContainer = ({
 
     const deleteServer = e => {
         e.preventDefault();
-        const alias = serverData.old_alias !== undefined ? serverData.old_alias : serverData.alias;
+        const alias = serverData.old_alias !== "" ? serverData.old_alias : serverData.alias;
         updateServer(serverData.id, "show_clear_modal", false)
         updateServer(serverData.id, "action_message", "Removing settings...")
         updateServer(serverData.id, "action_state", "LOADING")
@@ -115,7 +117,7 @@ const ServerContainer = ({
                 <Button id="testButton" name="button" buttonText="Test Jenkins Settings"
                         onClick={testServer}/>
                 <Button id="clearButton" name="button" buttonText="Clear Jenkins Settings"
-                        onClick={(e) => toggleModal(e, true)} />
+                        onClick={(e) => toggleModal(e, true)} disabled={serverData.old_alias === ""} />
             </ButtonGroup>
             {serverData.action_message !== "" && 
                 <ActionDialog message={serverData.action_message} state={serverData.action_state}/>}
@@ -126,7 +128,7 @@ const ServerContainer = ({
                     <Button id="confirmDeleteButton" name="button" buttonText="Clear Settings"
                             onClick={deleteServer} />
                    )]}>
-                <p>Are you sure you want to clear settings for {serverData.alias}?</p>
+                <p>Are you sure you want to clear settings for {serverData.alias}? This action cannot be undone.</p>
             </Modal>
         </div>
     );

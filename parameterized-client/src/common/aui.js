@@ -50,10 +50,11 @@ export const Button = ({
     buttonText,
     onClick= () => {},
     type = "submit",
+    disabled = false,
     extraClasses = [],
 }) => (
     <input id={id} className={"aui-button " + extraClasses.join(' ')}
-           name={name} value={buttonText} type={type} onClick={onClick} />
+           name={name} value={buttonText} type={type} onClick={onClick} disabled={disabled} aria-disabled={disabled}/>
 )
 
 export const ButtonGroup = ({ children }) => (
