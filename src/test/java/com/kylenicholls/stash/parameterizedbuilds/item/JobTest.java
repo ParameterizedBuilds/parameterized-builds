@@ -1,6 +1,8 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
@@ -312,6 +314,22 @@ public class JobTest {
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?"
 				+ params.replace("$BRANCH", branch), actual);
+	}
+
+	@Test
+	public void testBuildUrlWithSpecialChars() throws UnsupportedEncodingException {
+		String jobName = "jobname";
+		String params = "param1=\"{\"GIT_BRANCH\":\"$BRANCH\"}";
+		String branch = "branchname";
+		BitbucketVariables vars = new BitbucketVariables.Builder().add("$BRANCH", () -> branch)
+				.add("$TRIGGER", Trigger.ADD::toString).build();
+		Server server = new Server("http://baseurl", null, "", "", false, false);
+		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
+		String actual = job.buildUrl(server, vars, false);
+
+		String expectedQuery = "param1=" +  URLEncoder.encode("\"{\"GIT_BRANCH\":\"branchname\"}", "UTF-8");
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?"
+				+ expectedQuery, actual);
 	}
 
 	@Test

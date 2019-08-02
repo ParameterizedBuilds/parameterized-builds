@@ -1,6 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
@@ -8,8 +9,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.ws.rs.core.UriBuilder;
-
+import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -244,17 +244,26 @@ public class Job {
 			return null;
 		}
 		Trigger trigger =  Trigger.fromToString(bitbucketVariables.fetch("$TRIGGER"));
-		UriBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty(), trigger);
+		URIBuilder builder = setUrlPath(jenkinsServer, useUserToken, !this.buildParameters.isEmpty(), trigger, bitbucketVariables);
 
-		String buildUrl = builder.build().toString();
+		String buildUrl = builder.toString();
 
 		for (String variable : bitbucketVariables.getVariables().keySet()) {
+
+			//URIBuilder automatically encodes query params so we need to use the encoded version for substitutions
+			String encodedVar;
+			try {
+				encodedVar = URLEncoder.encode(variable, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				encodedVar = variable;
+			}
+
 			// only try to replace a variable if it is in the params. This allows optimal use of java 8 lazy initialization
-			if (buildUrl.contains(variable) && bitbucketVariables.fetch(variable) != null) {
+			if (buildUrl.contains(encodedVar) && bitbucketVariables.fetch(variable) != null) {
 				try {
-					buildUrl = buildUrl.replace(variable, URLEncoder.encode(bitbucketVariables.fetch(variable), "UTF-8"));
+					buildUrl = buildUrl.replace(encodedVar, URLEncoder.encode(bitbucketVariables.fetch(variable), "UTF-8"));
 				} catch (UnsupportedEncodingException e) {
-					buildUrl = buildUrl.replace(variable, bitbucketVariables.fetch(variable));
+					buildUrl = buildUrl.replace(encodedVar, bitbucketVariables.fetch(variable));
 				}
 			}
 		}
@@ -262,32 +271,52 @@ public class Job {
 		return buildUrl;
 	}
 
-	private UriBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
-			boolean hasParameters, Trigger trigger) {
-		UriBuilder builder = UriBuilder.fromUri(jenkinsServer.getBaseUrl());
-		String jobBase = !isPipeline || trigger.isRefChange() ? "%s": "%s%s%s";
+	private List<String> createPipelineJobPath(String delim, Trigger trigger, BitbucketVariables variables){
+		if (!isPipeline || trigger.isRefChange()){
+			return Stream.of(this.jobName).collect(Collectors.toList());
+		} else if (delim != null) {
+			return Stream.of(this.jobName, delim, variables.fetch("$BRANCH")).collect(Collectors.toList());
+		} else {
+			return Stream.of(this.jobName,  variables.fetch("$BRANCH")).collect(Collectors.toList());
+		}
+	}
+
+	private URIBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
+			boolean hasParameters, Trigger trigger, BitbucketVariables bitbucketVariables) {
+		URIBuilder builder;
+		try {
+			builder = new URIBuilder(jenkinsServer.getBaseUrl());
+		} catch (URISyntaxException e) {
+			return new URIBuilder();
+		}
 		hasParameters = !isPipeline || !trigger.isRefChange() ? hasParameters : false;
 
+		List<String> pathSegments = new ArrayList<>();
+
 		if (useUserToken || !jenkinsServer.getAltUrl()) {
-			builder.path("job").path(String.format(jobBase, this.jobName, "/job/", "$BRANCH"));
+			pathSegments.add("job");
+			pathSegments.addAll(createPipelineJobPath("job", trigger, bitbucketVariables));
 		} else {
-			builder.path("buildByToken").queryParam("job", String.format(jobBase, this.jobName, "/", "$BRANCH"));
+			pathSegments.add("buildByToken");
+
+			builder.setParameter("job", String.join("/", createPipelineJobPath(null, trigger, bitbucketVariables)));
 		}
 
 		if (!useUserToken && this.token != null && !this.token.isEmpty()) {
-			builder.queryParam("token", this.token);
+			builder.setParameter("token", this.token);
 		}
 
 		if (hasParameters) {
-			builder.path("buildWithParameters");
+			pathSegments.add("buildWithParameters");
 			appendBuildParams(builder);
 		} else {
-			builder.path("build");
+			pathSegments.add("build");
 		}
+		builder.setPathSegments(pathSegments);
 		return builder;
 	}
 
-	private void appendBuildParams(UriBuilder builder){
+	private void appendBuildParams(URIBuilder builder){
 		for (Entry<String, Object> param : this.buildParameters) {
 			String key = param.getKey();
 			String value;
@@ -296,7 +325,7 @@ public class Job {
 			} else {
 				value = param.getValue().toString();
 			}
-			builder.queryParam(key, value);
+			builder.setParameter(key, value);
 		}
 	}
 
