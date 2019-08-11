@@ -266,6 +266,14 @@ public class Job {
 					buildUrl = buildUrl.replace(encodedVar, bitbucketVariables.fetch(variable));
 				}
 			}
+			// also try to replace unencoded variables just in case
+			if (buildUrl.contains(variable) && bitbucketVariables.fetch(variable) != null) {
+				try {
+					buildUrl = buildUrl.replace(variable, URLEncoder.encode(bitbucketVariables.fetch(variable), "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					buildUrl = buildUrl.replace(variable, bitbucketVariables.fetch(variable));
+				}
+			}
 		}
 
 		return buildUrl;
