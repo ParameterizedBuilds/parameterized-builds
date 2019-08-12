@@ -35,7 +35,7 @@ public class ProjectResourceTest {
 
     @Before
     public void setup() throws Exception {
-        projectServer = new Server("projecturl", "project server", "projectuser", "projecttoken", false, false);
+        projectServer = new Server("http://projecturl", "project server", "projectuser", "projecttoken", false, false);
         projectKey = "TEST";
         I18nService i18nService = mock(I18nService.class);
         jenkins = mock(Jenkins.class);
@@ -155,7 +155,7 @@ public class ProjectResourceTest {
         when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
         Server testServer = rest.mapToServer(projectServer.asMap());
         testServer.setToken(null);
-        testServer.setBaseUrl("different");
+        testServer.setBaseUrl("http://different");
         rest.addServer(ui, testServer);
 
         assertEquals("", testServer.getToken());
@@ -201,6 +201,28 @@ public class ProjectResourceTest {
         List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");
 
         assertEquals(Lists.newArrayList("Base Url required."), errors);
+    }
+
+    @Test
+    public void testAddServerReturns422OnBadUrl(){
+        projectServer.setBaseUrl("noprotocal");
+        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer);
+
+        assertEquals(422, actual.getStatus());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testAddServerReturnsErrorMessageOnBadUrl(){
+        projectServer.setBaseUrl("noprotocal");
+        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer);
+
+        String response = actual.getEntity().toString();
+        List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");
+
+        assertEquals(Lists.newArrayList("Invalide Base Url."), errors);
     }
 
     @Test

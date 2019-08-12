@@ -1,6 +1,8 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +22,10 @@ public class JobTest {
 
 	@Before
 	public void setup() throws IOException {
-		bitbucketVariables = new BitbucketVariables.Builder().add("$TRIGGER", Job.Trigger.ADD::toString).build();
+		bitbucketVariables = new BitbucketVariables.Builder()
+			.add("$TRIGGER", Job.Trigger.ADD::toString)
+			.add("$BRANCH", () -> "test_branch")
+			.build();
 	}
 	@Test
 	public void testBuildJobId() {
@@ -145,6 +150,16 @@ public class JobTest {
 		String actual = job.buildUrl(null, null, false);
 
 		assertEquals(null, actual);
+	}
+
+	@Test
+	public void testBuildUrlSubsVariablesInJobName() {
+		String jobName = "$BRANCH";
+		Server server = new Server("http://baseurl", null, "", "", false, false);
+		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
+		String actual = job.buildUrl(server, bitbucketVariables, false);
+
+		assertEquals(server.getBaseUrl() + "/job/" + bitbucketVariables.fetch(jobName) + "/build", actual);
 	}
 
 	@Test
@@ -312,6 +327,22 @@ public class JobTest {
 
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?"
 				+ params.replace("$BRANCH", branch), actual);
+	}
+
+	@Test
+	public void testBuildUrlWithSpecialChars() throws UnsupportedEncodingException {
+		String jobName = "jobname";
+		String params = "param1=\"{\"GIT_BRANCH\":\"$BRANCH\"}";
+		String branch = "branchname";
+		BitbucketVariables vars = new BitbucketVariables.Builder().add("$BRANCH", () -> branch)
+				.add("$TRIGGER", Trigger.ADD::toString).build();
+		Server server = new Server("http://baseurl", null, "", "", false, false);
+		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters(params).build();
+		String actual = job.buildUrl(server, vars, false);
+
+		String expectedQuery = "param1=" +  URLEncoder.encode("\"{\"GIT_BRANCH\":\"branchname\"}", "UTF-8");
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/buildWithParameters?"
+				+ expectedQuery, actual);
 	}
 
 	@Test

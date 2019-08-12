@@ -1,5 +1,6 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,8 @@ import javax.ws.rs.core.UriInfo;
 
 import com.atlassian.bitbucket.rest.util.RestUtils;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
+
+import org.apache.http.client.utils.URIBuilder;
 
 public interface ServerService {
 
@@ -60,7 +63,18 @@ public interface ServerService {
         List<String> errors = new ArrayList<>(2);
         if (server.getBaseUrl() == null || server.getBaseUrl().isEmpty()){
             errors.add("Base Url required.");
+        } else {
+            URIBuilder builder;
+            try {
+                builder = new URIBuilder(server.getBaseUrl());
+                if (builder.getHost() == null){
+                    errors.add("Invalide Base Url.");
+                }
+            } catch (URISyntaxException e) {
+                errors.add("Invalide Base Url.");
+            }
         }
+
         if (server.getAlias() == null || server.getAlias().isEmpty()){
             errors.add("Alias required.");
         }

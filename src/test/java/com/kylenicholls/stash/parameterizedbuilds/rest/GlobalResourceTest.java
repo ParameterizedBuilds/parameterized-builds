@@ -33,7 +33,7 @@ public class GlobalResourceTest {
 
     @Before
     public void setup() throws Exception {
-        globalServer = new Server("globalurl", "global server", "globaluser", "globaltoken", false, false);
+        globalServer = new Server("http://globalurl", "global server", "globaluser", "globaltoken", false, false);
         I18nService i18nService = mock(I18nService.class);
         jenkins = mock(Jenkins.class);
         authContext = mock(AuthenticationContext.class);
@@ -147,7 +147,7 @@ public class GlobalResourceTest {
         when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
         Server testServer = rest.mapToServer(globalServer.asMap());
         testServer.setToken(null);
-        testServer.setBaseUrl("different");
+        testServer.setBaseUrl("http://different");
         rest.addServer(ui, testServer);
 
         assertEquals("", testServer.getToken());
@@ -193,6 +193,28 @@ public class GlobalResourceTest {
         List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");
 
         assertEquals(Lists.newArrayList("Base Url required."), errors);
+    }
+
+    @Test
+    public void testAddServerReturns422OnBadUrl(){
+        globalServer.setBaseUrl("noprotocal");
+        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer);
+
+        assertEquals(422, actual.getStatus());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testAddServerReturnsErrorMessageOnBadUrl(){
+        globalServer.setBaseUrl("noprotocal");
+        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer);
+
+        String response = actual.getEntity().toString();
+        List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");
+
+        assertEquals(Lists.newArrayList("Invalide Base Url."), errors);
     }
 
     @Test
