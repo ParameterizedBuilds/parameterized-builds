@@ -280,13 +280,14 @@ public class Job {
 	}
 
 	private List<String> createPipelineJobPath(String delim, Trigger trigger, BitbucketVariables variables){
-		if (!isPipeline || trigger.isRefChange()){
-			return Stream.of(this.jobName).collect(Collectors.toList());
-		} else if (delim != null) {
-			return Stream.of(this.jobName, delim, variables.fetch("$BRANCH")).collect(Collectors.toList());
-		} else {
-			return Stream.of(this.jobName,  variables.fetch("$BRANCH")).collect(Collectors.toList());
+		List<String> jobSegments = new ArrayList<>(Arrays.asList(jobName.split("/")));
+		if (isPipeline && !trigger.isRefChange()){
+			if (delim != null){
+				jobSegments.add(delim);
+			}
+			jobSegments.add(variables.fetch("$BRANCH"));
 		}
+		return jobSegments;
 	}
 
 	private URIBuilder setUrlPath(Server jenkinsServer, boolean useUserToken,
