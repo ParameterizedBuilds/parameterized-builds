@@ -234,6 +234,17 @@ public class JobTest {
 		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
 	}
 
+
+	@Test
+	public void testBuildUrlFolderedJob() {
+		String jobName = "folder/job/jobname";
+		Server server = new Server("http://baseurl", null, "", "", false, false);
+		Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
+		String actual = job.buildUrl(server, bitbucketVariables, false);
+
+		assertEquals(server.getBaseUrl() + "/job/" + jobName + "/build", actual);
+	}
+
 	@Test
 	public void testBuildPipelineNotParameterizedAndBuild() {
 		String jobName = "jobname";
