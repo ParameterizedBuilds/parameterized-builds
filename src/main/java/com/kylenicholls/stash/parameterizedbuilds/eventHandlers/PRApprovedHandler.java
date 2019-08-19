@@ -8,8 +8,9 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 
 public class PRApprovedHandler extends PRHandler {
 
-    public PRApprovedHandler(SettingsService settingsService, PullRequestService pullRequestService, Jenkins jenkins,
-                             PullRequestParticipantApprovedEvent event, String url){
+    public PRApprovedHandler(SettingsService settingsService, PullRequestService pullRequestService,
+                             Jenkins jenkins, PullRequestParticipantApprovedEvent event, 
+                             String url){
         super(settingsService, pullRequestService, jenkins, event, url, Job.Trigger.PRAPPROVED);
     }
 }

@@ -8,7 +8,8 @@ import java.util.Map;
 
 public class CIServerFactory {
 
-    public static CIServer getServer(String pathInfo, Jenkins jenkins, Map<String, String[]> parameters,
+    public static CIServer getServer(String pathInfo, Jenkins jenkins,
+                                     Map<String, String[]> parameters,
                                      ApplicationUser user, ProjectService projectService){
         if (pathInfo.contains("/jenkins/account")){
             return new AccountServer(jenkins, parameters, user, projectService);
@@ -44,7 +45,8 @@ public class CIServerFactory {
         boolean jenkinsCSRF = parameters.get("jenkinsCSRF") != null
                 && "on".equals(parameters.get("jenkinsCSRF")[0]) ? true : false;
         String jenkinsAlias = parameters.getOrDefault("jenkinsAlias", new String[]{""})[0];
-        return new Server(parameters.get("jenkinsUrl")[0], jenkinsAlias, parameters.get("jenkinsUser")[0],
-                parameters.get("jenkinsToken")[0], jenkinsAltUrl, jenkinsCSRF);
+        return new Server(parameters.get("jenkinsUrl")[0], jenkinsAlias, 
+                parameters.get("jenkinsUser")[0], parameters.get("jenkinsToken")[0], jenkinsAltUrl, 
+                jenkinsCSRF);
     }
 }

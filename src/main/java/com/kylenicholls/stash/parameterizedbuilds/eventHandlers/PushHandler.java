@@ -1,7 +1,11 @@
 package com.kylenicholls.stash.parameterizedbuilds.eventHandlers;
 
 import com.atlassian.bitbucket.commit.CommitService;
-import com.atlassian.bitbucket.content.*;
+import com.atlassian.bitbucket.content.AbstractChangeCallback;
+import com.atlassian.bitbucket.content.Change;
+import com.atlassian.bitbucket.content.ChangeContext;
+import com.atlassian.bitbucket.content.ChangeSummary;
+import com.atlassian.bitbucket.content.ChangesRequest;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.user.ApplicationUser;
@@ -15,9 +19,11 @@ import java.io.IOException;
 
 public class PushHandler extends RefHandler {
 
-    public PushHandler(SettingsService settingsService, Jenkins jenkins, CommitService commitService,
-                       Repository repository, RefChange refChange, String url, ApplicationUser user) {
-        super(settingsService, jenkins, commitService, repository, refChange, url, user, Trigger.PUSH);
+    public PushHandler(SettingsService settingsService, Jenkins jenkins,
+                       CommitService commitService, Repository repository, RefChange refChange,
+                       String url, ApplicationUser user) {
+        super(settingsService, jenkins, commitService, repository, refChange, url, user,
+              Trigger.PUSH);
     }
 
     @Override

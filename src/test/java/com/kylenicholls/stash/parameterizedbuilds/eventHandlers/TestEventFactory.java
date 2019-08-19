@@ -2,8 +2,16 @@ package com.kylenicholls.stash.parameterizedbuilds.eventHandlers;
 
 import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
 import com.atlassian.bitbucket.commit.MinimalCommit;
-import com.atlassian.bitbucket.event.pull.*;
-import com.atlassian.bitbucket.pull.*;
+import com.atlassian.bitbucket.event.pull.PullRequestDeclinedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestDeletedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestMergedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestParticipantApprovedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestReopenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestParticipant;
+import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.repository.Repository;
 
 import static org.mockito.Mockito.mock;

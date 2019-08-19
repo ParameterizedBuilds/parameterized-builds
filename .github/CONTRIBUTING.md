@@ -13,6 +13,17 @@ you think they are lacking somewhere, check out the [documentation](#documentati
 Another great way to get started is to join our [Gitter](https://gitter.im/parameterized-builds/Lobby)! 
 Introduce yourself and we'll do our best to assist you towards your first or latest contribution.
 
+## Code Style and Best Practices
+
+This project uses [checkstyle](https://checkstyle.sourceforge.io/) as a Java code linter. The 
+linting rules are as follows:
+
+- Max line length is 100 characters
+- Indentation is done with 4 spaces
+- Star imports are discouraged
+
+In addition, any code written should be accompanied by unit tests.
+
 ## Contribution Types
 
 ### Bug Reports

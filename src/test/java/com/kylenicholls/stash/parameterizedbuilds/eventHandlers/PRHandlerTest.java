@@ -1,6 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.eventHandlers;
 
-import com.atlassian.bitbucket.event.pull.*;
+import com.atlassian.bitbucket.event.pull.PullRequestDeclinedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.project.Project;
 import com.atlassian.bitbucket.pull.PullRequestService;
@@ -18,9 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 public class PRHandlerTest {

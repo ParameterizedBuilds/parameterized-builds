@@ -8,8 +8,8 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class PRDeclinedHandler extends PRHandler{
 
-    public PRDeclinedHandler(SettingsService settingsService, PullRequestService pullRequestService, Jenkins jenkins,
-                      PullRequestDeclinedEvent event, String url){
+    public PRDeclinedHandler(SettingsService settingsService, PullRequestService pullRequestService,
+                             Jenkins jenkins, PullRequestDeclinedEvent event, String url){
         super(settingsService, pullRequestService, jenkins, event, url, Trigger.PRDECLINED);
     }
 }

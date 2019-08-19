@@ -19,121 +19,125 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SettingsService {
-	private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
-	private static final String KEY = "com.kylenicholls.stash.parameterized-builds:parameterized-build-hook";
-	public static final String JOB_PREFIX = "jobName-";
-	public static final String SERVER_PREFIX = "jenkinsServer-";
-	public static final String ISTAG_PREFIX = "isTag-";
-	public static final String TRIGGER_PREFIX = "triggers-";
-	public static final String TOKEN_PREFIX = "token-";
-	public static final String PARAM_PREFIX = "buildParameters-";
-	public static final String BRANCH_PREFIX = "branchRegex-";
-	public static final String PATH_PREFIX = "pathRegex-";
-	public static final String PERMISSIONS_PREFIX = "requirePermission-";
-	public static final String PRDEST_PREFIX = "prDestinationRegex-";
-	public static final String ISPIPELINE_PREFIX = "isPipeline-";
+    private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
+    private static final String KEY = "com.kylenicholls.stash.parameterized-builds:" + 
+                                      "parameterized-build-hook";
+    public static final String JOB_PREFIX = "jobName-";
+    public static final String SERVER_PREFIX = "jenkinsServer-";
+    public static final String ISTAG_PREFIX = "isTag-";
+    public static final String TRIGGER_PREFIX = "triggers-";
+    public static final String TOKEN_PREFIX = "token-";
+    public static final String PARAM_PREFIX = "buildParameters-";
+    public static final String BRANCH_PREFIX = "branchRegex-";
+    public static final String PATH_PREFIX = "pathRegex-";
+    public static final String PERMISSIONS_PREFIX = "requirePermission-";
+    public static final String PRDEST_PREFIX = "prDestinationRegex-";
+    public static final String ISPIPELINE_PREFIX = "isPipeline-";
 
-	private RepositoryHookService hookService;
-	private SecurityService securityService;
+    private RepositoryHookService hookService;
+    private SecurityService securityService;
 
-	public SettingsService(RepositoryHookService hookService, SecurityService securityService) {
-		this.hookService = hookService;
-		this.securityService = securityService;
-	}
+    public SettingsService(RepositoryHookService hookService, SecurityService securityService) {
+        this.hookService = hookService;
+        this.securityService = securityService;
+    }
 
-	public Settings getSettings(final Repository repository) {
-		Settings settings = null;
-		try {
-			settings = securityService
-					.withPermission(Permission.REPO_ADMIN, "Get respository settings")
-					.call(new Operation<Settings, Exception>() {
-						@Override
-						public Settings perform() throws Exception {
-							RepositoryScope scope = new RepositoryScope(repository);
-							GetRepositoryHookSettingsRequest settingsRequest =
-									new GetRepositoryHookSettingsRequest.Builder(scope, KEY).build();
-							return hookService.getSettings(settingsRequest).getSettings();
-						}
-					});
-		} catch (Exception e) {
-			logger.error("Exception in SettingsService.getSettings: " + e.getMessage(), e);
-			return null;
-		}
+    public Settings getSettings(final Repository repository) {
+        Settings settings = null;
+        try {
+            settings = securityService
+                    .withPermission(Permission.REPO_ADMIN, "Get respository settings")
+                    .call(new Operation<Settings, Exception>() {
+                        @Override
+                        public Settings perform() throws Exception {
+                            RepositoryScope scope = new RepositoryScope(repository);
+                            GetRepositoryHookSettingsRequest settingsRequest =
+                                    new GetRepositoryHookSettingsRequest.Builder(scope, KEY)
+                                            .build();
+                            return hookService.getSettings(settingsRequest).getSettings();
+                        }
+                    });
+        } catch (Exception e) {
+            logger.error("Exception in SettingsService.getSettings: " + e.getMessage(), e);
+            return null;
+        }
 
-		return settings;
-	}
+        return settings;
+    }
 
-	public RepositoryHook getHook(final Repository repository) {
-		RepositoryHook hook = null;
-		try {
-			hook = securityService.withPermission(Permission.REPO_ADMIN, "Get respository settings")
-					.call(new Operation<RepositoryHook, Exception>() {
-						@Override
-						public RepositoryHook perform() throws Exception {
-							RepositoryScope scope = new RepositoryScope(repository);
-							return hookService.getByKey(scope, KEY);
-						}
-					});
-		} catch (Exception e1) {
-			logger.error("Exception in SettingsService.getHook: " + e1.getMessage(), e1);
-			return null;
-		}
-		return hook;
-	}
+    public RepositoryHook getHook(final Repository repository) {
+        RepositoryHook hook = null;
+        try {
+            hook = securityService.withPermission(Permission.REPO_ADMIN, "Get respository settings")
+                    .call(new Operation<RepositoryHook, Exception>() {
+                        @Override
+                        public RepositoryHook perform() throws Exception {
+                            RepositoryScope scope = new RepositoryScope(repository);
+                            return hookService.getByKey(scope, KEY);
+                        }
+                    });
+        } catch (Exception e1) {
+            logger.error("Exception in SettingsService.getHook: " + e1.getMessage(), e1);
+            return null;
+        }
+        return hook;
+    }
 
-	public List<Job> getJobs(final Map<String, Object> parameterMap) {
-		if (parameterMap.keySet().isEmpty()) {
-			return Collections.emptyList();
-		}
-		List<Job> jobsList = new ArrayList<>();
-		for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
-			if (entry.getKey().startsWith(JOB_PREFIX)) {
-				Job job = new Job.JobBuilder(jobsList.size()).jobName(entry.getValue().toString())
-						.jenkinsServer(fetchValue(entry.getKey().replace(JOB_PREFIX, SERVER_PREFIX),
-								parameterMap, ""))
-						.isTag(fetchValue(entry.getKey().replace(JOB_PREFIX, ISTAG_PREFIX),
-								parameterMap, false))
-						.triggers(parameterMap
-								.get(entry.getKey().replace(JOB_PREFIX, TRIGGER_PREFIX)).toString()
-								.replace("pullrequest;", "propened;prreopened;prsourcerescoped;")
-								.split(";"))
-						.buildParameters(parameterMap
-								.get(entry.getKey().replace(JOB_PREFIX, PARAM_PREFIX)).toString())
-						.token(parameterMap.get(entry.getKey().replace(JOB_PREFIX, TOKEN_PREFIX))
-								.toString())
-						.branchRegex(parameterMap
-								.get(entry.getKey().replace(JOB_PREFIX, BRANCH_PREFIX)).toString())
-						.pathRegex(parameterMap.get(entry.getKey().replace(JOB_PREFIX, PATH_PREFIX))
-								.toString())
-						.permissions(fetchValue(entry.getKey().replace(JOB_PREFIX, PERMISSIONS_PREFIX),
-								parameterMap, "REPO_READ"))
-						.prDestRegex(fetchValue(entry.getKey().replace(JOB_PREFIX, PRDEST_PREFIX),
-								parameterMap, ""))
-						.isPipeline(fetchValue(entry.getKey().replace(JOB_PREFIX, ISPIPELINE_PREFIX),
-								parameterMap, false))
-						.build();
+    public List<Job> getJobs(final Map<String, Object> parameterMap) {
+        if (parameterMap.keySet().isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Job> jobsList = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
+            if (entry.getKey().startsWith(JOB_PREFIX)) {
+                Job job = new Job.JobBuilder(jobsList.size()).jobName(entry.getValue().toString())
+                        .jenkinsServer(fetchValue(entry.getKey().replace(JOB_PREFIX, SERVER_PREFIX),
+                                parameterMap, ""))
+                        .isTag(fetchValue(entry.getKey().replace(JOB_PREFIX, ISTAG_PREFIX),
+                                parameterMap, false))
+                        .triggers(parameterMap
+                                .get(entry.getKey().replace(JOB_PREFIX, TRIGGER_PREFIX)).toString()
+                                .replace("pullrequest;", "propened;prreopened;prsourcerescoped;")
+                                .split(";"))
+                        .buildParameters(parameterMap
+                                .get(entry.getKey().replace(JOB_PREFIX, PARAM_PREFIX)).toString())
+                        .token(parameterMap.get(entry.getKey().replace(JOB_PREFIX, TOKEN_PREFIX))
+                                .toString())
+                        .branchRegex(parameterMap
+                                .get(entry.getKey().replace(JOB_PREFIX, BRANCH_PREFIX)).toString())
+                        .pathRegex(parameterMap.get(entry.getKey().replace(JOB_PREFIX, PATH_PREFIX))
+                                .toString())
+                        .permissions(fetchValue(entry.getKey()
+                                        .replace(JOB_PREFIX, PERMISSIONS_PREFIX),
+                                parameterMap, "REPO_READ"))
+                        .prDestRegex(fetchValue(entry.getKey().replace(JOB_PREFIX, PRDEST_PREFIX),
+                                parameterMap, ""))
+                        .isPipeline(fetchValue(entry.getKey()
+                                        .replace(JOB_PREFIX, ISPIPELINE_PREFIX),
+                                parameterMap, false))
+                        .build();
 
-				jobsList.add(job);
-			}
-		}
-		return jobsList;
-	}
+                jobsList.add(job);
+            }
+        }
+        return jobsList;
+    }
 
-	public boolean fetchValue(String attr, Map<String, Object> parameterMap, boolean defaultVal){
-		boolean val = defaultVal;
-		Object fetchedVal = parameterMap.get(attr);
-		if (fetchedVal != null) {
-			val = Boolean.parseBoolean(fetchedVal.toString());
-		}
-		return val;
-	}
+    public boolean fetchValue(String attr, Map<String, Object> parameterMap, boolean defaultVal){
+        boolean val = defaultVal;
+        Object fetchedVal = parameterMap.get(attr);
+        if (fetchedVal != null) {
+            val = Boolean.parseBoolean(fetchedVal.toString());
+        }
+        return val;
+    }
 
-	public String fetchValue(String attr, Map<String, Object> parameterMap, String defaultVal){
-		String val = defaultVal;
-		Object fetchedVal = parameterMap.get(attr);
-		if (fetchedVal != null) {
-			val = fetchedVal.toString();
-		}
-		return val;
-	}
+    public String fetchValue(String attr, Map<String, Object> parameterMap, String defaultVal){
+        String val = defaultVal;
+        Object fetchedVal = parameterMap.get(attr);
+        if (fetchedVal != null) {
+            val = fetchedVal.toString();
+        }
+        return val;
+    }
 }

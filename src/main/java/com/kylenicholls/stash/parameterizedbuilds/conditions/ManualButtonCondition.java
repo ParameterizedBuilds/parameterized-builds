@@ -12,29 +12,29 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class ManualButtonCondition extends BaseCondition {
 
-	public ManualButtonCondition(@ComponentImport RepositoryService repositoryService,
-								 SettingsService settingsService) {
-		super(repositoryService, settingsService);
-	}
+    public ManualButtonCondition(@ComponentImport RepositoryService repositoryService,
+                                 SettingsService settingsService) {
+        super(repositoryService, settingsService);
+    }
 
-	@Override
-	public void init(Map<String, String> context) {
-		// Nothing to do here
-	}
+    @Override
+    public void init(Map<String, String> context) {
+        // Nothing to do here
+    }
 
-	@Override
-	public boolean shouldDisplay(Map<String, Object> context) {
-		final Repository repository = getRepository(context);
-		if (repository == null) {
-			return false;
-		}
-		Settings settings = settingsService.getSettings(repository);
+    @Override
+    public boolean shouldDisplay(Map<String, Object> context) {
+        final Repository repository = getRepository(context);
+        if (repository == null) {
+            return false;
+        }
+        Settings settings = settingsService.getSettings(repository);
 
-		for (Job job : settingsService.getJobs(settings.asMap())) {
-			if (job.getTriggers().contains(Trigger.MANUAL)) {
-				return true;
-			}
-		}
-		return false;
-	}
+        for (Job job : settingsService.getJobs(settings.asMap())) {
+            if (job.getTriggers().contains(Trigger.MANUAL)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

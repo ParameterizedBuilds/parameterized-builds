@@ -8,8 +8,8 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class PRDeletedHandler extends PRHandler{
 
-    public PRDeletedHandler(SettingsService settingsService, PullRequestService pullRequestService, Jenkins jenkins,
-                            PullRequestEvent event, String url){
+    public PRDeletedHandler(SettingsService settingsService, PullRequestService pullRequestService,
+                            Jenkins jenkins, PullRequestEvent event, String url){
         super(settingsService, pullRequestService, jenkins, event, url, Trigger.PRDELETED);
     }
 }

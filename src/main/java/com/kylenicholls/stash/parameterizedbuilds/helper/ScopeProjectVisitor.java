@@ -1,7 +1,10 @@
 package com.kylenicholls.stash.parameterizedbuilds.helper;
 
 import com.atlassian.bitbucket.project.Project;
-import com.atlassian.bitbucket.scope.*;
+import com.atlassian.bitbucket.scope.GlobalScope;
+import com.atlassian.bitbucket.scope.ProjectScope;
+import com.atlassian.bitbucket.scope.RepositoryScope;
+import com.atlassian.bitbucket.scope.ScopeVisitor;
 
 public class ScopeProjectVisitor implements ScopeVisitor<Project> {
 

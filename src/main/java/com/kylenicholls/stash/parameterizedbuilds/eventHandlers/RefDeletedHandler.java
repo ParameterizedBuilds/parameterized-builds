@@ -10,8 +10,10 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class RefDeletedHandler extends RefHandler{
 
-    public RefDeletedHandler(SettingsService settingsService, Jenkins jenkins, CommitService commitService,
-                             Repository repository, RefChange refChange, String url, ApplicationUser user) {
-        super(settingsService, jenkins, commitService, repository, refChange, url, user, Trigger.DELETE);
+    public RefDeletedHandler(SettingsService settingsService, Jenkins jenkins,
+                             CommitService commitService, Repository repository, 
+                             RefChange refChange, String url, ApplicationUser user) {
+        super(settingsService, jenkins, commitService, repository, refChange, url, user, 
+              Trigger.DELETE);
     }
 }

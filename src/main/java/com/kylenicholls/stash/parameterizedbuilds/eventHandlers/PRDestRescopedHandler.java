@@ -7,7 +7,8 @@ import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 
 public class PRDestRescopedHandler extends PRHandler {
-    public PRDestRescopedHandler(SettingsService settingsService, PullRequestService pullRequestService, Jenkins jenkins,
+    public PRDestRescopedHandler(SettingsService settingsService,
+                                 PullRequestService pullRequestService, Jenkins jenkins,
                                  PullRequestRescopedEvent event, String url){
         super(settingsService, pullRequestService, jenkins, event, url, Job.Trigger.PRDESTRESCOPED);
     }
