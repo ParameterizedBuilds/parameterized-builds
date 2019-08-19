@@ -1,6 +1,10 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.repository.Branch;
@@ -12,7 +16,7 @@ import java.util.function.Supplier;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class BitbucketVariables {
-	private  Map<String, BitbucketVariable<String>> variables;
+	private Map<String, BitbucketVariable<String>> variables;
 	private final String [] SET_VALUES = {
 			"$BRANCH", "$COMMIT", "$URL", "$REPOSITORY", "$PROJECT", "$PRID",
 			"$PRAUTHOR", "$PRTITLE", "$PRDESCRIPTION", "$PRDESTINATION",
@@ -24,11 +28,11 @@ public class BitbucketVariables {
 		this.variables = builder.variables;
 	}
 
-	public  Map<String, BitbucketVariable<String>> getVariables() {
+	public Map<String, BitbucketVariable<String>> getVariables() {
 		return variables;
 	}
 
-	public  String fetch(String key) {
+	public String fetch(String key) {
 		return variables.get(key).getOrCompute();
 	}
 

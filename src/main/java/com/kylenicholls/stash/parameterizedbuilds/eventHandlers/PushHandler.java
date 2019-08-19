@@ -1,7 +1,11 @@
 package com.kylenicholls.stash.parameterizedbuilds.eventHandlers;
 
 import com.atlassian.bitbucket.commit.CommitService;
-import com.atlassian.bitbucket.content.*;
+import com.atlassian.bitbucket.content.AbstractChangeCallback;
+import com.atlassian.bitbucket.content.Change;
+import com.atlassian.bitbucket.content.ChangeContext;
+import com.atlassian.bitbucket.content.ChangeSummary;
+import com.atlassian.bitbucket.content.ChangesRequest;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.user.ApplicationUser;

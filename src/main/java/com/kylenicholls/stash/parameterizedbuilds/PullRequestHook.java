@@ -3,7 +3,6 @@ package com.kylenicholls.stash.parameterizedbuilds;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
-import com.atlassian.bitbucket.event.pull.*;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Branch;
@@ -11,9 +10,25 @@ import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
-import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.*;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.BaseHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PRApprovedHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PRAutoMergedHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PRDeclinedHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PRDeletedHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PRDestRescopedHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PRMergedHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PROpenedHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PRReopenedHandler;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PRSourceRescopedHandler;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.atlassian.bitbucket.branch.automerge.AutomaticMergeEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestDeclinedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestDeletedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestMergedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestParticipantApprovedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestReopenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 
 public class PullRequestHook {
 	private final SettingsService settingsService;

@@ -13,7 +13,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLException;
 
-import com.kylenicholls.stash.parameterizedbuilds.item.*;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,11 @@ import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
+import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
+import com.kylenicholls.stash.parameterizedbuilds.item.Job;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
+import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse.JenkinsMessage;
 
 public class Jenkins {

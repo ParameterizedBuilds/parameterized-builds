@@ -3,13 +3,21 @@ package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kylenicholls.stash.parameterizedbuilds.item.*;
+import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
+import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
+import com.kylenicholls.stash.parameterizedbuilds.item.Job;
+import com.kylenicholls.stash.parameterizedbuilds.item.Server;
+import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 import org.junit.Before;
 import org.junit.Test;
 

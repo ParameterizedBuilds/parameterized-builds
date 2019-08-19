@@ -1,5 +1,10 @@
 package com.kylenicholls.stash.parameterizedbuilds.item;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -13,8 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
-
-import static org.junit.Assert.*;
 
 public class JobTest {
 

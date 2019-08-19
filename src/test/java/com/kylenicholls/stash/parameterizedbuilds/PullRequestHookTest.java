@@ -1,13 +1,17 @@
 package com.kylenicholls.stash.parameterizedbuilds;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.atlassian.bitbucket.event.pull.*;
+import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.TestEventFactory;
 import org.junit.Before;
