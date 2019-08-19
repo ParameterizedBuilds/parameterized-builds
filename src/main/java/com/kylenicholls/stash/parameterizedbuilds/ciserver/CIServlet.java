@@ -21,90 +21,93 @@ import com.google.common.collect.ImmutableMap;
 
 @SuppressWarnings("serial")
 public class CIServlet extends HttpServlet {
-	private static final Logger logger = LoggerFactory.getLogger(CIServlet.class);
-	private final transient SoyTemplateRenderer soyTemplateRenderer;
-	private final transient AuthenticationContext authContext;
-	private final transient NavBuilder navBuilder;
-	private final transient Jenkins jenkins;
-	private final transient ProjectService projectService;
-	private final transient PageBuilderService pageBuilderService;
+    private static final Logger logger = LoggerFactory.getLogger(CIServlet.class);
+    private final transient SoyTemplateRenderer soyTemplateRenderer;
+    private final transient AuthenticationContext authContext;
+    private final transient NavBuilder navBuilder;
+    private final transient Jenkins jenkins;
+    private final transient ProjectService projectService;
+    private final transient PageBuilderService pageBuilderService;
 
-	public CIServlet(SoyTemplateRenderer soyTemplateRenderer, AuthenticationContext authContext,
-			NavBuilder navBuilder, Jenkins jenkins, ProjectService projectService,
-			PageBuilderService pageBuilderService) {
-		this.soyTemplateRenderer = soyTemplateRenderer;
-		this.authContext = authContext;
-		this.navBuilder = navBuilder;
-		this.jenkins = jenkins;
-		this.projectService = projectService;
-		this.pageBuilderService = pageBuilderService;
-	}
+    public CIServlet(SoyTemplateRenderer soyTemplateRenderer, AuthenticationContext authContext,
+            NavBuilder navBuilder, Jenkins jenkins, ProjectService projectService,
+            PageBuilderService pageBuilderService) {
+        this.soyTemplateRenderer = soyTemplateRenderer;
+        this.authContext = authContext;
+        this.navBuilder = navBuilder;
+        this.jenkins = jenkins;
+        this.projectService = projectService;
+        this.pageBuilderService = pageBuilderService;
+    }
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse res)
-			throws ServletException, IOException {
-		try {
-			String pathInfo = req.getPathInfo();
-			if (authContext.isAuthenticated()) {
-				CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins,
-						authContext.getCurrentUser(), projectService);
-				render(res, ciServer.JENKINS_SETTINGS, ciServer.renderMap());
-			} else {
-				res.sendRedirect(navBuilder.login().next(req.getServletPath() + pathInfo)
-						.buildAbsolute());
-			}
-		} catch (Exception e) {
-			logger.error("Exception in CIServlet.doGet: " + e.getMessage(), e);
-		}
-	}
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
+        try {
+            String pathInfo = req.getPathInfo();
+            if (authContext.isAuthenticated()) {
+                CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins,
+                        authContext.getCurrentUser(), projectService);
+                render(res, ciServer.JENKINS_SETTINGS, ciServer.renderMap());
+            } else {
+                res.sendRedirect(navBuilder.login().next(req.getServletPath() + pathInfo)
+                        .buildAbsolute());
+            }
+        } catch (Exception e) {
+            logger.error("Exception in CIServlet.doGet: " + e.getMessage(), e);
+        }
+    }
 
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse res)
-			throws ServletException, IOException {
-		try {
-			String pathInfo = req.getPathInfo();
-			CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins, req.getParameterMap(),
-					authContext.getCurrentUser(), projectService);
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
+        try {
+            String pathInfo = req.getPathInfo();
+            CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins, req.getParameterMap(),
+                    authContext.getCurrentUser(), projectService);
 
-			if (req.getParameter("submit").equals("Test Jenkins Settings")) {
-				render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
-			} else {
-				boolean clearSettings = req.getParameter("clear-settings") != null
-						&& "on".equals(req.getParameter("clear-settings"));
-				Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
-				if (renderLoc != null){
-					render(res, ciServer.JENKINS_SETTINGS, renderLoc);
-				} else {
-					doGet(req, res);
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Exception in CIServlet.doPost: " + e.getMessage(), e);
-		}
-	}
+            if (req.getParameter("submit").equals("Test Jenkins Settings")) {
+                render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
+            } else {
+                boolean clearSettings = req.getParameter("clear-settings") != null
+                        && "on".equals(req.getParameter("clear-settings"));
+                Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
+                if (renderLoc != null){
+                    render(res, ciServer.JENKINS_SETTINGS, renderLoc);
+                } else {
+                    doGet(req, res);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Exception in CIServlet.doPost: " + e.getMessage(), e);
+        }
+    }
 
-	private void render(HttpServletResponse resp, String templateName, Map<String, Object> data)
-			throws IOException, ServletException {
+    private void render(HttpServletResponse resp, String templateName, Map<String, Object> data)
+            throws IOException, ServletException {
 
-		pageBuilderService.assembler().resources().requireWebResource("com.kylenicholls.stash.parameterized-builds:jenkins-settings-form");
+        pageBuilderService.assembler().resources()
+                .requireWebResource(
+                        "com.kylenicholls.stash.parameterized-builds:jenkins-settings-form");
 
-		String baseUrl = navBuilder.buildRelative();
+        String baseUrl = navBuilder.buildRelative();
 
-		Map<String, Object> renderData = ImmutableMap.<String, Object>builder()
-				.putAll(data)
-				.put("bitbucketContext", baseUrl)
-				.build();
-		
-		resp.setContentType("text/html;charset=UTF-8");
-		try {
-			soyTemplateRenderer.render(resp
-					.getWriter(), "com.kylenicholls.stash.parameterized-builds:jenkins-admin-soy", templateName, renderData);
-		} catch (SoyException e) {
-			Throwable cause = e.getCause();
-			if (cause instanceof IOException) {
-				throw (IOException) cause;
-			}
-			throw new ServletException(e);
-		}
-	}
+        Map<String, Object> renderData = ImmutableMap.<String, Object>builder()
+                .putAll(data)
+                .put("bitbucketContext", baseUrl)
+                .build();
+        
+        resp.setContentType("text/html;charset=UTF-8");
+        try {
+            soyTemplateRenderer.render(resp
+                    .getWriter(), "com.kylenicholls.stash.parameterized-builds:jenkins-admin-soy",
+                    templateName, renderData);
+        } catch (SoyException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof IOException) {
+                throw (IOException) cause;
+            }
+            throw new ServletException(e);
+        }
+    }
 }

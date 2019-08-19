@@ -24,8 +24,8 @@ public class PRHandler extends BaseHandler{
     String url;
     final Trigger trigger;
 
-    public PRHandler(SettingsService settingsService, PullRequestService pullRequestService, Jenkins jenkins,
-                     PullRequestEvent event, String url, Trigger trigger) {
+    public PRHandler(SettingsService settingsService, PullRequestService pullRequestService,
+                     Jenkins jenkins, PullRequestEvent event, String url, Trigger trigger) {
         super(settingsService, jenkins);
         this.pullRequestService = pullRequestService;
         this.pullRequest = event.getPullRequest();
@@ -63,7 +63,8 @@ public class PRHandler extends BaseHandler{
     @Override
     boolean validateJob(Job job, BitbucketVariables bitbucketVariables){
         String prDest = pullRequest != null ? pullRequest.getToRef().getDisplayId() : "";
-        return validatePrDest(job, prDest) && validateTrigger(job, trigger) && validatePath(job, bitbucketVariables);
+        return validatePrDest(job, prDest) && validateTrigger(job, trigger) && 
+               validatePath(job, bitbucketVariables);
     }
 
     boolean validatePrDest(Job job,String prDest){

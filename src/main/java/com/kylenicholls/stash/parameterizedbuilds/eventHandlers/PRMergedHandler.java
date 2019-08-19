@@ -14,8 +14,8 @@ public class PRMergedHandler extends PRHandler{
 
     private String mergeCommit;
 
-    public PRMergedHandler(SettingsService settingsService, PullRequestService pullRequestService, Jenkins jenkins,
-                           PullRequestMergedEvent event, String url){
+    public PRMergedHandler(SettingsService settingsService, PullRequestService pullRequestService,
+                           Jenkins jenkins, PullRequestMergedEvent event, String url){
         super(settingsService, pullRequestService, jenkins, event, url, Job.Trigger.PRMERGED);
         this.mergeCommit = Optional.ofNullable(event.getCommit())
                 .map(MinimalCommit::getId)

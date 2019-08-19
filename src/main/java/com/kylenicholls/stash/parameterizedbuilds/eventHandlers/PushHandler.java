@@ -19,9 +19,11 @@ import java.io.IOException;
 
 public class PushHandler extends RefHandler {
 
-    public PushHandler(SettingsService settingsService, Jenkins jenkins, CommitService commitService,
-                       Repository repository, RefChange refChange, String url, ApplicationUser user) {
-        super(settingsService, jenkins, commitService, repository, refChange, url, user, Trigger.PUSH);
+    public PushHandler(SettingsService settingsService, Jenkins jenkins,
+                       CommitService commitService, Repository repository, RefChange refChange,
+                       String url, ApplicationUser user) {
+        super(settingsService, jenkins, commitService, repository, refChange, url, user,
+              Trigger.PUSH);
     }
 
     @Override

@@ -7,8 +7,8 @@ import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 
 public class PRReopenedHandler extends PRHandler {
-    public PRReopenedHandler(SettingsService settingsService, PullRequestService pullRequestService, Jenkins jenkins,
-                             PullRequestReopenedEvent event, String url){
+    public PRReopenedHandler(SettingsService settingsService, PullRequestService pullRequestService,
+                             Jenkins jenkins, PullRequestReopenedEvent event, String url){
         super(settingsService, pullRequestService, jenkins, event, url, Job.Trigger.PRREOPENED);
     }
 }

@@ -23,8 +23,9 @@ public class RefHandler extends BaseHandler{
     Trigger trigger;
     String url;
 
-    public RefHandler(SettingsService settingsService, Jenkins jenkins, CommitService commitService, Repository repository,
-                      RefChange refChange, String url, ApplicationUser user, Trigger trigger) {
+    public RefHandler(SettingsService settingsService, Jenkins jenkins, CommitService commitService,
+                      Repository repository, RefChange refChange, String url, ApplicationUser user,
+                      Trigger trigger) {
         super(settingsService, jenkins);
         this.commitService = commitService;
         this.refChange = refChange;
@@ -52,6 +53,7 @@ public class RefHandler extends BaseHandler{
 
     @Override
     boolean validateJob(Job job, BitbucketVariables bitbucketVariables){
-        return validateTag(job, isTag) && validateBranch(job, branch) && validateTrigger(job, trigger);
+        return validateTag(job, isTag) && validateBranch(job, branch) && 
+                validateTrigger(job, trigger);
     }
 }
