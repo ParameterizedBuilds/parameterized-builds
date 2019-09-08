@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.collect.Lists;
+
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -314,7 +316,8 @@ public class Job {
         }
         hasParameters = !isPipeline || !trigger.isRefChange() ? hasParameters : false;
 
-        List<String> pathSegments = new ArrayList<>();
+        // builder.getPathSegments is an immutable list so we need to use a new list
+        List<String> pathSegments =  Lists.newArrayList(builder.getPathSegments());
 
         if (useUserToken || !jenkinsServer.getAltUrl()) {
             pathSegments.add("job");

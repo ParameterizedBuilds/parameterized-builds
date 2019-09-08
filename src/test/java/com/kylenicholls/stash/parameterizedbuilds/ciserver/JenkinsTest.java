@@ -284,6 +284,26 @@ public class JenkinsTest {
     }
 
     @Test
+    public void testTriggerJobWithServerContext(){
+        String userToken = USER_SLUG + ":token";
+        String userCSRF = null;
+        Server expected = new Server("http://globalurl/jenkins", null, user.getDisplayName(), "token", false, false);
+        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+        when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
+                .thenReturn("token");
+
+        Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
+                .jenkinsServer(PROJECT_KEY).pathRegex("").prDestRegex("").build();
+        BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
+                .add("$TRIGGER", () -> Job.Trigger.ADD.toString())
+                .build();
+        Jenkins jenkinsSpy = spy(jenkins);
+        jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
+
+        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/jenkins/job/testJob/build", userToken, userCSRF, false);
+    }
+
+    @Test
     public void testTriggerJobUseJobServerGlobal(){
         String userToken = USER_SLUG + ":token";
         String userCSRF = null;
