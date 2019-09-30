@@ -248,12 +248,13 @@ public class BuildResourceTest {
 		String jobName = "jobname";
 		long prId = 101L;
 		String authorName = "prauthorname";
+		String authorEmail = "user@example.com";
 		String title = "prtitle";
 		String description = "prdescription";
 		String prDest = "prbranch";
 		Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
 				.buildParameters("param1=$BRANCH\r\nparam2=$PRDESTINATION\r\nparam3=$PRURL\r\nparam4=$PRAUTHOR\r\n" +
-						"param5=$PRTITLE\r\nparam6=$PRDESCRIPTION\r\nparam7=$PRID").permissions("REPO_ADMIN").build();
+						"param5=$$PREMAIL\r\nparam6=$PRTITLE\r\nparam7=$PRDESCRIPTION\r\nparam8=$PRID").permissions("REPO_ADMIN").build();
 		jobs.add(job);
 		PullRequest pr = mock(PullRequest.class);
 		PullRequestParticipant author = mock(PullRequestParticipant.class);
@@ -265,6 +266,7 @@ public class BuildResourceTest {
 		when(pr.getToRef()).thenReturn(toRef);
 		when(toRef.getDisplayId()).thenReturn(prDest);
 		when(prUser.getDisplayName()).thenReturn(authorName);
+		when(prUser.getEmailAddress()).thenReturn(authorEmail);
 		when(pr.getTitle()).thenReturn(title);
 		when(pr.getDescription()).thenReturn(description);
 		when(prService.getById(repository.getId(), prId)).thenReturn(pr);
@@ -282,11 +284,13 @@ public class BuildResourceTest {
 		Map<String, Object> parameter4 = new HashMap<>();
 		parameter4.put("param4", authorName);
 		Map<String, Object> parameter5 = new HashMap<>();
-		parameter5.put("param5", title);
+		parameter5.put("param5", authorEmail);
 		Map<String, Object> parameter6 = new HashMap<>();
-		parameter6.put("param6", description);
+		parameter6.put("param6", title);
 		Map<String, Object> parameter7 = new HashMap<>();
-		parameter7.put("param7", Long.toString(prId));
+		parameter7.put("param7", description);
+		Map<String, Object> parameter8 = new HashMap<>();
+		parameter8.put("param8", Long.toString(prId));
 		parameters.add(parameter1);
 		parameters.add(parameter2);
 		parameters.add(parameter3);
@@ -294,6 +298,7 @@ public class BuildResourceTest {
 		parameters.add(parameter5);
 		parameters.add(parameter6);
 		parameters.add(parameter7);
+		parameters.add(parameter8);
 		assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
 		assertEquals(jobId, jobData.get(0).get("id"));
 		assertEquals(jobName, jobData.get(0).get("jobName"));
