@@ -19,7 +19,7 @@ public class BitbucketVariables {
     private Map<String, BitbucketVariable<String>> variables;
     private final String [] SET_VALUES = {
             "$BRANCH", "$COMMIT", "$URL", "$REPOSITORY", "$PROJECT", "$PRID",
-            "$PRAUTHOR", "$PRTITLE", "$PRDESCRIPTION", "$PRDESTINATION",
+            "$PRAUTHOR", "$$PREMAIL", "$PRTITLE", "$PRDESCRIPTION", "$PRDESTINATION",
             "$PRURL", "$TRIGGER", "$MERGECOMMIT","$PRSOURCEPROJECT", "$PRSOURCEREPOSITORY",};
     private final Set<String> allowedVariables = new HashSet<>(Arrays.asList(SET_VALUES));
 
@@ -53,7 +53,7 @@ public class BitbucketVariables {
             return this;
         }
 
-        public Builder populateFromPR(PullRequest pullRequest, Repository repository, 
+        public Builder populateFromPR(PullRequest pullRequest, Repository repository,
                                       String projectKey, Trigger trigger, String url){
             String prId = Long.toString(pullRequest.getId());
             return add("$BRANCH", () -> pullRequest.getFromRef().getDisplayId())
@@ -63,6 +63,7 @@ public class BitbucketVariables {
                     .add("$PROJECT", () -> projectKey)
                     .add("$PRID", () -> prId)
                     .add("$PRAUTHOR", () -> pullRequest.getAuthor().getUser().getDisplayName())
+                    .add("$PREMAIL", () -> pullRequest.getAuthor().getUser().getEmailAddress())
                     .add("$PRTITLE", pullRequest::getTitle)
                     .add("$PRDESCRIPTION", pullRequest::getDescription)
                     .add("$PRDESTINATION", () ->  pullRequest.getToRef().getDisplayId())
@@ -95,7 +96,7 @@ public class BitbucketVariables {
                     .add("$TRIGGER", trigger::toString);
         }
 
-        public Builder populateFromStrings(String branch, String commit, Repository repository, 
+        public Builder populateFromStrings(String branch, String commit, Repository repository,
                                            String projectKey, Trigger trigger, String url){
             return add("$BRANCH", () -> branch)
                     .add("$COMMIT", () -> commit)

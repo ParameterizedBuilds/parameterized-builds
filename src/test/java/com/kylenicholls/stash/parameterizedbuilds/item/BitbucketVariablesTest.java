@@ -34,6 +34,7 @@ public class BitbucketVariablesTest {
 	private final Long PR_ID = 15L;
 	private final String PR_DESCRIPTION = "Description of this PR";
 	private final String PR_AUTHOR = "this guy";
+	private final String PR_EMAIL = "example@domain.com";
 	private final String SOURCE_BRANCH = "sourcebranch";
 	private final String DEST_BRANCH = "destbranch";
 	private final String COMMIT = "commithash";
@@ -64,6 +65,7 @@ public class BitbucketVariablesTest {
 		when(branch.getLatestCommit()).thenReturn(COMMIT);
 		when(author.getUser()).thenReturn(user);
 		when(user.getDisplayName()).thenReturn(PR_AUTHOR);
+		when(user.getEmailAddress()).thenReturn(PR_EMAIL);
 		when(prFromRef.getRepository()).thenReturn(forkRepository);
 		when(prFromRef.getDisplayId()).thenReturn(SOURCE_BRANCH);
 		when(prFromRef.getLatestCommit()).thenReturn(COMMIT);
@@ -137,6 +139,14 @@ public class BitbucketVariablesTest {
 				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
 		assertEquals(PR_AUTHOR, actual.fetch("$PRAUTHOR"));
+	}
+
+	@Test
+	public void testPopulateFromPRSetsPRAuthorEmail() {
+		BitbucketVariables actual = new BitbucketVariables.Builder()
+				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
+
+		assertEquals(PR_EMAIL, actual.fetch("$$PREMAIL"));
 	}
 
 	@Test
