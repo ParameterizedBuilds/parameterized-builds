@@ -254,7 +254,7 @@ public class BuildResourceTest {
 		String prDest = "prbranch";
 		Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
 				.buildParameters("param1=$BRANCH\r\nparam2=$PRDESTINATION\r\nparam3=$PRURL\r\nparam4=$PRAUTHOR\r\n" +
-						"param5=$$PREMAIL\r\nparam6=$PRTITLE\r\nparam7=$PRDESCRIPTION\r\nparam8=$PRID").permissions("REPO_ADMIN").build();
+						"param5=$PREMAIL\r\nparam6=$PRTITLE\r\nparam7=$PRDESCRIPTION\r\nparam8=$PRID").permissions("REPO_ADMIN").build();
 		jobs.add(job);
 		PullRequest pr = mock(PullRequest.class);
 		PullRequestParticipant author = mock(PullRequestParticipant.class);
