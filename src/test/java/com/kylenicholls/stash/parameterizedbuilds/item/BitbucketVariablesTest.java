@@ -146,7 +146,7 @@ public class BitbucketVariablesTest {
 		BitbucketVariables actual = new BitbucketVariables.Builder()
 				.populateFromPR(pullRequest, repository, projectKey, trigger, url).build();
 
-		assertEquals(PR_EMAIL, actual.fetch("$$PREMAIL"));
+		assertEquals(PR_EMAIL, actual.fetch("$PREMAIL"));
 	}
 
 	@Test
