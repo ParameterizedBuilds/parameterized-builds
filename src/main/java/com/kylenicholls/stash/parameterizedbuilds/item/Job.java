@@ -14,8 +14,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.Lists;
-
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -316,14 +314,16 @@ public class Job {
         }
         hasParameters = !isPipeline || !trigger.isRefChange() ? hasParameters : false;
 
-        // builder.getPathSegments is an immutable list so we need to use a new list
-        List<String> pathSegments =  Lists.newArrayList(builder.getPathSegments());
+        //start building the url path. Make sure to use the current context.
+        StringBuilder path = new StringBuilder(builder.getPath());
 
         if (useUserToken || !jenkinsServer.getAltUrl()) {
-            pathSegments.add("job");
-            pathSegments.addAll(createPipelineJobPath("job", trigger, bitbucketVariables));
+            path.append("/job");
+            List<String> additionalPaths =
+                    createPipelineJobPath("job", trigger, bitbucketVariables);
+            additionalPaths.forEach(x -> path.append("/" + x));
         } else {
-            pathSegments.add("buildByToken");
+            path.append("/buildByToken");
 
             builder.setParameter("job", String.join("/", 
                     createPipelineJobPath(null, trigger, bitbucketVariables)));
@@ -334,12 +334,13 @@ public class Job {
         }
 
         if (hasParameters) {
-            pathSegments.add("buildWithParameters");
+            path.append("/buildWithParameters");
             appendBuildParams(builder);
         } else {
-            pathSegments.add("build");
+            path.append("/build");
         }
-        builder.setPathSegments(pathSegments);
+
+        builder.setPath(path.toString());
         return builder;
     }
 
