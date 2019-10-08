@@ -86,4 +86,24 @@ public interface ServerService {
         return new Server(serverMap);
     }
 
+    default String getCurrentDefaultToken(Server oldServer, Server newServer){
+        // if the new server didn't edit the token attribute and the server
+        // credentials should be the same, save the old token
+        if (shouldUseOldToken(oldServer, newServer)) {
+            return oldServer.getToken();
+        } else if (newServer.getToken() == null) {
+            return "";
+        } else {
+            return newServer.getToken();
+        }
+    }
+
+    default boolean shouldUseOldToken(Server oldServer, Server newServer){
+        return
+            oldServer != null &&
+            newServer.getToken() == null &&
+            oldServer.getBaseUrl().equals(newServer.getBaseUrl()) &&
+            oldServer.getUser().equals(newServer.getUser());
+    }
+
 }
