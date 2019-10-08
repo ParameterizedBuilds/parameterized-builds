@@ -66,6 +66,9 @@ public class GlobalResource extends RestResource implements ServerService{
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
     public Response validate(@Context UriInfo ui, Server server){
         if (authContext.isAuthenticated()) {
+            Server oldServer = jenkins.getJenkinsServer(null);
+            server.setToken(getCurrentDefaultToken(oldServer, server));
+
             String message = jenkins.testConnection(server);
 
             if(message.equals("Connection successful")){
@@ -95,17 +98,7 @@ public class GlobalResource extends RestResource implements ServerService{
             }
 
             Server oldServer = jenkins.getJenkinsServer(null);
-            // if the new server didn't edit the token attribute and the server
-            // credentials should be the same, save the old token
-            if (oldServer != null &&
-                    server.getToken() == null &&
-                    oldServer.getBaseUrl() == server.getBaseUrl() &&
-                    oldServer.getUser() == server.getUser()) {
-                server.setToken(oldServer.getToken());
-            }
-            if (server.getToken() == null){
-                server.setToken("");
-            }
+            server.setToken(getCurrentDefaultToken(oldServer, server));
 
             int returnStatus = oldServer == null ? 201 : 200;
             jenkins.saveJenkinsServer(server, null);
