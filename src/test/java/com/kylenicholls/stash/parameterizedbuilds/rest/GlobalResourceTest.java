@@ -1,6 +1,7 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -105,6 +106,18 @@ public class GlobalResourceTest {
         Response actual = rest.validate(ui, globalServer);
 
         assertEquals(400, actual.getStatus());
+    }
+
+    @Test
+    public void testValidateServerPreservesToken(){
+        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        Server testServer = rest.mapToServer(globalServer.asMap());
+        when(jenkins.testConnection(testServer)).thenReturn( "Connection successful");
+        testServer.setToken(null);
+        rest.validate(ui, testServer);
+
+        assertEquals(globalServer.getToken(), testServer.getToken());
+        assertNotNull(testServer.getToken());
     }
 
     @Test
