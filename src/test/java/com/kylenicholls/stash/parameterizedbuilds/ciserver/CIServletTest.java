@@ -131,8 +131,8 @@ public class CIServletTest {
 
         Map<String, Object> data = ImmutableMap
                 .<String, Object> of(
-                    "user", user, 
-                    "projectTokens", projectTokens, 
+                    "user", user,
+                    "projectTokens", "[]",
                     "errors", "",
                     CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))

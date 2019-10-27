@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gson.JsonArray;
+
 public class AccountServer extends CIServer {
 
     private static final String PROJECT_KEY_PREFIX = "projectKey-";
@@ -46,10 +48,16 @@ public class AccountServer extends CIServer {
     public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
         List<UserToken> projectTokens = jenkins
                 .getAllUserTokens(user, projectService.findAllKeys(), projectService);
+
+        JsonArray tokenArray = new JsonArray();
+        projectTokens.stream()
+                .map(UserToken::toJson)
+                .forEach(tokenArray::add);
+        
         @SuppressWarnings("serial")
         Map<String, Object> baseMap = new HashMap<String, Object>() {{
             put(USER_KEY, user);
-            put(PROJECT_TOKENS_KEY, projectTokens);
+            put(PROJECT_TOKENS_KEY, tokenArray.toString());
             put(ERRORS, "");
             putAll(renderOptions);
         }};
