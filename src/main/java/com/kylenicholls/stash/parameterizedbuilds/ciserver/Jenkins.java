@@ -88,7 +88,7 @@ public class Jenkins {
      *            the Jenkins api token, if the token is empty then the setting
      *            will be removed
      */
-    protected void saveUserToken(String userSlug, String projectKey, String token) {
+    public void saveUserToken(String userSlug, String projectKey, String token) {
         String appendProject = projectKey.isEmpty() ? "" : "." + projectKey;
         if (!token.isEmpty()) {
             pluginSettings.put(JENKINS_USER + userSlug + appendProject, token);

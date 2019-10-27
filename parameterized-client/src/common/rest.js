@@ -76,3 +76,33 @@ export const testJenkinsServer = (context, projectKey, serverData) => {
         }
     })
 }
+
+
+export const updateUserToken = (context, projectKey, serverData) => {
+    const baseUrl = getRestUrl(context);
+    let fullUrl = projectKey === "" ?
+        `${baseUrl}/global/servers/${serverData.alias}/userToken` :
+        `${baseUrl}/projects/${projectKey}/servers/${serverData.alias}/userToken`;
+
+        const data = {
+            token: serverData.default_token
+        }
+
+    return axios.put(fullUrl, data, {
+        timeout: 1000 * 60,
+        headers: {
+            'content-type': 'application/json'
+        }
+    })
+}
+
+export const removeUserToken = (context, projectKey, alias) => {
+    const baseUrl = getRestUrl(context);
+    let fullUrl = projectKey === "" ?
+        `${baseUrl}/global/servers/${alias}/userToken` :
+        `${baseUrl}/projects/${projectKey}/servers/${alias}/userToken`;
+
+    return axios.delete(fullUrl, {
+        timeout: 1000 * 60
+    })
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { saveJenkinsServer, deleteJenkinsServer, testJenkinsServer } from '../common/rest'
-import { TextInput, ButtonGroup, Button, Message, Modal } from '../common/aui'
+import { updateUserToken, removeUserToken, testJenkinsServer } from '../common/rest'
+import { TextInput, ButtonGroup, Button, Message } from '../common/aui'
 
 const ActionDialog = ({
     message,
@@ -33,36 +33,35 @@ const ServerContainer = ({
     serverData,
     project,
     context,
-    updateServer,
-    removeServer
+    updateServer
 }) => {
 
-    const saveServer = e => {
+    const updateToken = e => {
         e.preventDefault();
         updateServer(serverData.id, "action_message", "Saving settings...");
         updateServer(serverData.id, "action_state", "LOADING");
-        const newAlias = serverData.alias;
-        saveJenkinsServer(context, project, serverData).then(response => {
-            updateServer(serverData.id, "action_message", "Settings saved!")
+        updateUserToken(context, project, serverData).then(response => {
+            updateServer(serverData.id, "action_message", "Token saved!")
             updateServer(serverData.id, "action_state", "SUCCESS")
-            updateServer(serverData.id, "old_alias", newAlias)
         }).catch(error => {
-            const message = `Failed to save settings:\n${error.response.data.errors.join('\n')}`
+            const message = `Failed to save token:\n${error.response.data.message}`
             updateServer(serverData.id, "action_message", message)
             updateServer(serverData.id, "action_state", "ERROR")
         });
     }
 
-    const deleteServer = e => {
+    const removeToken = e => {
         e.preventDefault();
-        const alias = serverData.old_alias !== "" ? serverData.old_alias : serverData.alias;
+        const alias = serverData.alias;
         updateServer(serverData.id, "show_clear_modal", false)
         updateServer(serverData.id, "action_message", "Removing settings...")
         updateServer(serverData.id, "action_state", "LOADING")
-        deleteJenkinsServer(context, project, alias).then(response => {
-            removeServer(serverData.id)
+        removeUserToken(context, project, alias).then(response => {
+            updateServer(serverData.id, "default_token", "")
+            updateServer(serverData.id, "action_message", "Token removed!")
+            updateServer(serverData.id, "action_state", "SUCCESS")
         }).catch(error => {
-            updateServer(serverData.id, "action_message", "Could not remove jenkins server")
+            updateServer(serverData.id, "action_message", "Could not remove token")
             updateServer(serverData.id, "action_state", "ERROR")
         });
     }
@@ -80,11 +79,6 @@ const ServerContainer = ({
         });
     }
 
-    const toggleModal = (e, newVal) => {
-        e.preventDefault();
-        updateServer(serverData.id, "show_clear_modal", newVal)
-    }
-
     return (
         <div>
             <TextInput labelText={serverData.alias + " Token"} id="jenkinsToken" 
@@ -93,23 +87,14 @@ const ServerContainer = ({
             <ButtonGroup>
                 <Button id="saveButton" name="submit" buttonText="Save"
                         extraClasses={["aui-button-primary"]}
-                        onClick={saveServer} />
+                        onClick={updateToken} />
                 <Button id="testButton" name="button" buttonText="Test Jenkins Settings"
                         onClick={testServer}/>
                 <Button id="clearButton" name="button" buttonText="Clear Jenkins Settings"
-                        onClick={(e) => toggleModal(e, true)} disabled={serverData.old_alias === ""} />
+                        onClick={(e) => removeToken(e, true)} />
             </ButtonGroup>
             {serverData.action_message !== "" && 
                 <ActionDialog message={serverData.action_message} state={serverData.action_state}/>}
-            <Modal id="confirmDelete" extraClasses={["aui-dialog2-small", "aui-dialog2-warning"]}
-                   hidden={!serverData.show_clear_modal}
-                   toggleFunction={(e) => toggleModal(e, false)}
-                   title="Confirm Clear Settings" footerButtons={[(
-                    <Button id="confirmDeleteButton" name="button" buttonText="Clear Settings"
-                            onClick={deleteServer} />
-                   )]}>
-                <p>Are you sure you want to clear settings for {serverData.alias}? This action cannot be undone.</p>
-            </Modal>
         </div>
     );
 }
@@ -131,12 +116,6 @@ const mapDispatchToServerContainerProps = dispatch => {
                 field: fieldName,
                 value: fieldValue
             });
-        },
-        removeServer: (id) => {
-            dispatch({
-                type: 'DELETE_SERVER',
-                id: id
-            })
         }
     }
 }

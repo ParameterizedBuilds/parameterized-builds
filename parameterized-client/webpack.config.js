@@ -2,7 +2,7 @@ require('webpack');
 const path = require('path');
 
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     entry: {
         'hook/parameterized_build_hook': ['./src/hook/view.js'],
         'jenkins_settings/server_form': ['./src/jenkins_settings/view.js'],
