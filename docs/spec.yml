@@ -99,6 +99,53 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '5XX':
           $ref: '#/components/responses/Unexpected'
+
+  /global/servers/{serverAlias}/userToken:
+    put:
+      summary: Set user token for jenkins server
+      description: >
+        Sets the authenticated user's token for the jenkins
+        server defined at serverAlias in the global jenkins
+        settings. If no token is defined, the current user
+        token is removed.
+      parameters:
+        - name: serverAlias
+          in: path
+          description: Server Nickname
+          required: true
+          schema:
+            type: string
+        - name: toke
+          in: body
+          required: false
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Token updated
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
+    delete:
+      summary: Remove user token for given jenkins server
+      description: >
+        Removes the authenticated user's api token for
+        the given jenkins server.
+      parameters:
+        - name: serverAlias
+          in: path
+          description: Server Nickname
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Token removed
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
   
   /projects/{projectKey}/servers:
     get:
@@ -224,6 +271,65 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           description: Project not found
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
+
+  /projects/{projectKey}/servers/{serverAlias}/userToken:
+    put:
+      summary: Set user token for jenkins server
+      description: >
+        Sets the authenticated user's token for the jenkins
+        server defined at serverAlias in the project's jenkins
+        settings. If no token is defined, the current user
+        token is removed.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: serverAlias
+          in: path
+          description: Server Nickname
+          required: true
+          schema:
+            type: string
+        - name: toke
+          in: body
+          required: false
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Token updated
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
+    delete:
+      summary: Remove user token for given jenkins server
+      description: >
+        Removes the authenticated user's api token for
+        the given jenkins server.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: serverAlias
+          in: path
+          description: Server Nickname
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Token removed
+        '403':
+          $ref: '#/components/responses/Unauthorized'
         '5XX':
           $ref: '#/components/responses/Unexpected'
 
