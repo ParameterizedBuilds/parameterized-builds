@@ -7,6 +7,13 @@ import { serverDefinitions } from "./state-reducers";
 import { Form } from "../common/aui";
 
 let ServerList = ({ servers }) => {
+
+    if (servers.length === 0){
+        return <div>
+            No Jenkins servers were found. Contact your Bitbucket Server administrator to add a Jenkins server.
+        </div>
+    }
+
     const serversByProject = servers.reduce(function(rv, x) {
         (rv[x["project_name"]] = rv[x["project_name"]] || []).push(x);
         return rv;

@@ -79,6 +79,12 @@ const ServerContainer = ({
         });
     }
 
+    const openAPITokenWindow = e => {
+        e.preventDefault();
+        const userSlug = document.getElementsByName("userSlug")[0].content;
+        window.open(`${serverData.url}/user/${userSlug}/configure`, '_blank')
+    }
+
     return (
         <div>
             <TextInput labelText={serverData.alias + " Token"} id="jenkinsToken" 
@@ -88,6 +94,8 @@ const ServerContainer = ({
                 <Button id="saveButton" name="submit" buttonText="Save"
                         extraClasses={["aui-button-primary"]}
                         onClick={updateToken} />
+                <Button id="apiButton" name="button" buttonText="Get API Token"
+                        onClick={openAPITokenWindow}/>
                 <Button id="testButton" name="button" buttonText="Test Jenkins Settings"
                         onClick={testServer}/>
                 <Button id="clearButton" name="button" buttonText="Clear Jenkins Settings"
