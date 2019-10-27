@@ -2,11 +2,11 @@ require('webpack');
 const path = require('path');
 
 module.exports = {
-    mode: 'production',
+    mode: 'development',
     entry: {
         'hook/parameterized_build_hook': ['./src/hook/view.js'],
         'jenkins_settings/server_form': ['./src/jenkins_settings/view.js'],
-        'jenkins_settings/user_server_form': ['./src/jenkins_settings/user_view.js']
+        'jenkins_settings/user_server_form': ['./src/user_settings/user_view.js']
     },
     output: {
         path: path.join(__dirname, '../src/main/resources/'),

@@ -17,12 +17,17 @@
     <h2 class="page-panel-content-header">Jenkins User Settings</h2>
     <div id="jenkins-settings">
         // <div id="user" style="display: none;">{$user}</div>
-        //<div id="project-tokens" style="display: none;">{$projectTokens}</div>
-		{foreach $projectToken in $projectTokens}
-		{/foreach}
+        <div id="project-tokens" style="display: none;">{$projectTokens}</div>
         <div id="bitbucket-context" style="display: none;">{$bitbucketContext}</div>
-		<div id="project-key" style="display: none;"></div>
     </div>
+
+	// <div id="old-settings-page">
+	// 	{call .settingsOld}
+	// 		{param user: $user /}
+	// 		{param projectTokens: $projectTokens /}
+	// 		{param errors: $errors /}
+	// 	{/call}
+	// </div>
 </body>
 </html>
 {/template}
