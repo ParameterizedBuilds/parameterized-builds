@@ -16,79 +16,9 @@
 <body>
     <h2 class="page-panel-content-header">Jenkins User Settings</h2>
     <div id="jenkins-settings">
-        // <div id="user" style="display: none;">{$user}</div>
         <div id="project-tokens" style="display: none;">{$projectTokens}</div>
         <div id="bitbucket-context" style="display: none;">{$bitbucketContext}</div>
     </div>
-
-	// <div id="old-settings-page">
-	// 	{call .settingsOld}
-	// 		{param user: $user /}
-	// 		{param projectTokens: $projectTokens /}
-	// 		{param errors: $errors /}
-	// 	{/call}
-	// </div>
 </body>
 </html>
-{/template}
-
-/**
- * @param user
- * @param projectTokens
- * @param errors
- */
-{template .settingsOld}
-<html>
-<head>
-    <meta name="decorator" content="bitbucket.users.account">
-    <meta name="userSlug" content="{$user.slug}">
-    <meta name="activeTab" content="jenkins-user-tab">
-    <title>Jenkins Settings for {$user.displayName}</title>
-</head>
-<body>
-	<h2 class="page-panel-content-header">Jenkins User Settings</h2>
-	{if $errors}
-		{$errors}
-	{else}
-		<form class="aui prevent-double-submit  pull-request-settings" action="" method="post" accept-charset="UTF-8">
-			{foreach $projectToken in $projectTokens}
-				{call .anotherParam}
-					{param userToken: $projectToken /}
-				{/call}
-			{/foreach}
-			{if length($projectTokens) == 0}
-				<div>No Jenkins servers were found. Contact your Bitbucket Server administrator to add a Jenkins server.</div>
-			{else}
-			    {call aui.form.submit}
-					{param id: 'saveButton' /}
-					{param name: 'submit' /}
-					{param text: 'Save' /}
-					{param type: 'submit' /}
-					{param extraClasses: 'aui-button-primary' /}
-			    {/call}
-			{/if}
-	    </form>
-    {/if}
-</body>
-</html>
-{/template}
-
-/**
- * @param userToken
- */
-{template .anotherParam}
-	<h3>{$userToken.projectName} Servers</h3><br>
-	<input type="hidden" name="projectKey-{$userToken.projectKey}" value="{$userToken.projectKey}">
-	{call aui.form.passwordField}
-        {param id: 'jenkinsToken-' + $userToken.projectKey /}
-        {param value: $userToken.token /}
-        {param labelContent: ($userToken.alias ?: $userToken.projectName) + ' Token' /}
-        {param autocomplete: 'off' /}
-    {/call}
-	{if $userToken.baseUrl}
-		<div class="field-group">
-			 <a class="aui-button" onClick="window.open( '{$userToken.baseUrl}/user/{$userToken.userSlug}/configure', '_blank' )">Get Jenkins API Token</a>
-		</div>
-	{/if}
-	<hr />
 {/template}
