@@ -12,6 +12,7 @@ public class GlobalServer extends CIServer{
         this.jenkins = jenkins;
         this.server = server;
         this.JENKINS_SETTINGS = "jenkins.admin.settings";
+        this.ADDITIONAL_JS = "jenkins-settings-form";
     }
 
     public Map<String, Object> postSettings(boolean clearSettings){

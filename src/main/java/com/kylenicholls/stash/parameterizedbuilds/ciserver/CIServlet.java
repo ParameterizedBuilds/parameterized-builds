@@ -48,7 +48,8 @@ public class CIServlet extends HttpServlet {
             if (authContext.isAuthenticated()) {
                 CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins,
                         authContext.getCurrentUser(), projectService);
-                render(res, ciServer.JENKINS_SETTINGS, ciServer.renderMap());
+                render(res, ciServer.JENKINS_SETTINGS, ciServer.ADDITIONAL_JS,
+                         ciServer.renderMap());
             } else {
                 res.sendRedirect(navBuilder.login().next(req.getServletPath() + pathInfo)
                         .buildAbsolute());
@@ -67,13 +68,14 @@ public class CIServlet extends HttpServlet {
                     authContext.getCurrentUser(), projectService);
 
             if (req.getParameter("submit").equals("Test Jenkins Settings")) {
-                render(res, ciServer.JENKINS_SETTINGS, ciServer.testSettings());
+                render(res, ciServer.JENKINS_SETTINGS, ciServer.ADDITIONAL_JS, 
+                        ciServer.testSettings());
             } else {
                 boolean clearSettings = req.getParameter("clear-settings") != null
                         && "on".equals(req.getParameter("clear-settings"));
                 Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
                 if (renderLoc != null){
-                    render(res, ciServer.JENKINS_SETTINGS, renderLoc);
+                    render(res, ciServer.JENKINS_SETTINGS, ciServer.ADDITIONAL_JS, renderLoc);
                 } else {
                     doGet(req, res);
                 }
@@ -83,12 +85,13 @@ public class CIServlet extends HttpServlet {
         }
     }
 
-    private void render(HttpServletResponse resp, String templateName, Map<String, Object> data)
+    private void render(HttpServletResponse resp, String templateName, String addedJs,
+                        Map<String, Object> data)
             throws IOException, ServletException {
 
         pageBuilderService.assembler().resources()
                 .requireWebResource(
-                        "com.kylenicholls.stash.parameterized-builds:jenkins-settings-form");
+                        "com.kylenicholls.stash.parameterized-builds:" + addedJs);
 
         String baseUrl = navBuilder.buildRelative();
 

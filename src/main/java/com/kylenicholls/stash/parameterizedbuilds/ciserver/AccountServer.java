@@ -27,7 +27,8 @@ public class AccountServer extends CIServer {
         this.parameters = parameters;
         this.user = user;
         this.projectService = projectService;
-        this.JENKINS_SETTINGS =  "jenkins.user.settings";
+        this.JENKINS_SETTINGS = "jenkins.user.settings";
+        this.ADDITIONAL_JS = "jenkins-user-settings-form";
     }
 
     public Map<String, Object> postSettings(boolean clearSettings) {
