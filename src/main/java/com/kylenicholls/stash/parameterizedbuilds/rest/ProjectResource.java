@@ -121,4 +121,32 @@ public class ProjectResource extends RestResource implements ServerService {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
+
+    @PUT
+    @Path("/servers/{serverAlias}/userToken")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
+    public Response addUserToken(@Context UriInfo ui, String token){
+        if (authContext.isAuthenticated()) {
+            String projectKey = ui.getPathParameters().getFirst("projectKey");
+            String user = authContext.getCurrentUser().getSlug();
+            jenkins.saveUserToken(user, projectKey, token);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+    }
+
+    @DELETE
+    @Path("/servers/{serverAlias}/userToken")
+    public Response removeUserToken(@Context UriInfo ui){
+        if (authContext.isAuthenticated()) {
+            String projectKey = ui.getPathParameters().getFirst("projectKey");
+            String user = authContext.getCurrentUser().getSlug();
+            jenkins.saveUserToken(user, projectKey, "");
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+    }
 }

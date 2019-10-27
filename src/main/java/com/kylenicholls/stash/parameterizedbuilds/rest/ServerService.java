@@ -47,6 +47,16 @@ public interface ServerService {
     @Path("/servers/{serverAlias}")
     public Response removeServer(@Context UriInfo ui);
 
+    @PUT
+    @Path("/servers/{serverAlias}/userToken")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
+    public Response addUserToken(@Context UriInfo ui, String token);
+
+    @DELETE
+    @Path("/servers/{serverAlias}/userToken")
+    public Response removeUserToken(@Context UriInfo ui);
+
     default Map<String, Object> createServerMap(Server server, String projectKey){
         Map<String, Object> serverMap = new HashMap<>();
         serverMap.put("url", server.getBaseUrl());

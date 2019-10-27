@@ -12,8 +12,6 @@ let ServerList = ({ servers }) => {
         return rv;
     }, {});
 
-    console.log(serversByProject);
-
     return (
         <div>
             {Object.keys(serversByProject).map(projectName =>
