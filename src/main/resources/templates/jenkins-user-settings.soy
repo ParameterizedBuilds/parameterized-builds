@@ -3,9 +3,36 @@
 /**
  * @param user
  * @param projectTokens
- * @param errors
+ * @param bitbucketContext
  */
 {template .settings}
+<html>
+<head>
+    <meta name="decorator" content="bitbucket.users.account">
+    <meta name="userSlug" content="{$user.slug}">
+    <meta name="activeTab" content="jenkins-user-tab">
+    <title>Jenkins Settings for {$user.displayName}</title>
+</head>
+<body>
+    <h2 class="page-panel-content-header">Jenkins User Settings</h2>
+    <div id="jenkins-settings">
+        // <div id="user" style="display: none;">{$user}</div>
+        //<div id="project-tokens" style="display: none;">{$projectTokens}</div>
+		{foreach $projectToken in $projectTokens}
+		{/foreach}
+        <div id="bitbucket-context" style="display: none;">{$bitbucketContext}</div>
+		<div id="project-key" style="display: none;"></div>
+    </div>
+</body>
+</html>
+{/template}
+
+/**
+ * @param user
+ * @param projectTokens
+ * @param errors
+ */
+{template .settingsOld}
 <html>
 <head>
     <meta name="decorator" content="bitbucket.users.account">

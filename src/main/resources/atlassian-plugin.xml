@@ -64,6 +64,11 @@
     <resource name="server_form.js" type="download" location="/jenkins_settings/server_form.pack.js"/>
   </web-resource>
 
+  <!-- Javascript for jenkins server settings form -->
+  <web-resource key="jenkins-user-settings-form" name="Jenkins User Settings Form">
+    <resource name="user_server_form.js" type="download" location="/jenkins_settings/user_server_form.pack.js"/>
+  </web-resource>
+
   <!-- Jenkins JS build feature -->
   <web-resource name="Jenkins Branch Build Feature" i18n-name-key="build-dialog.name" key="build-dialog">
     <transformation extension="soy">

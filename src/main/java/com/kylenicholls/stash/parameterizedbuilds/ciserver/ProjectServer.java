@@ -16,7 +16,8 @@ public class ProjectServer extends CIServer{
         this.jenkins = jenkins;
         this.server = server;
         this.projectKey = projectKey;
-        this.JENKINS_SETTINGS =  "jenkins.admin.settingsProjectAdmin";
+        this.JENKINS_SETTINGS = "jenkins.admin.settingsProjectAdmin";
+        this.ADDITIONAL_JS = "jenkins-settings-form";
     }
 
     public Map<String, Object> postSettings(boolean clearSettings){

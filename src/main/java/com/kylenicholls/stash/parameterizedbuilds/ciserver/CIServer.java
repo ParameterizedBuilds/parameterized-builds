@@ -11,6 +11,7 @@ public abstract class CIServer {
     Jenkins jenkins;
 
     String JENKINS_SETTINGS;
+    String ADDITIONAL_JS;
     static final String SERVER = "server";
     static final String ERRORS = "errors";
     static final String TESTMESSAGE = "testMessage";
