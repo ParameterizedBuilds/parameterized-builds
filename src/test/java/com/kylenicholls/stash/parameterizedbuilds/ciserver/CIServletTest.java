@@ -98,8 +98,6 @@ public class CIServletTest {
 
         Map<String, Object> data = ImmutableMap.of(
                 CIServer.SERVER, server,
-                CIServer.ERRORS, "",
-                CIServer.TESTMESSAGE, "",
                 CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))
                 .render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
@@ -113,8 +111,6 @@ public class CIServletTest {
 
         Map<String, Object> data = ImmutableMap.of(
                 CIServer.SERVER, "",
-                CIServer.ERRORS, "",
-                CIServer.TESTMESSAGE, "",
                 CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))
                 .render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
@@ -133,7 +129,6 @@ public class CIServletTest {
                 .<String, Object> of(
                     "user", user,
                     "projectTokens", "[]",
-                    "errors", "",
                     CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))
                 .render(resp.getWriter(), SOY_TEMPLATE, "jenkins.user.settings", data);
@@ -149,8 +144,6 @@ public class CIServletTest {
         Map<String, Object> data = ImmutableMap.of(
                 CIServer.SERVER, server,
                 ProjectServer.PROJECT_KEY, PROJECT_KEY,
-                CIServer.ERRORS, "",
-                CIServer.TESTMESSAGE, "",
                 CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))
                 .render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settingsProjectAdmin", data);
@@ -165,316 +158,8 @@ public class CIServletTest {
         Map<String, Object> data = ImmutableMap.of(
                 CIServer.SERVER, "",
                 ProjectServer.PROJECT_KEY, PROJECT_KEY,
-                CIServer.ERRORS, "",
-                CIServer.TESTMESSAGE, "",
                 CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))
                 .render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settingsProjectAdmin", data);
-    }
-
-    @Test
-    public void testDoPostAccountSettings() throws ServletException, IOException, SoyException {
-        String globalToken = "globaltoken";
-        String projectToken = "projecttoken";
-        Map<String, String[]> parameterMap = new HashMap<>();
-        parameterMap.put(PROJECT_KEY_PREFIX, new String[] { "" });
-        parameterMap.put(USER_TOKEN_PREFIX, new String[] { globalToken });
-        parameterMap.put(PROJECT_KEY_PREFIX + PROJECT_KEY, new String[] { PROJECT_KEY });
-        parameterMap.put(USER_TOKEN_PREFIX + PROJECT_KEY, new String[] { projectToken });
-        String saveButton = "'Save Connection";
-
-
-        when(req.getPathInfo()).thenReturn(ACCOUNT_PATH);
-        when(req.getParameterMap()).thenReturn(parameterMap);
-        when(req.getParameter("jenkinsToken")).thenReturn("token");
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(jenkins, times(1)).saveUserToken(USER_SLUG, "", globalToken);
-        verify(jenkins, times(1)).saveUserToken(USER_SLUG, PROJECT_KEY, projectToken);
-        verify(renderer, times(1)).render(any(), any(), any(), any());
-    }
-
-    @Test
-    public void testDoPostGlobalSettings() throws ServletException, IOException, SoyException {
-        String[] baseUrl = {"baseurl"};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(jenkins, times(1)).saveJenkinsServer(any(Server.class), isNull());
-        verify(renderer, times(1)).render(any(), any(), any(), any());
-    }
-
-    @Test
-    public void testDoPostGlobalSettingsEmptyUrl()
-            throws ServletException, IOException, SoyException {
-        String[] baseUrl = {""};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(renderer, times(1)).render(any(), any(), any(), any());
-    }
-
-    // @Test
-    public void testDoPostGlobalSettingsAltUrlNull()
-            throws ServletException, IOException, SoyException {
-        String baseUrl = "baseurl";
-        String defaultUser = "defaultuser";
-        String defaultToken = "defaulttoken";
-        when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-        when(req.getParameter("jenkinsUrl")).thenReturn(baseUrl);
-        when(req.getParameter("jenkinsUser")).thenReturn(defaultUser);
-        when(req.getParameter("jenkinsToken")).thenReturn(defaultToken);
-        when(req.getParameter("jenkinsAltUrl")).thenReturn(null);
-        when(req.getParameter("jenkinsCSRF")).thenReturn(null);
-        servlet.doPost(req, resp);
-
-        Server expected = new Server(baseUrl, null, defaultUser, defaultToken, false, false);
-        verify(jenkins, times(1)).saveJenkinsServer(expected, null);
-    }
-
-    // @Test
-    public void testDoPostGlobalSettingsAltUrlFalse()
-            throws ServletException, IOException, SoyException {
-
-        String[] baseUrl = {"baseurl"};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {""};
-        String[] csrfEnabled = {"on"};
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        Server expected = new Server(baseUrl[0], null, defaultUser[0], defaultToken[0], false, 
-                false);
-        verify(jenkins, times(1)).saveJenkinsServer(expected, null);
-    }
-
-    @Test
-    public void testDoPostGlobalSettingsClear() throws ServletException, IOException, SoyException {
-
-        String[] baseUrl = {"baseurl"};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String clear = "on";
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-        when(req.getParameter("clear-settings")).thenReturn(clear);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(jenkins, times(1)).saveJenkinsServer(null, null);
-    }
-
-    @Test
-    public void testDoPostGlobalSettingsClearFalse()
-            throws ServletException, IOException, SoyException {
-        String[] baseUrl = {"baseurl"};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String clear = "";
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-        when(req.getParameter("clear-settings")).thenReturn(clear);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(jenkins, times(0)).saveJenkinsServer(null, null);
-    }
-
-    @Test
-    public void testDoPostGlobalSettingsClearNull()
-            throws ServletException, IOException, SoyException {
-        String[] baseUrl = {"baseurl"};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(GLOBAL_PATH);
-        when(req.getParameter("clear-settings")).thenReturn(null);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(jenkins, times(0)).saveJenkinsServer(null, null);
-    }
-
-    @Test
-    public void testDoPostProjectSettings() throws ServletException, IOException, SoyException {
-        String[] baseUrl = {"baseurl"};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(jenkins, times(1))
-                .saveJenkinsServer(any(Server.class), anyString());
-        verify(renderer, times(1)).render(any(), any(), any(), any());
-    }
-
-    @Test
-    public void testDoPostProjectSettingsEmptyUrl()
-            throws ServletException, IOException, SoyException {
-        String[] baseUrl = {""};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(renderer, times(1)).render(any(), any(), any(), any());
-    }
-
-    @Test
-    public void testDoPostProjectSettingsClear()
-            throws ServletException, IOException, SoyException {
-
-        String[] baseUrl = {""};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String clear = "on";
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
-        when(req.getParameter("clear-settings")).thenReturn(clear);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(jenkins, times(1)).saveJenkinsServer(null, PROJECT_KEY);
-    }
-
-    @Test
-    public void testDoPostProjectSettingsClearFalse()
-            throws ServletException, IOException, SoyException {
-
-        String[] baseUrl = {"baseurl"};
-        String[] defaultUser = {"defaultuser"};
-        String[] defaultToken = {"defaulttoken"};
-        String[] altUrl = {"on"};
-        String[] csrfEnabled = {"on"};
-        String clear = "";
-        String saveButton = "'Save Connection";
-        Map<String, String[]> params = ImmutableMap.<String, String[]>builder()
-                .put("jenkinsUrl", baseUrl)
-                .put("jenkinsUser", defaultUser)
-                .put("jenkinsToken",  defaultToken)
-                .put("jenkinsAltUrl", altUrl)
-                .put("jenkinsCSRF", csrfEnabled)
-                .build();
-
-        when(req.getParameterMap()).thenReturn(params);
-        when(req.getPathInfo()).thenReturn(PROJECT_PATH + PROJECT_KEY);
-        when(req.getParameter("clear-settings")).thenReturn(clear);
-        when(req.getParameter("submit")).thenReturn(saveButton);
-        servlet.doPost(req, resp);
-
-        verify(jenkins, times(0)).saveJenkinsServer(null, PROJECT_KEY);
     }
 }

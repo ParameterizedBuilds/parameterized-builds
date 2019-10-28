@@ -12,7 +12,7 @@ public class CIServerFactory {
                                      Map<String, String[]> parameters,
                                      ApplicationUser user, ProjectService projectService){
         if (pathInfo.contains("/jenkins/account")){
-            return new AccountServer(jenkins, parameters, user, projectService);
+            return new AccountServer(jenkins, user, projectService);
         } else if (pathInfo.contains("/jenkins/project/")) {
             Server server = getServerFromMap(parameters);
             String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "")
@@ -27,7 +27,7 @@ public class CIServerFactory {
     public static CIServer getServer(String pathInfo, Jenkins jenkins,
                                      ApplicationUser user, ProjectService projectService){
         if (pathInfo.contains("/jenkins/account")){
-            return new AccountServer(jenkins, null, user, projectService);
+            return new AccountServer(jenkins, user, projectService);
         } else if (pathInfo.contains("/jenkins/project/")) {
             String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "")
                     .split("/")[0];

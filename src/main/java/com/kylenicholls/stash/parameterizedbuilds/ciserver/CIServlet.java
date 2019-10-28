@@ -59,32 +59,6 @@ public class CIServlet extends HttpServlet {
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, IOException {
-        try {
-            String pathInfo = req.getPathInfo();
-            CIServer ciServer = CIServerFactory.getServer(pathInfo, jenkins, req.getParameterMap(),
-                    authContext.getCurrentUser(), projectService);
-
-            if (req.getParameter("submit").equals("Test Jenkins Settings")) {
-                render(res, ciServer.JENKINS_SETTINGS, ciServer.ADDITIONAL_JS, 
-                        ciServer.testSettings());
-            } else {
-                boolean clearSettings = req.getParameter("clear-settings") != null
-                        && "on".equals(req.getParameter("clear-settings"));
-                Map<String, Object> renderLoc = ciServer.postSettings(clearSettings);
-                if (renderLoc != null){
-                    render(res, ciServer.JENKINS_SETTINGS, ciServer.ADDITIONAL_JS, renderLoc);
-                } else {
-                    doGet(req, res);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Exception in CIServlet.doPost: " + e.getMessage(), e);
-        }
-    }
-
     private void render(HttpServletResponse resp, String templateName, String addedJs,
                         Map<String, Object> data)
             throws IOException, ServletException {
