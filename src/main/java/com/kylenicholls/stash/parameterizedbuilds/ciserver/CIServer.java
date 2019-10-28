@@ -16,8 +16,6 @@ public abstract class CIServer {
     static final String ERRORS = "errors";
     static final String TESTMESSAGE = "testMessage";
 
-    public abstract Map<String, Object> postSettings(boolean clearSettings);
-
     public Map<String, Object> testSettings() {
         return renderMap(ImmutableMap.of(TESTMESSAGE, testConnection()));
     }
