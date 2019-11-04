@@ -1,13 +1,18 @@
 import React from 'react';
 
-export const TextInput = ({
+export const TextInput = (inputOptions) => <Input {...inputOptions} type="text" />
+
+export const PasswordInput = (inputOptions) => <Input {...inputOptions} type="password" />
+
+const Input = ({
     labelText,
     id,
     value,
     required = false,
     onChange = () => {},
     description = "",
-    errorMessage = ""
+    errorMessage = "",
+    type = "text"
 }) => (
     <div className="field-group">
         <label htmlFor={id}>
@@ -15,7 +20,7 @@ export const TextInput = ({
             {required && <span className="aui-icon icon-required" />}
         </label>
         <input id={id} className="text" name={id}
-               type="text" onChange={onChange} value={value} />
+               type={type} onChange={onChange} value={value} />
         {description.length > 0 &&
             <div className={"description"}>{description}</div>}
         {errorMessage.length > 0 &&
