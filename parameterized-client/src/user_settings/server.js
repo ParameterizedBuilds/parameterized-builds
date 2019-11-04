@@ -40,7 +40,7 @@ const ServerContainer = ({
         e.preventDefault();
         updateServer(serverData.id, "action_message", "Saving settings...");
         updateServer(serverData.id, "action_state", "LOADING");
-        updateUserToken(context, project, serverData).then(response => {
+        updateUserToken(context, serverData.project_key, serverData).then(response => {
             updateServer(serverData.id, "action_message", "Token saved!")
             updateServer(serverData.id, "action_state", "SUCCESS")
         }).catch(error => {
@@ -56,7 +56,7 @@ const ServerContainer = ({
         updateServer(serverData.id, "show_clear_modal", false)
         updateServer(serverData.id, "action_message", "Removing settings...")
         updateServer(serverData.id, "action_state", "LOADING")
-        removeUserToken(context, project, alias).then(response => {
+        removeUserToken(context, serverData.project_key, alias).then(response => {
             updateServer(serverData.id, "default_token", "")
             updateServer(serverData.id, "action_message", "Token removed!")
             updateServer(serverData.id, "action_state", "SUCCESS")
@@ -70,7 +70,7 @@ const ServerContainer = ({
         e.preventDefault();
         updateServer(serverData.id, "action_message", "Testing settings...")
         updateServer(serverData.id, "action_state", "LOADING")
-        testJenkinsServer(context, project, serverData).then(response => {
+        testJenkinsServer(context, serverData.project_key, serverData).then(response => {
             updateServer(serverData.id, "action_message", response.data)
             updateServer(serverData.id, "action_state", "SUCCESS")
         }).catch(error => {

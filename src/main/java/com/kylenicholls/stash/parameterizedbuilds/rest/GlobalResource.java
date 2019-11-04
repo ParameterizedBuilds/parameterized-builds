@@ -123,10 +123,10 @@ public class GlobalResource extends RestResource implements ServerService{
     @Path("/servers/{serverAlias}/userToken")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
-    public Response addUserToken(@Context UriInfo ui, String token){
+    public Response addUserToken(@Context UriInfo ui, ServerService.Token token){
         if (authContext.isAuthenticated()) {
             String user = authContext.getCurrentUser().getSlug();
-            jenkins.saveUserToken(user, "", token);
+            jenkins.saveUserToken(user, "", token.getToken());
             return Response.status(Response.Status.NO_CONTENT).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
