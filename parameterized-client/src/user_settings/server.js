@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { updateUserToken, removeUserToken, testJenkinsServer } from '../common/rest'
-import { TextInput, ButtonGroup, Button, Message } from '../common/aui'
+import { PasswordInput, ButtonGroup, Button, Message } from '../common/aui'
 
 const ActionDialog = ({
     message,
@@ -87,7 +87,7 @@ const ServerContainer = ({
 
     return (
         <div>
-            <TextInput labelText={serverData.alias + " Token"} id="jenkinsToken" 
+            <PasswordInput labelText={serverData.alias + " Token"} id="jenkinsToken" 
                        value={serverData.default_token}
                        onChange={(e) => updateServer(serverData.id, "default_token", e.target.value)}/>
             <ButtonGroup>
