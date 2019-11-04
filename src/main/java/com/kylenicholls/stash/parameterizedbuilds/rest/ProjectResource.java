@@ -126,11 +126,11 @@ public class ProjectResource extends RestResource implements ServerService {
     @Path("/servers/{serverAlias}/userToken")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
-    public Response addUserToken(@Context UriInfo ui, String token){
+    public Response addUserToken(@Context UriInfo ui, ServerService.Token token){
         if (authContext.isAuthenticated()) {
             String projectKey = ui.getPathParameters().getFirst("projectKey");
             String user = authContext.getCurrentUser().getSlug();
-            jenkins.saveUserToken(user, projectKey, token);
+            jenkins.saveUserToken(user, projectKey, token.getToken());
             return Response.status(Response.Status.NO_CONTENT).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();

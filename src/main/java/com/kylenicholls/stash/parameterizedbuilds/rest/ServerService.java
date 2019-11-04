@@ -25,6 +25,20 @@ import org.apache.http.client.utils.URIBuilder;
 
 public interface ServerService {
 
+    public class Token {
+        private String token;
+
+        public Token(){}
+
+        public void setToken(String token){
+            this.token = token;
+        }
+
+        public String getToken(){
+            return token;
+        }
+    }
+
     @GET
     @Path("/servers")
     @Consumes({ MediaType.APPLICATION_JSON })
@@ -51,7 +65,7 @@ public interface ServerService {
     @Path("/servers/{serverAlias}/userToken")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
-    public Response addUserToken(@Context UriInfo ui, String token);
+    public Response addUserToken(@Context UriInfo ui, Token token);
 
     @DELETE
     @Path("/servers/{serverAlias}/userToken")
