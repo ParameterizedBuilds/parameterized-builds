@@ -32,6 +32,10 @@ public class GlobalResourceTest {
     private ApplicationUser user;
     private UriInfo ui;
     private Server globalServer;
+    private ServerService.Token testToken;
+
+    private final String TOKEN_VALUE = "myToken";
+    private final String USER_SLUG = "myUser";
 
     @Before
     public void setup() throws Exception {
@@ -41,9 +45,13 @@ public class GlobalResourceTest {
         authContext = mock(AuthenticationContext.class);
         rest = new GlobalResource(i18nService, jenkins, authContext);
         ui = mock(UriInfo.class);
+        testToken = new ServerService.Token();
+        testToken.setToken(TOKEN_VALUE);
+        user = mock(ApplicationUser.class);
 
         when(authContext.isAuthenticated()).thenReturn(true);
         when(authContext.getCurrentUser()).thenReturn(user);
+        when(user.getSlug()).thenReturn(USER_SLUG);
     }
     
     @Test
@@ -254,6 +262,38 @@ public class GlobalResourceTest {
     @Test
     public void testRemoveServerReturnsNoContent(){
         Response actual = rest.removeServer(ui);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), actual.getStatus());
+    }
+
+    @Test
+    public void testAddTokenAddsToken(){
+        rest.addUserToken(ui, testToken);
+        verify(jenkins, times(1)).saveUserToken(USER_SLUG, "", TOKEN_VALUE);
+    }
+
+    @Test
+    public void testAddTokenAddsEmptyToken(){
+        ServerService.Token emptyToken = new ServerService.Token();
+        emptyToken.setToken("");
+        rest.addUserToken(ui, emptyToken);
+        verify(jenkins, times(1)).saveUserToken(USER_SLUG, "", "");
+    }
+
+    @Test
+    public void testAddTokenReturnsNonContent(){
+        Response actual = rest.addUserToken(ui, testToken);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), actual.getStatus());
+    }
+
+    @Test
+    public void testRemoveTokenRemovesToken(){
+        rest.removeUserToken(ui);
+        verify(jenkins, times(1)).saveUserToken(USER_SLUG, "", "");
+    }
+
+    @Test
+    public void testAddRemoveReturnsNonContent(){
+        Response actual = rest.removeUserToken(ui);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), actual.getStatus());
     }
 }
