@@ -76,12 +76,11 @@ const servers = (state = [], action) => {
     }
 };
 
-export const serverDefinitions = (state = {servers: [], project: null}, action) => {
+export const serverDefinitions = (state = {servers: []}, action) => {
     switch (action.type){
         case 'INITIALIZE':
             return {
                 ...state,
-                project: action.project,
                 context: action.context,
                 servers: servers(state.servers, action)
             }

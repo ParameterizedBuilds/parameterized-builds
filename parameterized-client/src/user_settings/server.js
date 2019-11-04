@@ -31,7 +31,6 @@ const ActionDialog = ({
 
 const ServerContainer = ({
     serverData,
-    project,
     context,
     updateServer
 }) => {
@@ -110,7 +109,6 @@ const ServerContainer = ({
 const mapStateToServerContainerProps = (state, ownProps) => {
     return {
         serverData: state.servers[ownProps.id],
-        project: state.project,
         context: state.context,
     };
 };
@@ -129,5 +127,5 @@ const mapDispatchToServerContainerProps = dispatch => {
 }
 
 export const Server = connect(
-    mapStateToServerContainerProps, 
+    mapStateToServerContainerProps,
     mapDispatchToServerContainerProps)(ServerContainer);
