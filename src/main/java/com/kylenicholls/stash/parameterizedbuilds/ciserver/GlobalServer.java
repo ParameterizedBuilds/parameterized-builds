@@ -10,6 +10,7 @@ public class GlobalServer extends CIServer{
 
     public GlobalServer(Jenkins jenkins, Server server){
         this.jenkins = jenkins;
+        this.jenkinsConn = new JenkinsConnection(jenkins);
         this.server = server;
         this.JENKINS_SETTINGS = "jenkins.admin.settings";
         this.ADDITIONAL_JS = "jenkins-settings-form";

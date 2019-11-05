@@ -1,6 +1,5 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,6 +36,7 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.ciserver.JenkinsConnection;
 import com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
@@ -108,7 +108,9 @@ public class BuildResource extends RestResource {
                         .add("$BRANCH", () -> branch)
                         .add("$TRIGGER", Trigger.MANUAL::toString).build();
 
-                Map<String, Object> message = jenkins.triggerJob(projectKey, user, job, variables)
+                JenkinsConnection jenkinsConn = new JenkinsConnection(jenkins);
+                Map<String, Object> message = jenkinsConn
+                        .triggerJob(projectKey, user, job, variables)
                         .getMessage();
                 return Response.ok(message).build();
             }

@@ -14,6 +14,7 @@ public class ProjectServer extends CIServer{
 
     public ProjectServer(Jenkins jenkins, Server server, String projectKey){
         this.jenkins = jenkins;
+        this.jenkinsConn = new JenkinsConnection(jenkins);
         this.server = server;
         this.projectKey = projectKey;
         this.JENKINS_SETTINGS = "jenkins.admin.settingsProjectAdmin";

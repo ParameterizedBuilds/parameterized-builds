@@ -15,20 +15,28 @@ import com.google.gson.Gson;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.i18n.I18nService;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.ciserver.JenkinsConnection;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ProjectResource.class)
 public class ProjectResourceTest {
     private ProjectResource rest;
     private Jenkins jenkins;
+    private JenkinsConnection jenkinsConn;
     private AuthenticationContext authContext;
     private ApplicationUser user;
     private UriInfo ui;
@@ -61,6 +69,11 @@ public class ProjectResourceTest {
         when(ui.getPathParameters()).thenReturn(paramMap);
         when(paramMap.getFirst("projectKey")).thenReturn(projectKey);
         when(user.getSlug()).thenReturn(USER_SLUG);
+
+        jenkinsConn = mock(JenkinsConnection.class);
+        PowerMockito.whenNew(JenkinsConnection.class)
+            .withAnyArguments()
+            .thenReturn(jenkinsConn);
     }
     
     @Test
@@ -92,7 +105,7 @@ public class ProjectResourceTest {
     @Test
     public void testValidateServerReturnsSuccessMessage(){
         String expected = "Connection successful";
-        when(jenkins.testConnection(projectServer)).thenReturn(expected);
+        when(jenkinsConn.testConnection(projectServer)).thenReturn(expected);
         Response actual = rest.validate(ui, projectServer);
 
         assertEquals(expected, actual.getEntity());
@@ -101,7 +114,7 @@ public class ProjectResourceTest {
     @Test
     public void testValidateServerReturnsOkStatus(){
         String expected = "Connection successful";
-        when(jenkins.testConnection(projectServer)).thenReturn(expected);
+        when(jenkinsConn.testConnection(projectServer)).thenReturn(expected);
         Response actual = rest.validate(ui, projectServer);
 
         assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
@@ -110,7 +123,7 @@ public class ProjectResourceTest {
     @Test
     public void testValidateServerReturnsFailureMessage(){
         String expected = "Failed to establish connection";
-        when(jenkins.testConnection(projectServer)).thenReturn(expected);
+        when(jenkinsConn.testConnection(projectServer)).thenReturn(expected);
         Response actual = rest.validate(ui, projectServer);
 
         assertEquals(expected, actual.getEntity());
@@ -119,7 +132,7 @@ public class ProjectResourceTest {
     @Test
     public void testValidateServerReturnsFailureStatus(){
         String expected = "Failed to establish connection";
-        when(jenkins.testConnection(projectServer)).thenReturn(expected);
+        when(jenkinsConn.testConnection(projectServer)).thenReturn(expected);
         Response actual = rest.validate(ui, projectServer);
 
         assertEquals(400, actual.getStatus());
@@ -129,7 +142,7 @@ public class ProjectResourceTest {
     public void testValidateServerPreservesToken(){
         when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
         Server testServer = rest.mapToServer(projectServer.asMap());
-        when(jenkins.testConnection(testServer)).thenReturn( "Connection successful");
+        when(jenkinsConn.testConnection(testServer)).thenReturn( "Connection successful");
         testServer.setToken(null);
         rest.validate(ui, testServer);
 

@@ -4,6 +4,7 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.ciserver.JenkinsConnection;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
@@ -12,6 +13,7 @@ public abstract class BaseHandler {
 
     final SettingsService settingsService;
     final Jenkins jenkins;
+    final JenkinsConnection jenkinsConn;
 
     //these variables are set in the subclassed handlers
     Repository repository;
@@ -21,6 +23,7 @@ public abstract class BaseHandler {
     public BaseHandler(SettingsService settingsService, Jenkins jenkins){
         this.settingsService = settingsService;
         this.jenkins = jenkins;
+        this.jenkinsConn = new JenkinsConnection(jenkins);
     }
 
     public void run(){
@@ -38,7 +41,7 @@ public abstract class BaseHandler {
     }
 
     void triggerJenkins(Job job, BitbucketVariables bitbucketVariables){
-        jenkins.triggerJob(projectKey, user, job, bitbucketVariables);
+        jenkinsConn.triggerJob(projectKey, user, job, bitbucketVariables);
     }
 
     abstract BitbucketVariables createBitbucketVariables();

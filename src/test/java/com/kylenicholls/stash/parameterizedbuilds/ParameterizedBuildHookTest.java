@@ -45,9 +45,9 @@ public class ParameterizedBuildHookTest {
     private final String PROJECT_KEY = "projectkey";
     private final String REPO_SLUG = "reposlug";
     private final String URI = "http://uri";
-    private final Server globalServer = new Server("globalurl", null, "globaluser", "globaltoken",
+    private final Server globalServer = new Server("globalurl", null, "globaluser", "globaltoken", 
             false, false);
-    private final Server projectServer = new Server("projecturl", null, "projectuser",
+    private final Server projectServer = new Server("projecturl", null, "projectuser", 
             "projecttoken", false, false);
     private RepositoryHookRequest request;
     private Settings settings;

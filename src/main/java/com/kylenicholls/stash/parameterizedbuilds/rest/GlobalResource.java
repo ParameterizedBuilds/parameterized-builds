@@ -25,6 +25,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.ciserver.JenkinsConnection;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
 
@@ -69,7 +70,8 @@ public class GlobalResource extends RestResource implements ServerService{
             Server oldServer = jenkins.getJenkinsServer(null);
             server.setToken(getCurrentDefaultToken(oldServer, server));
 
-            String message = jenkins.testConnection(server);
+            JenkinsConnection jenkinsConn = new JenkinsConnection(jenkins);
+            String message = jenkinsConn.testConnection(server);
 
             if(message.equals("Connection successful")){
                 return Response.ok(message).build();

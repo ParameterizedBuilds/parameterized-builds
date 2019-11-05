@@ -9,6 +9,7 @@ public abstract class CIServer {
 
     Server server;
     Jenkins jenkins;
+    JenkinsConnection jenkinsConn;
 
     String JENKINS_SETTINGS;
     String ADDITIONAL_JS;
@@ -27,6 +28,6 @@ public abstract class CIServer {
     public abstract ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions);
 
     private String testConnection(){
-        return jenkins.testConnection(server);
+        return jenkinsConn.testConnection(server);
     }
 }
