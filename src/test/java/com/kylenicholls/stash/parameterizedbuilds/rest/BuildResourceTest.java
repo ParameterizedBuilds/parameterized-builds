@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -48,6 +49,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BuildResource.class)
+@PowerMockIgnore("javax.security.*")
 public class BuildResourceTest {
     private final String REPO_SLUG = "reposlug";
     private final String PROJECT_KEY = "projkey";
@@ -270,8 +272,9 @@ public class BuildResourceTest {
         String prDest = "prbranch";
         Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
                 .buildParameters("param1=$BRANCH\r\nparam2=$PRDESTINATION\r\nparam3=$PRURL\r\n" +
-                "param4=$PRAUTHOR\r\nparam5=$PREMAIL\r\nparam6=$PRTITLE\r\n" +
-                "param7=$PRDESCRIPTION\r\nparam8=$PRID").permissions("REPO_ADMIN").build();
+                                 "param4=$PRAUTHOR\r\nparam5=$PREMAIL\r\nparam6=$PRTITLE\r\n" +
+                                 "param7=$PRDESCRIPTION\r\nparam8=$PRID")
+                .permissions("REPO_ADMIN").build();
         jobs.add(job);
         PullRequest pr = mock(PullRequest.class);
         PullRequestParticipant author = mock(PullRequestParticipant.class);

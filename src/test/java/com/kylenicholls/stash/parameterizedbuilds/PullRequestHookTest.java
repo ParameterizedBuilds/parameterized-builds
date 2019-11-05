@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.BaseHandler;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.TestEventFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +38,7 @@ import java.net.URI;
 import java.util.concurrent.ExecutorService;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(PullRequestHook.class)
+@PrepareForTest({PullRequestHook.class, BaseHandler.class})
 public class PullRequestHookTest {
     private final String COMMIT = "commithash";
     private final String PR_URI = "http://pruri";
