@@ -70,8 +70,10 @@ public class BuildResourceTest {
     private RepositoryHook hook;
     private final Server globalServer = new Server("globalurl", "global server", "globaluser",
             "globaltoken", false, false);
+    private final List<Server> globalServers = Lists.newArrayList(globalServer);
     private final Server projectServer = new Server("projecturl", "project server", "projectuser",
             "projecttoken", false, false);
+    private final List<Server> projectServers = Lists.newArrayList(projectServer);
 
     @Before
     public void setup() throws Exception {
@@ -94,7 +96,7 @@ public class BuildResourceTest {
         when(authContext.getCurrentUser()).thenReturn(user);
         when(settingsService.getSettings(repository)).thenReturn(settings);
         when(repository.getProject()).thenReturn(project);
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServers(null)).thenReturn(globalServers);
         when(repository.getSlug()).thenReturn(REPO_SLUG);
         when(project.getKey()).thenReturn(PROJECT_KEY);
         when(propertiesService.getBaseUrl()).thenReturn(new URI(URI));
@@ -165,8 +167,8 @@ public class BuildResourceTest {
 
     @Test
     public void testGetJenkinsServersOnlyProjectDefined() {
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
+        when(jenkins.getJenkinsServers(PROJECT_KEY)).thenReturn(projectServers);
         Response actual = rest.getJenkinsServers(repository);
 
         @SuppressWarnings("serial")
@@ -199,7 +201,7 @@ public class BuildResourceTest {
 
     @Test
     public void testGetJenkinsServersProjectAndGlobalDefined() {
-        when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServers(PROJECT_KEY)).thenReturn(projectServers);
         Response actual = rest.getJenkinsServers(repository);
 
         @SuppressWarnings("serial")
@@ -221,12 +223,12 @@ public class BuildResourceTest {
             put("default_user", globalServer.getUser());
         }};
 
-        assertEquals(Lists.newArrayList(expectedProject, expectedGlobal), actual.getEntity());
+        assertEquals(Lists.newArrayList(expectedGlobal, expectedProject), actual.getEntity());
     }
 
     @Test
     public void testGetJenkinsServersNoServersDefined() {
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
         Response actual = rest.getJenkinsServers(repository);
 
         assertEquals(Lists.newArrayList(), actual.getEntity());

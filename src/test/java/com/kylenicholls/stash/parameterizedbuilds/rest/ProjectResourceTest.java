@@ -2,6 +2,8 @@ package com.kylenicholls.stash.parameterizedbuilds.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -43,6 +45,7 @@ public class ProjectResourceTest {
     private ApplicationUser user;
     private UriInfo ui;
     private Server projectServer;
+    private List<Server> projectServers;
     private String projectKey;
     private ServerService.Token testToken;
 
@@ -53,6 +56,7 @@ public class ProjectResourceTest {
     public void setup() throws Exception {
         projectServer = new Server("http://projecturl", "project server", "projectuser",
                 "projecttoken", false, false);
+        projectServers = Lists.newArrayList(projectServer);
         projectKey = "TEST";
         I18nService i18nService = mock(I18nService.class);
         jenkins = mock(Jenkins.class);
@@ -80,7 +84,7 @@ public class ProjectResourceTest {
     
     @Test
     public void testGetServersEmpty(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(null);
+        when(jenkins.getJenkinsServers(projectKey)).thenReturn(Lists.newArrayList());
         Response actual = rest.getServers(ui);
 
         assertEquals(Lists.newArrayList(), actual.getEntity());
@@ -88,7 +92,7 @@ public class ProjectResourceTest {
 
     @Test
     public void testGetServersOkStatus(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(null);
+        when(jenkins.getJenkinsServers(projectKey)).thenReturn(Lists.newArrayList());
         Response actual = rest.getServers(ui);
 
         assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
@@ -96,7 +100,7 @@ public class ProjectResourceTest {
 
     @Test
     public void testGetServersSet(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServers(projectKey)).thenReturn(projectServers);
         Response actual = rest.getServers(ui);
 
         Map<String, Object> expected = rest.createServerMap(projectServer, projectKey);
@@ -142,7 +146,7 @@ public class ProjectResourceTest {
 
     @Test
     public void testValidateServerPreservesToken(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(projectServer);
         Server testServer = rest.mapToServer(projectServer.asMap());
         when(jenkinsConn.testConnection(testServer)).thenReturn( "Connection successful");
         testServer.setToken(null);
@@ -154,58 +158,58 @@ public class ProjectResourceTest {
 
     @Test
     public void testAddServerReturns200OnUpdate(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
-        Response actual = rest.addServer(ui, projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(projectServer);
+        Response actual = rest.addServer(ui, projectServer, projectServer.getAlias());
 
         assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
     }
 
     @Test
     public void testAddServerReturns201OnCreate(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(null);
-        Response actual = rest.addServer(ui, projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer, projectServer.getAlias());
 
         assertEquals(Response.Status.CREATED.getStatusCode(), actual.getStatus());
     }
 
     @Test
     public void testAddServerPreservesToken(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(projectServer);
         Server testServer = rest.mapToServer(projectServer.asMap());
         testServer.setToken(null);
-        rest.addServer(ui, testServer);
+        rest.addServer(ui, testServer, testServer.getAlias());
 
         assertEquals(projectServer.getToken(), testServer.getToken());
     }
 
     @Test
     public void testAddServerRemovesEmptyStringToken(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(projectServer);
         Server testServer = rest.mapToServer(projectServer.asMap());
         testServer.setToken("");
-        rest.addServer(ui, testServer);
+        rest.addServer(ui, testServer, testServer.getAlias());
 
         assertEquals("", testServer.getToken());
     }
 
     @Test
     public void testAddServerRemovesTokenIfDifferentURL(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(projectServer);
         Server testServer = rest.mapToServer(projectServer.asMap());
         testServer.setToken(null);
         testServer.setBaseUrl("http://different");
-        rest.addServer(ui, testServer);
+        rest.addServer(ui, testServer, testServer.getAlias());
 
         assertEquals("", testServer.getToken());
     }
 
     @Test
     public void testAddServerRemovesTokenIfDifferentUser(){
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(projectServer);
         Server testServer = rest.mapToServer(projectServer.asMap());
         testServer.setToken(null);
         testServer.setUser("different");
-        rest.addServer(ui, testServer);
+        rest.addServer(ui, testServer, testServer.getAlias());
 
         assertEquals("", testServer.getToken());
     }
@@ -213,8 +217,8 @@ public class ProjectResourceTest {
     @Test
     public void testAddServerReturns422OnMissingAlias(){
         projectServer.setAlias("");
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(null);
-        Response actual = rest.addServer(ui, projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer, projectServer.getAlias());
 
         assertEquals(422, actual.getStatus());
     }
@@ -222,8 +226,8 @@ public class ProjectResourceTest {
     @Test
     public void testAddServerReturns422OnMissingUrl(){
         projectServer.setBaseUrl("");
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(null);
-        Response actual = rest.addServer(ui, projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer, projectServer.getAlias());
 
         assertEquals(422, actual.getStatus());
     }
@@ -232,8 +236,8 @@ public class ProjectResourceTest {
     @SuppressWarnings("unchecked")
     public void testAddServerReturnsErrorMessageOnMissingUrl(){
         projectServer.setBaseUrl("");
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(null);
-        Response actual = rest.addServer(ui, projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer, projectServer.getAlias());
 
         String response = actual.getEntity().toString();
         List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");
@@ -244,8 +248,8 @@ public class ProjectResourceTest {
     @Test
     public void testAddServerReturns422OnBadUrl(){
         projectServer.setBaseUrl("noprotocal");
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer, projectServer.getAlias());
 
         assertEquals(422, actual.getStatus());
     }
@@ -254,8 +258,8 @@ public class ProjectResourceTest {
     @SuppressWarnings("unchecked")
     public void testAddServerReturnsErrorMessageOnBadUrl(){
         projectServer.setBaseUrl("noprotocal");
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer, projectServer.getAlias());
 
         String response = actual.getEntity().toString();
         List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");
@@ -268,8 +272,8 @@ public class ProjectResourceTest {
     public void testAddServerReturnsAllErrorMessages(){
         projectServer.setBaseUrl("");
         projectServer.setAlias("");
-        when(jenkins.getJenkinsServer(projectKey)).thenReturn(null);
-        Response actual = rest.addServer(ui, projectServer);
+        when(jenkins.getJenkinsServer(eq(projectKey), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, projectServer, projectServer.getAlias());
 
         String response = actual.getEntity().toString();
         List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");

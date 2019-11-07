@@ -13,6 +13,7 @@ import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.atlassian.bitbucket.user.ApplicationUser;
+import com.google.common.collect.Lists;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.PushHandler;
 import com.kylenicholls.stash.parameterizedbuilds.eventHandlers.RefCreatedHandler;
@@ -47,8 +48,10 @@ public class ParameterizedBuildHookTest {
     private final String URI = "http://uri";
     private final Server globalServer = new Server("globalurl", null, "globaluser", "globaltoken", 
             false, false);
+    private final List<Server> globalServers = Lists.newArrayList(globalServer);
     private final Server projectServer = new Server("projecturl", null, "projectuser", 
             "projecttoken", false, false);
+    private final List<Server> projectServers = Lists.newArrayList(projectServer);
     private RepositoryHookRequest request;
     private Settings settings;
     private RefChange refChange;
@@ -98,8 +101,8 @@ public class ParameterizedBuildHookTest {
         when(repository.getSlug()).thenReturn(REPO_SLUG);
         when(repository.getProject()).thenReturn(project);
         when(repositoryScope.accept(any())).thenReturn(project);
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(projectServer);
+        when(jenkins.getJenkinsServers(null)).thenReturn(globalServers);
+        when(jenkins.getJenkinsServers(project.getKey())).thenReturn(projectServers);
         when(propertiesService.getBaseUrl()).thenReturn(new URI(URI));
         when(project.getKey()).thenReturn(PROJECT_KEY);
 
@@ -134,8 +137,8 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfJenkinsSettingsNull() {
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
+        when(jenkins.getJenkinsServers(project.getKey())).thenReturn(Lists.newArrayList());
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
@@ -145,8 +148,9 @@ public class ParameterizedBuildHookTest {
     @Test
     public void testShowErrorIfBaseUrlEmpty() {
         Server server = new Server("", null, null, null, false, false);
-        when(jenkins.getJenkinsServer(null)).thenReturn(server);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
+        List<Server> servers = Lists.newArrayList(server);
+        when(jenkins.getJenkinsServers(null)).thenReturn(servers);
+        when(jenkins.getJenkinsServers(project.getKey())).thenReturn(servers);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
@@ -156,8 +160,9 @@ public class ParameterizedBuildHookTest {
     @Test
     public void testShowErrorIfJenkinsSettingsUrlEmpty() {
         Server server = new Server("", null, null, null, false, false);
-        when(jenkins.getJenkinsServer(null)).thenReturn(server);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
+        List<Server> servers = Lists.newArrayList(server);
+        when(jenkins.getJenkinsServers(null)).thenReturn(servers);
+        when(jenkins.getJenkinsServers(project.getKey())).thenReturn(Lists.newArrayList());
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
@@ -166,9 +171,10 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testShowErrorIfProjectSettingsUrlEmpty() {
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
         Server server = new Server("", null, null, null, false, false);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
+        List<Server> servers = Lists.newArrayList(server);
+        when(jenkins.getJenkinsServers(project.getKey())).thenReturn(servers);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
@@ -177,9 +183,10 @@ public class ParameterizedBuildHookTest {
 
     @Test
     public void testNoErrorIfOnlyJenkinsSettingsNull() {
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
         Server server = new Server("baseurl", null, null, null, false, false);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(server);
+        List<Server> servers = Lists.newArrayList(server);
+        when(jenkins.getJenkinsServers(project.getKey())).thenReturn(servers);
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(0)).addFieldError(any(), any());
@@ -188,8 +195,9 @@ public class ParameterizedBuildHookTest {
     @Test
     public void testNoErrorIfOnlyProjectSettingsNull() {
         Server server = new Server("baseurl", null, null, null, false, false);
-        when(jenkins.getJenkinsServer(null)).thenReturn(server);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(null);
+        List<Server> servers = Lists.newArrayList(server);
+        when(jenkins.getJenkinsServers(null)).thenReturn(servers);
+        when(jenkins.getJenkinsServers(project.getKey())).thenReturn(Lists.newArrayList());
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(0)).addFieldError(any(), any());

@@ -69,7 +69,7 @@ public class PushHandlerTest {
         when(settingsService.getSettings(any())).thenReturn(settings);
         when(repository.getProject()).thenReturn(project);
         when(project.getKey()).thenReturn(PROJECT_KEY);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(projectServer);
+        when(jenkins.getJenkinsServer(eq(project.getKey()), any())).thenReturn(projectServer);
         when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
 
         when(minimalRef.getId()).thenReturn(BRANCH_REF);

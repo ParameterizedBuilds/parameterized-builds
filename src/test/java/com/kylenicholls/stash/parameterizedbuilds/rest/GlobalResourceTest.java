@@ -2,6 +2,8 @@ package com.kylenicholls.stash.parameterizedbuilds.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,6 +44,7 @@ public class GlobalResourceTest {
     private ApplicationUser user;
     private UriInfo ui;
     private Server globalServer;
+    private List<Server> globalServers;
     private ServerService.Token testToken;
 
     private final String TOKEN_VALUE = "myToken";
@@ -49,8 +52,13 @@ public class GlobalResourceTest {
 
     @Before
     public void setup() throws Exception {
+<<<<<<< HEAD
         globalServer = new Server("http://globalurl", "global server", "globaluser", "globaltoken",
                 false, false);
+=======
+        globalServer = new Server("http://globalurl", "global server", "globaluser", "globaltoken", false, false);
+        globalServers = Lists.newArrayList(globalServer);
+>>>>>>> Update get server api
         I18nService i18nService = mock(I18nService.class);
         jenkins = mock(Jenkins.class);
         authContext = mock(AuthenticationContext.class);
@@ -72,7 +80,7 @@ public class GlobalResourceTest {
     
     @Test
     public void testGetServersEmpty(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
         Response actual = rest.getServers(ui);
 
         assertEquals(Lists.newArrayList(), actual.getEntity());
@@ -80,7 +88,7 @@ public class GlobalResourceTest {
 
     @Test
     public void testGetServersOkStatus(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
         Response actual = rest.getServers(ui);
 
         assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
@@ -88,7 +96,7 @@ public class GlobalResourceTest {
 
     @Test
     public void testGetServersSet(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServers(null)).thenReturn(globalServers);
         Response actual = rest.getServers(ui);
 
         Map<String, Object> expected = rest.createServerMap(globalServer, null);
@@ -134,7 +142,7 @@ public class GlobalResourceTest {
 
     @Test
     public void testValidateServerPreservesToken(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(globalServer);
         Server testServer = rest.mapToServer(globalServer.asMap());
         when(jenkinsConn.testConnection(testServer)).thenReturn( "Connection successful");
         testServer.setToken(null);
@@ -146,58 +154,58 @@ public class GlobalResourceTest {
 
     @Test
     public void testAddServerReturns200OnUpdate(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
-        Response actual = rest.addServer(ui, globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(globalServer);
+        Response actual = rest.addServer(ui, globalServer, globalServer.getAlias());
 
         assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
     }
 
     @Test
     public void testAddServerReturns201OnCreate(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer, globalServer.getAlias());
 
         assertEquals(Response.Status.CREATED.getStatusCode(), actual.getStatus());
     }
 
     @Test
     public void testAddServerPreservesToken(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(globalServer);
         Server testServer = rest.mapToServer(globalServer.asMap());
         testServer.setToken(null);
-        rest.addServer(ui, testServer);
+        rest.addServer(ui, testServer, testServer.getAlias());
 
         assertEquals(globalServer.getToken(), testServer.getToken());
     }
 
     @Test
     public void testAddServerRemovesEmptyStringToken(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(globalServer);
         Server testServer = rest.mapToServer(globalServer.asMap());
         testServer.setToken("");
-        rest.addServer(ui, testServer);
+        rest.addServer(ui, testServer, testServer.getAlias());
 
         assertEquals("", testServer.getToken());
     }
 
     @Test
     public void testAddServerRemovesTokenIfDifferentURL(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(globalServer);
         Server testServer = rest.mapToServer(globalServer.asMap());
         testServer.setToken(null);
         testServer.setBaseUrl("http://different");
-        rest.addServer(ui, testServer);
+        rest.addServer(ui, testServer, testServer.getAlias());
 
         assertEquals("", testServer.getToken());
     }
 
     @Test
     public void testAddServerRemovesTokenIfDifferentUser(){
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(globalServer);
         Server testServer = rest.mapToServer(globalServer.asMap());
         testServer.setToken(null);
         testServer.setUser("different");
-        rest.addServer(ui, testServer);
+        rest.addServer(ui, testServer, testServer.getAlias());
 
         assertEquals("", testServer.getToken());
     }
@@ -205,8 +213,8 @@ public class GlobalResourceTest {
     @Test
     public void testAddServerReturns422OnMissingAlias(){
         globalServer.setAlias("");
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer, globalServer.getAlias());
 
         assertEquals(422, actual.getStatus());
     }
@@ -214,8 +222,8 @@ public class GlobalResourceTest {
     @Test
     public void testAddServerReturns422OnMissingUrl(){
         globalServer.setBaseUrl("");
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer, globalServer.getAlias());
 
         assertEquals(422, actual.getStatus());
     }
@@ -224,8 +232,8 @@ public class GlobalResourceTest {
     @SuppressWarnings("unchecked")
     public void testAddServerReturnsErrorMessageOnMissingUrl(){
         globalServer.setBaseUrl("");
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer, globalServer.getAlias());
 
         String response = actual.getEntity().toString();
         List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");
@@ -236,8 +244,8 @@ public class GlobalResourceTest {
     @Test
     public void testAddServerReturns422OnBadUrl(){
         globalServer.setBaseUrl("noprotocal");
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer, globalServer.getAlias());
 
         assertEquals(422, actual.getStatus());
     }
@@ -246,8 +254,8 @@ public class GlobalResourceTest {
     @SuppressWarnings("unchecked")
     public void testAddServerReturnsErrorMessageOnBadUrl(){
         globalServer.setBaseUrl("noprotocal");
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer, globalServer.getAlias());
 
         String response = actual.getEntity().toString();
         List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");
@@ -260,8 +268,8 @@ public class GlobalResourceTest {
     public void testAddServerReturnsAllErrorMessages(){
         globalServer.setBaseUrl("");
         globalServer.setAlias("");
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        Response actual = rest.addServer(ui, globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(null);
+        Response actual = rest.addServer(ui, globalServer, globalServer.getAlias());
 
         String response = actual.getEntity().toString();
         List<String> errors = (List<String>) new Gson().fromJson(response, Map.class).get("errors");

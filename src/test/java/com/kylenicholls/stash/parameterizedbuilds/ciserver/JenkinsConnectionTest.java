@@ -1,8 +1,6 @@
 package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -10,19 +8,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
-import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.bitbucket.project.Project;
-import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -36,7 +30,6 @@ public class JenkinsConnectionTest {
     private PluginSettings pluginSettings;
     private ApplicationUser user;
     private Project project;
-    private ProjectService projectService;
 
     @Before
     public void setup() throws IOException {
@@ -50,7 +43,6 @@ public class JenkinsConnectionTest {
         when(user.getSlug()).thenReturn(USER_SLUG);
         project = mock(Project.class);
         when(project.getKey()).thenReturn(PROJECT_KEY);
-        projectService = mock(ProjectService.class);
     }
 
     @Test

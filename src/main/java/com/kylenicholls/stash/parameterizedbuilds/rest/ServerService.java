@@ -12,6 +12,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -55,7 +56,8 @@ public interface ServerService {
     @Path("/servers/{serverAlias}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
-    public Response addServer(@Context UriInfo ui, Server server);
+    public Response addServer(@Context UriInfo ui, Server server, 
+                              @PathParam("id") String serverAlias);
 
     @DELETE
     @Path("/servers/{serverAlias}")

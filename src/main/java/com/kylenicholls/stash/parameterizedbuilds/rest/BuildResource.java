@@ -123,12 +123,16 @@ public class BuildResource extends RestResource {
     public Response getJenkinsServers(@Context final Repository repository){
         if (authContext.isAuthenticated()) {
             String projectKey = repository.getProject().getKey();
-            List<Map<String, String>> servers = new ArrayList<>();
+            List<Map<String, String>> servers = jenkins.getJenkinsServers(null).stream()
+                    .map(x -> createServerMap(x, null))
+                    .collect(Collectors.toList());
 
-            Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
-                    .map(x -> createServerMap(x, projectKey)).ifPresent(servers::add);
-            Optional.ofNullable(jenkins.getJenkinsServer(null))
-                    .map(x -> createServerMap(x, null)).ifPresent(servers::add);
+            List<Map<String, String>> projectServers = jenkins.getJenkinsServers(projectKey)
+                    .stream()
+                    .map(x -> createServerMap(x, projectKey))
+                    .collect(Collectors.toList());
+
+            servers.addAll(projectServers);
 
             return Response.ok(servers).build();
         } else {

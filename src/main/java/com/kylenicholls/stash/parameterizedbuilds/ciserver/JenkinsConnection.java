@@ -58,16 +58,17 @@ public class JenkinsConnection {
         Server jenkinsServer;
         String joinedUserToken;
         if (job.getJenkinsServer() != null){
-            jenkinsServer = jenkins.getJenkinsServer(job.getJenkinsServer());
+            jenkinsServer = jenkins.getJenkinsServer(job.getJenkinsServer(), 
+                    job.getJenkinsServer());
             joinedUserToken = jenkins.getJoinedUserToken(user, job.getJenkinsServer());
         } else {
             // legacy behaviour
-            Server projectServer = jenkins.getJenkinsServer(projectKey);
+            Server projectServer = jenkins.getJenkinsServer(projectKey, null);
             if (projectServer != null){
                 jenkinsServer = projectServer;
                 joinedUserToken = jenkins.getJoinedUserToken(user, projectKey);
             } else {
-                jenkinsServer = jenkins.getJenkinsServer(null);
+                jenkinsServer = jenkins.getJenkinsServer(null, null);
                 joinedUserToken = jenkins.getJoinedUserToken(user, null);
             }
         }

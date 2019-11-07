@@ -27,6 +27,7 @@ import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
+import com.google.common.collect.Lists;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.JenkinsConnection;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -81,10 +82,11 @@ public class PullRequestHookTest {
         Settings settings = mock(Settings.class);
         repository = mock(Repository.class);
         repoHook = mock(RepositoryHook.class);
+        List<Server> testServers = Lists.newArrayList(globalServer);
 
         when(repository.getProject()).thenReturn(project);
         when(settingsService.getSettings(repository)).thenReturn(settings);
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServers(null)).thenReturn(testServers);
         when(settingsService.getHook(any())).thenReturn(repoHook);
         when(repoHook.isEnabled()).thenReturn(true);
 

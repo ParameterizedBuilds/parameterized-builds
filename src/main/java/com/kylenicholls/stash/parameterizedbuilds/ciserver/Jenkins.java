@@ -112,7 +112,7 @@ public class Jenkins {
      *         the specified project
      */
     @Nullable
-    public Server getJenkinsServer(String projectKey) {
+    public Server getJenkinsServer(String projectKey, String alias) {
         if (projectKey == null || projectKey.equals("global-settings")) {
             return getJenkinsServer();
         }
@@ -124,6 +124,31 @@ public class Jenkins {
             return new Server(serverMap);
         }
         return null;
+    }
+
+    /**
+     * Returns all Jenkins servers for a project.
+     *
+     * @return a list of Jenkins servers for a project or empty list if there are none for
+     *         the specified project
+     */
+    @Nullable
+    public List<Server> getJenkinsServers(String projectKey) {
+        List<Server> servers = new ArrayList<>();
+        Object settingObj;
+        if (projectKey == null || projectKey.equals("global-settings")) {
+            settingObj = pluginSettings.get(JENKINS_SETTINGS);
+        } else {
+            settingObj = pluginSettings.get(JENKINS_SETTINGS_PROJECT + projectKey);
+        }
+
+        if (settingObj != null && settingObj instanceof java.util.Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> serverMap = (Map<String, Object>) settingObj;
+            Server server = new Server(serverMap);
+            servers.add(server);
+        }
+        return servers;
     }
 
     /**
@@ -216,22 +241,18 @@ public class Jenkins {
     protected List<UserToken> getAllUserTokens(ApplicationUser user, List<String> projectKeys,
             ProjectService projectService) {
         List<UserToken> userTokens = new ArrayList<>();
-        String globalUserTokenString = getUserToken(user, null);
-        Server globalServer = getJenkinsServer();
-        if (globalServer != null) {
-            UserToken globalUserToken = new UserToken(globalServer.getBaseUrl(), 
-                    globalServer.getAlias(), "", "Global", user.getSlug(), globalUserTokenString);
-            userTokens.add(globalUserToken);
-        }
+        projectKeys.add(null);
 
         for (String projectKey : projectKeys) {
-            Server projectServer = getJenkinsServer(projectKey);
-            String projectUserTokenString = getUserToken(user, projectKey);
-            if (projectServer != null) {
-                UserToken projectUserToken = new UserToken(projectServer.getBaseUrl(), 
-                        projectServer.getAlias(), projectKey, 
-                        projectService.getByKey(projectKey).getName(), user.getSlug(),
-                        projectUserTokenString);
+            List<Server> servers = getJenkinsServers(projectKey);
+            String userTokenString = getUserToken(user, projectKey);
+            for (Server server : servers) {
+                String scopeName = projectKey != null ?
+                        projectService.getByKey(projectKey).getName() : "Global";
+                String scopeKey = projectKey != null ? projectKey : "";
+                UserToken projectUserToken = new UserToken(server.getBaseUrl(),
+                        server.getAlias(), scopeKey, scopeName, user.getSlug(),
+                        userTokenString);
                 userTokens.add(projectUserToken);
             }
         }

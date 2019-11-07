@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,9 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
-import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
-import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 import org.junit.Before;
@@ -115,7 +111,7 @@ public class JenkinsTest {
     @Test
     public void testGetJenkinsServerSettingsNull() {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn(null);
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals(null, actual);
     }
@@ -123,7 +119,7 @@ public class JenkinsTest {
     @Test
     public void testGetJenkinsServerSettingsLegacyNoAltUrl() {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token");
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals("url", actual.getBaseUrl());
         assertEquals("user", actual.getUser());
@@ -134,7 +130,7 @@ public class JenkinsTest {
     @Test
     public void testGetJenkinsServerSettingsLegacyAltUrlTrue() {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token;true");
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals("url", actual.getBaseUrl());
         assertEquals("user", actual.getUser());
@@ -145,7 +141,7 @@ public class JenkinsTest {
     @Test
     public void testGetJenkinsServerSettingsLegacyAltUrlFalse() {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token;false");
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals("url", actual.getBaseUrl());
         assertEquals("user", actual.getUser());
@@ -157,7 +153,7 @@ public class JenkinsTest {
     public void testGetJenkinsServerSettings() {
         Server expected = new Server("url", null, "user", "token", false, false);
         when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals(expected.asMap(), actual.asMap());
     }
@@ -165,7 +161,7 @@ public class JenkinsTest {
     @Test
     public void testGetProjectServerSettingsNull() {
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(null);
-        Server actual = jenkins.getJenkinsServer(PROJECT_KEY);
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null);
 
         assertEquals(null, actual);
     }
@@ -174,7 +170,7 @@ public class JenkinsTest {
     public void testGetProjectServerSettings() {
         Server expected = new Server("url", null, "user", "token", false, false);
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
-        Server actual = jenkins.getJenkinsServer(PROJECT_KEY);
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null);
 
         assertEquals(expected.asMap(), actual.asMap());
     }
@@ -238,11 +234,11 @@ public class JenkinsTest {
         List<UserToken> actual = jenkins.getAllUserTokens(user, projectKeys, projectService);
 
         assertEquals(2, actual.size());
-        assertEquals(projectServer.getBaseUrl(), actual.get(1).getBaseUrl());
-        assertEquals(newProjectKey, actual.get(1).getProjectKey());
-        assertEquals(newProjectName, actual.get(1).getProjectName());
-        assertEquals(USER_SLUG, actual.get(1).getUserSlug());
-        assertEquals(null, actual.get(1).getToken());
+        assertEquals(projectServer.getBaseUrl(), actual.get(0).getBaseUrl());
+        assertEquals(newProjectKey, actual.get(0).getProjectKey());
+        assertEquals(newProjectName, actual.get(0).getProjectName());
+        assertEquals(USER_SLUG, actual.get(0).getUserSlug());
+        assertEquals(null, actual.get(0).getToken());
     }
 
     @Test
@@ -266,7 +262,7 @@ public class JenkinsTest {
         List<UserToken> actual = jenkins.getAllUserTokens(user, projectKeys, projectService);
 
         assertEquals(2, actual.size());
-        assertEquals(token, actual.get(1).getToken());
+        assertEquals(token, actual.get(0).getToken());
     }
 
     @Test

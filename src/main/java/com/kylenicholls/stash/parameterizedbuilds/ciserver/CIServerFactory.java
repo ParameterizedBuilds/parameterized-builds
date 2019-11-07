@@ -2,8 +2,10 @@ package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
 import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
+import com.google.common.collect.Lists;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
+import java.util.List;
 import java.util.Map;
 
 public class CIServerFactory {
@@ -15,12 +17,14 @@ public class CIServerFactory {
             return new AccountServer(jenkins, user, projectService);
         } else if (pathInfo.contains("/jenkins/project/")) {
             Server server = getServerFromMap(parameters);
+            List<Server> servers = Lists.newArrayList(server);
             String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "")
                     .split("/")[0];
-            return new ProjectServer(jenkins, server, projectKey);
+            return new ProjectServer(jenkins, servers, projectKey);
         } else {
             Server server = getServerFromMap(parameters);
-            return new GlobalServer(jenkins, server);
+            List<Server> servers = Lists.newArrayList(server);
+            return new GlobalServer(jenkins, servers);
         }
     }
 
@@ -31,11 +35,11 @@ public class CIServerFactory {
         } else if (pathInfo.contains("/jenkins/project/")) {
             String projectKey = pathInfo.replaceAll(".*/jenkins/project/", "")
                     .split("/")[0];
-            Server server = jenkins.getJenkinsServer(projectKey);
-            return new ProjectServer(jenkins, server, projectKey);
+            List<Server> servers = jenkins.getJenkinsServers(projectKey);
+            return new ProjectServer(jenkins, servers, projectKey);
         } else {
-            Server server =jenkins.getJenkinsServer(null);
-            return new GlobalServer(jenkins, server);
+            List<Server> servers =jenkins.getJenkinsServers(null);
+            return new GlobalServer(jenkins, servers);
         }
     }
 
