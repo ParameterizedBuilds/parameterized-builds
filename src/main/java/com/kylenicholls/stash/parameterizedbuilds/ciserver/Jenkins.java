@@ -128,6 +128,25 @@ public class Jenkins {
     }
 
     /**
+     * Returns jenkins server for the project with the proper user token
+     * 
+     * @param projectKey - Bitbucket project key
+     * @param alias - alias for the target server definition
+     * @param user - user to get token for
+     * @return
+     */
+    public Server getJenkinsServer(String projectKey, String alias, ApplicationUser user){
+        Server server = getJenkinsServer(projectKey, alias);
+        String userToken = getUserToken(user, projectKey);
+        if (userToken != null && !userToken.isEmpty()){
+            server.setUser(user.getSlug());
+            server.setToken(userToken);
+            server.setAltUrl(false);
+        }
+        return server;
+    }
+
+    /**
      * Returns all Jenkins servers for a project.
      *
      * @return a list of Jenkins servers for a project or empty list if there are none for
@@ -136,13 +155,12 @@ public class Jenkins {
     @Nullable
     public List<Server> getJenkinsServers(String projectKey) {
         List<Server> servers = new ArrayList<>();
-        Object settingObj;
         if (projectKey == null || projectKey.equals("global-settings")) {
-            settingObj = pluginSettings.get(JENKINS_SETTINGS);
-        } else {
-            settingObj = pluginSettings.get(JENKINS_SETTINGS_PROJECT + projectKey);
+            Server server = getJenkinsServer();
+            return server == null ? Lists.newArrayList() : Lists.newArrayList(server);
         }
 
+        Object settingObj = pluginSettings.get(JENKINS_SETTINGS_PROJECT + projectKey);
         if (settingObj != null && settingObj instanceof java.util.Map) {
             @SuppressWarnings("unchecked")
             Map<String, Object> serverMap = (Map<String, Object>) settingObj;
@@ -150,49 +168,6 @@ public class Jenkins {
             servers.add(server);
         }
         return servers;
-    }
-
-    /**
-     * Returns the colon separated global user token for the specified user.
-     *
-     * @return the colon separated user token or null if the user is null or the
-     *         token does not exist
-     * @param user
-     *            the user to get the token for, can be null if the user is
-     *            anonymous
-     */
-    @Nullable
-    private String getJoinedUserToken(@Nullable ApplicationUser user) {
-        String userToken = getUserToken(user, null);
-        if (userToken != null) {
-            return user.getSlug() + ":" + userToken;
-        }
-        return null;
-    }
-
-    /**
-     * Returns the colon separated user token for the specified user and
-     * project.
-     *
-     * @return the colon separated user token or null if the user is null or the
-     *         token does not exist
-     * @param user
-     *            the user to get the token for, can be null if the user is
-     *            anonymous
-     * @param projectKey
-     *            the project to get the token for
-     */
-    @Nullable
-    public String getJoinedUserToken(@Nullable ApplicationUser user, String projectKey) {
-        if (projectKey == null || projectKey.equals("global-settings")) {
-            return getJoinedUserToken(user);
-        }
-
-        String userToken = getUserToken(user, projectKey);
-        if (userToken != null) {
-            return user.getSlug() + ":" + userToken;
-        }
-        return null;
     }
 
     /**

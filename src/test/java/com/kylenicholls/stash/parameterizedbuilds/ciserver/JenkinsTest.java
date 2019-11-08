@@ -427,48 +427,73 @@ public class JenkinsTest {
     public void testGetJoinedGlobalToken() {
         String token = "token";
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn("token");
-        String actual = jenkins.getJoinedUserToken(user, null);
 
-        assertEquals(USER_SLUG + ":" + token, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(null, null, user);
+        assertEquals(user.getSlug(), actual.getUser());
+        assertEquals(token, actual.getToken());
     }
 
     @Test
-    public void testGetJoinedGlobalTokenNullToken() {
+    public void testGetServerWithoutUserGlobalToken() {
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
-        String actual = jenkins.getJoinedUserToken(user, null);
 
-        assertEquals(null, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(null, null, user);
+        assertEquals("default_user", actual.getUser());
+        assertEquals("default_token", actual.getToken());
     }
 
     @Test
-    public void testGetJoinedGlobalTokenNullUser() {
-        String actual = jenkins.getJoinedUserToken(null, null);
+    public void testGetServerGlobalTokenNullUser() {
+        when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
 
-        assertEquals(null, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(null, null, null);
+        assertEquals("default_user", actual.getUser());
+        assertEquals("default_token", actual.getToken());
     }
 
     @Test
-    public void testGetJoinedProjectToken() {
+    public void testGetServerWithUserProjectToken() {
         String token = "token";
-        when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
-                .thenReturn("token");
-        String actual = jenkins.getJoinedUserToken(user, PROJECT_KEY);
+        when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn("token");
 
-        assertEquals(USER_SLUG + ":" + token, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null, user);
+        assertEquals(user.getSlug(), actual.getUser());
+        assertEquals(token, actual.getToken());
     }
 
     @Test
-    public void testGetJoinedProjectTokenNullToken() {
-        when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY)).thenReturn(null);
-        String actual = jenkins.getJoinedUserToken(user, PROJECT_KEY);
+    public void testGetServerWithoutUserProjectToken() {
+        when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
 
-        assertEquals(null, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null, user);
+        assertEquals("default_user", actual.getUser());
+        assertEquals("default_token", actual.getToken());
     }
 
     @Test
-    public void testGetJoinedProjectTokenNullUser() {
-        String actual = jenkins.getJoinedUserToken(null, PROJECT_KEY);
+    public void testGetServerProjectTokenNullUser() {
+        when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
 
-        assertEquals(null, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null, null);
+        assertEquals("default_user", actual.getUser());
+        assertEquals("default_token", actual.getToken());
     }
 }

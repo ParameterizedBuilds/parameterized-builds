@@ -56,47 +56,33 @@ public class JenkinsConnection {
     public JenkinsResponse triggerJob(String projectKey, ApplicationUser user, Job job, 
                                       BitbucketVariables bitbucketVariables) {
         Server jenkinsServer;
-        String joinedUserToken;
         if (job.getJenkinsServer() != null){
-            jenkinsServer = jenkins.getJenkinsServer(job.getJenkinsServer(), 
-                    job.getJenkinsServer());
-            joinedUserToken = jenkins.getJoinedUserToken(user, job.getJenkinsServer());
+            jenkinsServer = jenkins.getJenkinsServer(job.getJenkinsServer(),
+                    job.getJenkinsServer(), user);
         } else {
             // legacy behaviour
-            Server projectServer = jenkins.getJenkinsServer(projectKey, null);
+            Server projectServer = jenkins.getJenkinsServer(projectKey, null, user);
             if (projectServer != null){
                 jenkinsServer = projectServer;
-                joinedUserToken = jenkins.getJoinedUserToken(user, projectKey);
             } else {
-                jenkinsServer = jenkins.getJenkinsServer(null, null);
-                joinedUserToken = jenkins.getJoinedUserToken(user, null);
+                jenkinsServer = jenkins.getJenkinsServer(null, null, user);
             }
         }
 
-        String buildUrl = job
-                .buildUrl(jenkinsServer, bitbucketVariables, joinedUserToken != null);
-
-        // use default user and token if the user that triggered the
-        // build does not have a token set
-        boolean prompt = false;
-        if (joinedUserToken == null) {
-            prompt = true;
-            if (!jenkinsServer.getUser().isEmpty()) {
-                joinedUserToken = jenkinsServer.getJoinedToken();
-            }
-        }
+        String buildUrl = job.buildUrl(jenkinsServer, bitbucketVariables, false);
+        boolean prompt = jenkinsServer.getUser() != user.getSlug();
 
         String csrfHeader = null;
         if (jenkinsServer.getCsrfEnabled()) {
             // get a CSRF token because cross site protection is enabled
             try {
-                csrfHeader = getCrumb(jenkinsServer.getBaseUrl(), joinedUserToken);
+                csrfHeader = getCrumb(jenkinsServer);
             } catch(Exception e){
                 logger.warn("error getting CSRF token");
             }
         }
 
-        return sanitizeTrigger(buildUrl, joinedUserToken, csrfHeader, prompt);
+        return sanitizeTrigger(buildUrl, jenkinsServer.getJoinedToken(), csrfHeader, prompt);
     }
 
     private HttpURLConnection setupConnection(String baseUrl, String userToken) throws Exception{
@@ -125,7 +111,7 @@ public class JenkinsConnection {
             if (server.getCsrfEnabled()) {
                 // get a CSRF token because cross site protection is enabled
                 try {
-                    csrfHeader = getCrumb(server.getBaseUrl(), server.getJoinedToken());
+                    csrfHeader = getCrumb(server);
                 } catch(Exception e){
                     logger.warn("error getting CSRF token");
                 }
@@ -151,10 +137,12 @@ public class JenkinsConnection {
         }
     }
 
-    private String getCrumb(String baseUrl, String token) throws Exception{
+    private String getCrumb(Server server) throws Exception{
         final String crumbPath = "/crumbIssuer/api/xml?xpath=" + 
                                  "concat(//crumbRequestField,\":\",//crumb)";
-        final String crumbUrl = baseUrl  + crumbPath;
+        String baseUrl = server.getBaseUrl();
+        String token = server.getJoinedToken();
+        final String crumbUrl = baseUrl + crumbPath;
         // workaround temporary javax.net.ssl.SSLException: Received close_notify during handshake
         // retry the connection three times should be OK for temporary connection issues
         final int maxRetries = 3;
