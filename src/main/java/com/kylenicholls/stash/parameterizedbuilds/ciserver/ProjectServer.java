@@ -1,10 +1,8 @@
 package com.kylenicholls.stash.parameterizedbuilds.ciserver;
 
 import com.google.common.collect.ImmutableMap;
-import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ProjectServer extends CIServer{
