@@ -10,6 +10,7 @@ import com.atlassian.bitbucket.project.ProjectService;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.google.common.collect.Lists;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 
@@ -241,9 +242,10 @@ public class Jenkins {
     protected List<UserToken> getAllUserTokens(ApplicationUser user, List<String> projectKeys,
             ProjectService projectService) {
         List<UserToken> userTokens = new ArrayList<>();
-        projectKeys.add(null);
+        List<String> allKeys = Lists.newArrayList(projectKeys);
+        allKeys.add(null);
 
-        for (String projectKey : projectKeys) {
+        for (String projectKey : allKeys) {
             List<Server> servers = getJenkinsServers(projectKey);
             String userTokenString = getUserToken(user, projectKey);
             for (Server server : servers) {
