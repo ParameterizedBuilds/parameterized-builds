@@ -94,7 +94,6 @@ public class CIServletTest {
         servlet.doGet(req, resp);
 
         Map<String, Object> data = ImmutableMap.of(
-                CIServer.SERVER, servers,
                 CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))
                 .render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
@@ -107,7 +106,6 @@ public class CIServletTest {
         servlet.doGet(req, resp);
 
         Map<String, Object> data = ImmutableMap.of(
-                CIServer.SERVER, Lists.newArrayList(),
                 CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))
                 .render(resp.getWriter(), SOY_TEMPLATE, "jenkins.admin.settings", data);
@@ -140,7 +138,6 @@ public class CIServletTest {
         servlet.doGet(req, resp);
 
         Map<String, Object> data = ImmutableMap.of(
-                CIServer.SERVER, servers,
                 ProjectServer.PROJECT_KEY, PROJECT_KEY,
                 CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))
@@ -154,7 +151,6 @@ public class CIServletTest {
         servlet.doGet(req, resp);
 
         Map<String, Object> data = ImmutableMap.of(
-                CIServer.SERVER, Lists.newArrayList(),
                 ProjectServer.PROJECT_KEY, PROJECT_KEY,
                 CONTEXT_KEY, BITBUCKET_CONTEXT);
         verify(renderer, times(1))

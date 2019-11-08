@@ -13,10 +13,7 @@ public class ProjectServer extends CIServer{
 
     private String projectKey;
 
-    public ProjectServer(Jenkins jenkins, List<Server> servers, String projectKey){
-        this.jenkins = jenkins;
-        this.jenkinsConn = new JenkinsConnection(jenkins);
-        this.servers = servers;
+    public ProjectServer(String projectKey){
         this.projectKey = projectKey;
         this.JENKINS_SETTINGS = "jenkins.admin.settingsProjectAdmin";
         this.ADDITIONAL_JS = "jenkins-settings-form";
@@ -25,7 +22,6 @@ public class ProjectServer extends CIServer{
     public ImmutableMap<String, Object> renderMap(Map<String, Object> renderOptions){
         @SuppressWarnings("serial")
         Map<String, Object> baseMap = new HashMap<String, Object>() {{
-            put(SERVER, servers);
             put(PROJECT_KEY, projectKey);
             putAll(renderOptions);
         }};

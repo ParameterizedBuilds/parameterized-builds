@@ -18,10 +18,10 @@ public class AccountServer extends CIServer {
 
     private final transient ProjectService projectService;
     private ApplicationUser user;
+    private Jenkins jenkins;
 
     public AccountServer(Jenkins jenkins, ApplicationUser user, ProjectService projectService){
         this.jenkins = jenkins;
-        this.jenkinsConn = new JenkinsConnection(jenkins);
         this.user = user;
         this.projectService = projectService;
         this.JENKINS_SETTINGS = "jenkins.user.settings";
