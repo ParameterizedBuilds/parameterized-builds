@@ -146,7 +146,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '5XX':
           $ref: '#/components/responses/Unexpected'
-  
+
   /projects/{projectKey}/servers:
     get:
       summary: Get project-level jenkins servers
@@ -184,12 +184,12 @@ paths:
         Check if the given jenkins settings can successfully
         send a post request to the jenkins server.
       parameters:
-      - name: projectKey
-        in: path
-        description: unique key for given project
-        required: true
-        schema:
-          type: string
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Connection successful
