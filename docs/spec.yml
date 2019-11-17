@@ -333,6 +333,41 @@ paths:
         '5XX':
           $ref: '#/components/responses/Unexpected'
 
+  /projects/{projectKey}/repos/{repositorySlug}/settings:
+    get:
+      summary: Get defined jobs for repository 
+      description: >
+        Returns a list of jobs defined in the
+        repository settings. Default user token omitted
+        for security.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: repositorySlug
+          in: path
+          description: unique (for project) key for given repository
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON array of server objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+        '404':
+          description: Project or repository not found
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
 
 components:
   schemas:
