@@ -12,7 +12,7 @@ paths:
       summary: Get global jenkins servers
       description: >
         Returns a list of jenkins servers defined in the
-        global admin settings. Default user token ommitted
+        global admin settings. Default user token omitted
         for security.
       responses:
         '200':
@@ -152,7 +152,7 @@ paths:
       summary: Get project-level jenkins servers
       description: >
         Returns a list of jenkins servers defined in the
-        project admin settings. Default user token ommitted
+        project admin settings. Default user token omitted
         for security.
       parameters:
         - name: projectKey
