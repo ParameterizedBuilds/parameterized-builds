@@ -394,6 +394,12 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
       responses:
         '200':
           description: Job updated
@@ -543,6 +549,23 @@ components:
         - job_name
         - jenkins_server
         - triggers
+      example:
+        id: '0'
+        job_name: 'Update Satis Package'
+        jenkins_server: 'Platform'
+        is_tag: true
+        triggers:
+          - add
+          - delete
+          - prautomerged
+          - push
+          - prmerged
+        token: '__JENKINS_TOKEN__'
+        build_parameters: 'VENDOR=$PROJECT\r\nPACKAGE=$REPOSITORY'
+        branch_regex: ''
+        path_regex: ''
+        require_permission: 'REPO_READ'
+        pr_destination_regex: ''
 
   responses:
     Unauthorized:
