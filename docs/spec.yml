@@ -370,6 +370,43 @@ paths:
           $ref: '#/components/responses/Unexpected'
 
   /projects/{projectKey}/repos/{repositorySlug}/settings/{id}:
+    put:
+      summary: Create or update a job
+      description: >
+        Creates or updates a job in the given repository's
+        settings for the given id.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: repositorySlug
+          in: path
+          description: unique (for project) key for given repository
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: job id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job updated
+        '201':
+          description: Job created
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Project or repository not found
+        '422':
+          $ref: '#/components/responses/BadInput'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
     delete:
       summary: Remove a job
       description: >
