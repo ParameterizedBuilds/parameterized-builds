@@ -360,7 +360,83 @@ components:
         - scope
         - root_token_enabled
         - csrf_enabled
-  
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+        job_name:
+          type: string
+          description: Job Name
+        jenkins_server:
+          type: string
+          description: Jenkins Server
+        is_tag:
+          type: boolean
+          description: 'Ref type: true - tag, false - branch'
+        is_pipeline:
+          type: boolean
+          description: Multibranch Pipeline
+        triggers:
+          type: array
+          description: Triggers
+          items:
+            type: string
+            enum:
+              - 'add'
+              - 'push'
+              - 'manual'
+              - 'delete'
+              - 'prautomerged'
+              - 'propened'
+              - 'prreopened'
+              - 'prsourcerescoped'
+              - 'prdestrescoped'
+              - 'prmerged'
+              - 'prdeclined'
+              - 'prdeleted'
+              - 'prapproved'
+          uniqueItems: true
+          minItems: 1
+        token:
+          type: string
+          description: Trigger builds remotely (e.g., from scripts) or leave blank to use user API token
+        build_parameters:
+          type: string
+          description: >
+            Key=Value pairs separated by new line. For choice parameters separate values with a semicolon.
+            Available Bitbucket variables: $BRANCH, $COMMIT, $REPOSITORY, $PROJECT, $TRIGGER
+            (for PR triggers also $PRID, $PRTITLE, $PRDESTINATION, $PRAUTHOR, $PREMAIL,
+              $PRDESCRIPTION, $PRURL, $PRSOURCEPROJECT, $PRSOURCEREPOSITORY, and for PR MERGED triggers $MERGECOMMIT))
+        branch_regex:
+          type: string
+          description: >
+            Trigger builds for matched branches or tags (example: "release.*|hotfix.*|production").
+            Supported triggers: REF CREATED, PUSH EVENT, REF DELETED
+        path_regex:
+          type: string
+          description: >
+            Trigger builds if matched files are modified (example: "directory/.*.txt|foobar/.*").
+            Supported triggers:
+              PUSH EVENT, PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED
+        require_permission:
+          type: string
+          description: Only allow users with the given repository permission or higher to trigger this job.
+          enum:
+            - 'REPO_READ'
+            - 'REPO_WRITE'
+            - 'REPO_ADMIN'
+        pr_destination_regex:
+          type: string
+          description: >
+            Trigger builds if the pull request destination matches the regex (example: "release.*|hotfix.*|production").
+            Supported triggers: PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED
+      required:
+        - id
+        - job_name
+        - jenkins_server
+        - triggers
+
   responses:
     Unauthorized:
       description: Unauthorized
