@@ -512,12 +512,19 @@ components:
           type: string
           description: Trigger builds remotely (e.g., from scripts) or leave blank to use user API token
         build_parameters:
-          type: string
+          type: array
           description: >
-            Key=Value pairs separated by new line. For choice parameters separate values with a semicolon.
             Available Bitbucket variables: $BRANCH, $COMMIT, $REPOSITORY, $PROJECT, $TRIGGER
             (for PR triggers also $PRID, $PRTITLE, $PRDESTINATION, $PRAUTHOR, $PREMAIL,
               $PRDESCRIPTION, $PRURL, $PRSOURCEPROJECT, $PRSOURCEREPOSITORY, and for PR MERGED triggers $MERGECOMMIT))
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+                description: For choice parameters separate values with a semicolon.
         branch_regex:
           type: string
           description: >
@@ -558,7 +565,11 @@ components:
           - push
           - prmerged
         token: '__JENKINS_TOKEN__'
-        build_parameters: 'VENDOR=$PROJECT\r\nPACKAGE=$REPOSITORY'
+        build_parameters:
+          - name: VENDOR
+            value: $PROJECT
+          - name: PACKAGE
+            value: $REPOSITORY
         branch_regex: ''
         path_regex: ''
         require_permission: 'REPO_READ'
