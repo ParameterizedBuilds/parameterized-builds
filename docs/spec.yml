@@ -475,7 +475,7 @@ paths:
         '403':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          description: Project or repository not found
+          description: Project/repository/job not found
         '5XX':
           $ref: '#/components/responses/Unexpected'
 
