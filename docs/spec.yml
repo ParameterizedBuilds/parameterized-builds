@@ -333,7 +333,7 @@ paths:
         '5XX':
           $ref: '#/components/responses/Unexpected'
 
-  /projects/{projectKey}/repos/{repositorySlug}/settings:
+  /projects/{projectKey}/repos/{repositorySlug}/jobs:
     get:
       summary: Get defined jobs for repository 
       description: >
@@ -369,7 +369,7 @@ paths:
         '5XX':
           $ref: '#/components/responses/Unexpected'
 
-  /projects/{projectKey}/repos/{repositorySlug}/settings/{id}:
+  /projects/{projectKey}/repos/{repositorySlug}/jobs/{id}:
     put:
       summary: Create or update a job
       description: >
