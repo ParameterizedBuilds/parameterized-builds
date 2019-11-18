@@ -352,7 +352,7 @@ paths:
             type: string
       responses:
         '200':
-          description: A JSON array of server objects
+          description: A JSON array of job objects
           content:
             application/json:
               schema:
