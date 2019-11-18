@@ -336,10 +336,7 @@ paths:
   /projects/{projectKey}/repos/{repositorySlug}/jobs:
     get:
       summary: Get defined jobs for repository
-      description: >
-        Returns a list of jobs defined in the
-        repository settings. Default user token omitted
-        for security.
+      description: Returns a list of jobs defined in the repository settings.
       parameters:
         - name: projectKey
           in: path
