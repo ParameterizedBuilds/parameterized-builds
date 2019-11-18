@@ -367,6 +367,41 @@ paths:
           $ref: '#/components/responses/Unexpected'
 
   /projects/{projectKey}/repos/{repositorySlug}/jobs/{id}:
+    get:
+      summary: Get defined job for repository
+      description: Returns a job defined in the repository settings for the given id.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: repositorySlug
+          in: path
+          description: unique (for project) key for given repository
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: job id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON job object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404':
+          description: Project/repository/job not found
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
     put:
       summary: Create or update a job
       description: >
