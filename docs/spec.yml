@@ -12,7 +12,7 @@ paths:
       summary: Get global jenkins servers
       description: >
         Returns a list of jenkins servers defined in the
-        global admin settings. Default user token ommitted
+        global admin settings. Default user token omitted
         for security.
       responses:
         '200':
@@ -146,13 +146,13 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '5XX':
           $ref: '#/components/responses/Unexpected'
-  
+
   /projects/{projectKey}/servers:
     get:
       summary: Get project-level jenkins servers
       description: >
         Returns a list of jenkins servers defined in the
-        project admin settings. Default user token ommitted
+        project admin settings. Default user token omitted
         for security.
       parameters:
         - name: projectKey
@@ -184,12 +184,12 @@ paths:
         Check if the given jenkins settings can successfully
         send a post request to the jenkins server.
       parameters:
-      - name: projectKey
-        in: path
-        description: unique key for given project
-        required: true
-        schema:
-          type: string
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Connection successful
@@ -333,6 +333,151 @@ paths:
         '5XX':
           $ref: '#/components/responses/Unexpected'
 
+  /projects/{projectKey}/repos/{repositorySlug}/jobs:
+    get:
+      summary: Get defined jobs for repository
+      description: Returns a list of jobs defined in the repository settings.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: repositorySlug
+          in: path
+          description: unique (for project) key for given repository
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON array of job objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+        '404':
+          description: Project or repository not found
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
+
+  /projects/{projectKey}/repos/{repositorySlug}/jobs/{id}:
+    get:
+      summary: Get defined job for repository
+      description: Returns a job defined in the repository settings for the given id.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: repositorySlug
+          in: path
+          description: unique (for project) key for given repository
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: job id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON job object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404':
+          description: Project/repository/job not found
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
+    put:
+      summary: Create or update a job
+      description: >
+        Creates or updates a job in the given repository's
+        settings for the given id.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: repositorySlug
+          in: path
+          description: unique (for project) key for given repository
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: job id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+      responses:
+        '200':
+          description: Job updated
+        '201':
+          description: Job created
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Project or repository not found
+        '422':
+          $ref: '#/components/responses/BadInput'
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
+    delete:
+      summary: Remove a job
+      description: >
+        Remove the job with the given id from the
+        repository settings.
+      parameters:
+        - name: projectKey
+          in: path
+          description: unique key for given project
+          required: true
+          schema:
+            type: string
+        - name: repositorySlug
+          in: path
+          description: unique (for project) key for given repository
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: job id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Job removed
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Project/repository/job not found
+        '5XX':
+          $ref: '#/components/responses/Unexpected'
 
 components:
   schemas:
@@ -360,7 +505,111 @@ components:
         - scope
         - root_token_enabled
         - csrf_enabled
-  
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+        job_name:
+          type: string
+          description: Job Name
+        jenkins_server:
+          type: string
+          description: Jenkins Server
+        is_tag:
+          type: boolean
+          description: 'Ref type: true - tag, false - branch'
+        is_pipeline:
+          type: boolean
+          description: Multibranch Pipeline
+        triggers:
+          type: array
+          description: Triggers
+          items:
+            type: string
+            enum:
+              - 'add'
+              - 'push'
+              - 'manual'
+              - 'delete'
+              - 'prautomerged'
+              - 'propened'
+              - 'prreopened'
+              - 'prsourcerescoped'
+              - 'prdestrescoped'
+              - 'prmerged'
+              - 'prdeclined'
+              - 'prdeleted'
+              - 'prapproved'
+          uniqueItems: true
+          minItems: 1
+        token:
+          type: string
+          description: Trigger builds remotely (e.g., from scripts) or leave blank to use user API token
+        build_parameters:
+          type: array
+          description: >
+            Available Bitbucket variables: $BRANCH, $COMMIT, $REPOSITORY, $PROJECT, $TRIGGER
+            (for PR triggers also $PRID, $PRTITLE, $PRDESTINATION, $PRAUTHOR, $PREMAIL,
+              $PRDESCRIPTION, $PRURL, $PRSOURCEPROJECT, $PRSOURCEREPOSITORY, and for PR MERGED triggers $MERGECOMMIT))
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+                description: For choice parameters separate values with a semicolon.
+        branch_regex:
+          type: string
+          description: >
+            Trigger builds for matched branches or tags (example: "release.*|hotfix.*|production").
+            Supported triggers: REF CREATED, PUSH EVENT, REF DELETED
+        path_regex:
+          type: string
+          description: >
+            Trigger builds if matched files are modified (example: "directory/.*.txt|foobar/.*").
+            Supported triggers:
+              PUSH EVENT, PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED
+        require_permission:
+          type: string
+          description: Only allow users with the given repository permission or higher to trigger this job.
+          enum:
+            - 'REPO_READ'
+            - 'REPO_WRITE'
+            - 'REPO_ADMIN'
+        pr_destination_regex:
+          type: string
+          description: >
+            Trigger builds if the pull request destination matches the regex (example: "release.*|hotfix.*|production").
+            Supported triggers: PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED
+      required:
+        - id
+        - job_name
+        - jenkins_server
+        - triggers
+      example:
+        id: '0'
+        job_name: 'Update Satis Package'
+        jenkins_server: 'Platform'
+        is_tag: true
+        triggers:
+          - add
+          - delete
+          - prautomerged
+          - push
+          - prmerged
+        token: '__JENKINS_TOKEN__'
+        build_parameters:
+          - name: VENDOR
+            value: $PROJECT
+          - name: PACKAGE
+            value: $REPOSITORY
+        branch_regex: ''
+        path_regex: ''
+        require_permission: 'REPO_READ'
+        pr_destination_regex: ''
+
   responses:
     Unauthorized:
       description: Unauthorized
