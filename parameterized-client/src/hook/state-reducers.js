@@ -13,6 +13,8 @@ const getInitialState = () => {
         pathRegex: "",
         requirePermission: "REPO_READ",
         prDestinationRegex: "",
+        ignoreComitters: "",
+        ignoreCommitMsg: "",
     }
 };
 
@@ -80,6 +82,8 @@ const createInitialState = (config) => {
             pathRegex: config["pathRegex-" + i],
             requirePermission: config["requirePermission-" + i],
             prDestinationRegex: config["prDestinationRegex-" + i],
+            ignoreComitters: config["ignoreComitters-" + i],
+            ignoreCommitMsg: config["ignoreCommitMsg-" + i],
         };
         if(newJob.triggers !== null) {
             newJob.triggers = newJob.triggers.replace('pullrequest;', 'propened;prreopened;prsourcerescoped;');

@@ -33,6 +33,8 @@ public class SettingsService {
     public static final String PERMISSIONS_PREFIX = "requirePermission-";
     public static final String PRDEST_PREFIX = "prDestinationRegex-";
     public static final String ISPIPELINE_PREFIX = "isPipeline-";
+    public static final String IGNORE_COMMIT_MSG_PREFIX = "ignoreCommitMsg-";
+    public static final String IGNORE_COMMITTERS_PREFIX = "ignoreComitters-";
 
     private RepositoryHookService hookService;
     private SecurityService securityService;
@@ -115,6 +117,11 @@ public class SettingsService {
                         .isPipeline(fetchValue(entry.getKey()
                                         .replace(JOB_PREFIX, ISPIPELINE_PREFIX),
                                 parameterMap, false))
+                        .ignoreComitters(parameterMap.get(entry.getKey()
+                                .replace(JOB_PREFIX, IGNORE_COMMITTERS_PREFIX)).toString())
+                        .ignoreCommitMsg(parameterMap.get(entry.getKey()
+                                .replace(JOB_PREFIX, IGNORE_COMMIT_MSG_PREFIX))
+                                .toString())
                         .build();
 
                 jobsList.add(job);

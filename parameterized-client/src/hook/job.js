@@ -194,6 +194,19 @@ const JobContainer = ({
                                description={"Trigger builds if matched files are modified (example: \"directory/.*.txt|foobar/.*\"). " +
                                             "Supported triggers: PUSH EVENT, PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED"}
                                id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
+
+            <OptionalTextField requiredTriggers={['push;']}
+                               fieldLabel={"Ignore Committers"} fieldName={"ignoreComitters"}
+                               description={"Comma separated list of user names, Commits from these users do not trigger the builds. (example: admin,notifier) " +
+                               "Supported triggers: PUSH EVENT"}
+                               id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
+
+            <OptionalTextField requiredTriggers={['push;']}
+                               fieldLabel={"Ignore Commits With String"} fieldName={"ignoreCommitMsg"}
+                               description={"String to ignore commits if found it in a commit message. (example: SkipCI) " +
+                               "Supported triggers: PUSH EVENT"}
+                               id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
+
             <div className={"field-group" + (jobInfo.active && jobInfo.triggers.includes('manual;') ? "" : " hidden")}>
                 <label htmlFor={"requirePermission-" + id}>Required Build Permission</label>
                 <select id={"requirePermission-" + id} className={"select"} name={"requirePermission-" + id}

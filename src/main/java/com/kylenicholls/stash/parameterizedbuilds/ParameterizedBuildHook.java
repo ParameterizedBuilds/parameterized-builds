@@ -1,5 +1,6 @@
 package com.kylenicholls.stash.parameterizedbuilds;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -132,6 +133,28 @@ public class ParameterizedBuildHook
             if (pathException != null) {
                 errors.addFieldError(SettingsService.PATH_PREFIX + i, pathException
                         .getDescription());
+            }
+
+            PatternSyntaxException ignoreCommittersException = null;
+            try{
+                Pattern.compile(job.getIgnoreComitters());
+            } catch (PatternSyntaxException e){
+                ignoreCommittersException = e;
+            }
+            if(ignoreCommittersException != null) {
+                errors.addFieldError(SettingsService.IGNORE_COMMITTERS_PREFIX + i,
+                        ignoreCommittersException.getDescription());
+            }
+
+            PatternSyntaxException ignoreCommitMsgException = null;
+            try{
+                Pattern.compile(job.getIgnoreCommitMsg());
+            } catch (PatternSyntaxException e){
+                ignoreCommitMsgException = e;
+            }
+            if(ignoreCommitMsgException != null) {
+                errors.addFieldError(SettingsService.IGNORE_COMMITTERS_PREFIX + i,
+                        ignoreCommitMsgException.getDescription());
             }
         }
     }

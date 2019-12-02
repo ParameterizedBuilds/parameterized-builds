@@ -69,7 +69,7 @@ public class PushHandlerTest {
 
         when(minimalRef.getId()).thenReturn(BRANCH_REF);
         jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
-                .pathRegex("");
+                .pathRegex("").ignoreCommitMsg("").ignoreComitters("");
         jobs = new ArrayList<>();
         when(settingsService.getJobs(any())).thenReturn(jobs);
     }
