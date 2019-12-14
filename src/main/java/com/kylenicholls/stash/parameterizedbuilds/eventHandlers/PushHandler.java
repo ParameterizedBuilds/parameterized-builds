@@ -79,7 +79,7 @@ public class PushHandler extends RefHandler {
                     repository, refChange.getToHash()).build();
             String actualCommitMsg = commitService.getCommit(commitRequest).getMessage();
             boolean hasIgnoreMsg = actualCommitMsg != null &&
-                    actualCommitMsg.toLowerCase().contains(ignoreCommitMsg.toLowerCase());
+                    actualCommitMsg.matches(ignoreCommitMsg);
             return !hasIgnoreMsg;
         }
     }
@@ -90,7 +90,7 @@ public class PushHandler extends RefHandler {
             return true;
         }
         else{
-            String[] ignoreComitterList = job.getIgnoreComitters().toLowerCase().split(",");
+            String[] ignoreComitterList = job.getIgnoreComitters().toLowerCase().split("\\r?\\n");
             CommitRequest commitRequest = new CommitRequest.Builder(
                     repository, refChange.getToHash()).build();
             String author = commitService.getCommit(commitRequest).getAuthor().getName();

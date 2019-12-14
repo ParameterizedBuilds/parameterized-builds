@@ -45,11 +45,11 @@ build for branches/tags that match the filter
 * `Required Build Permission` will restrict who can trigger a Jenkins job using the repository permissions
   * This is only available on manual triggers
 * `PR Destination Filter` functions identically to `Ref Filter` but on the branch being merged into
-* `Ignore Committers` list of user names separated by comma (,) Commits from any of these specified users will be 
-ignored and will not trigger any builds
+* `Ignore Committers` list of bitbucket user names separated by new line, Commits from any of these specified users 
+will be ignored and will not trigger any builds
   * This is only available on push event triggers
 * `Ignore Commits With String` If a commit message contains this configured string in it, 
-that commit will be ignored and will not trigger any builds
+that commit will be ignored and will not trigger any builds. Uses java regex syntax
   * This is only available on push event triggers
 
 #### Link your bitbucket server account to Jenkins

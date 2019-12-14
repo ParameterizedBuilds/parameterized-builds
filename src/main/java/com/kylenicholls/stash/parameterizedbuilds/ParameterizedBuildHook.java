@@ -135,17 +135,6 @@ public class ParameterizedBuildHook
                         .getDescription());
             }
 
-            PatternSyntaxException ignoreCommittersException = null;
-            try{
-                Pattern.compile(job.getIgnoreComitters());
-            } catch (PatternSyntaxException e){
-                ignoreCommittersException = e;
-            }
-            if(ignoreCommittersException != null) {
-                errors.addFieldError(SettingsService.IGNORE_COMMITTERS_PREFIX + i,
-                        ignoreCommittersException.getDescription());
-            }
-
             PatternSyntaxException ignoreCommitMsgException = null;
             try{
                 Pattern.compile(job.getIgnoreCommitMsg());
