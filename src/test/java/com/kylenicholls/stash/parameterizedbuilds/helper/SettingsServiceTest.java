@@ -43,6 +43,8 @@ public class SettingsServiceTest {
 		String pathRegex = "pathRegex";
 		String permissions = "permissions";
 		String prDestRegex = "prDestinationRegex";
+		String ignoreComitters = "ignoreComitters";
+		String ignoreCommitMsg = "ignoreCommitMsg";
 		Map<String, Object> jobConfig = new LinkedHashMap<>();
 		jobConfig.put(SettingsService.JOB_PREFIX + "0", jobName);
 		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", triggers);
@@ -52,6 +54,8 @@ public class SettingsServiceTest {
 		jobConfig.put(SettingsService.PATH_PREFIX + "0", pathRegex);
 		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", permissions);
 		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", prDestRegex);
+		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", ignoreCommitMsg);
+		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", ignoreComitters);
 		jobConfig.put(SettingsService.JOB_PREFIX + "1", jobName2);
 		jobConfig.put(SettingsService.TRIGGER_PREFIX + "1", "add");
 		jobConfig.put(SettingsService.PARAM_PREFIX + "1", "");
@@ -60,6 +64,8 @@ public class SettingsServiceTest {
 		jobConfig.put(SettingsService.PATH_PREFIX + "1", "");
 		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "1", "");
 		jobConfig.put(SettingsService.PRDEST_PREFIX + "1", "");
+		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "1", "");
+		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "1", "");
 		List<Job> jobs = settingsService.getJobs(jobConfig);
 
 		List<Trigger> triggerList = Arrays.asList(Trigger.ADD, Trigger.PUSH);
@@ -96,6 +102,8 @@ public class SettingsServiceTest {
 		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
 		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
 		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
+		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
 		List<Job> jobs = settingsService.getJobs(jobConfig);
 
 		assertFalse(jobs.get(0).getIsTag());
@@ -113,6 +121,8 @@ public class SettingsServiceTest {
 		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
 		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
 		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
+		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
 		List<Job> jobs = settingsService.getJobs(jobConfig);
 
 		assertTrue(jobs.get(0).getIsTag());
@@ -130,6 +140,8 @@ public class SettingsServiceTest {
 		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
 		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
 		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
+		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
 		List<Job> jobs = settingsService.getJobs(jobConfig);
 
 		assertTrue(jobs.get(0).getIsPipeline());
@@ -146,6 +158,8 @@ public class SettingsServiceTest {
 		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
 		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
 		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
+		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
 		List<Job> jobs = settingsService.getJobs(jobConfig);
 
 		assertTrue(jobs.get(0).getTriggers().contains(Trigger.PROPENED));

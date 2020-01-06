@@ -194,6 +194,23 @@ const JobContainer = ({
                                description={"Trigger builds if matched files are modified (example: \"directory/.*.txt|foobar/.*\"). " +
                                             "Supported triggers: PUSH EVENT, PR OPENED, PR REOPENED, PR SOURCE RESCOPED, PR DEST RESCOPED, PR MERGED, PR DECLINED, PR DELETED"}
                                id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
+
+            <div className={"field-group" + (jobInfo.active && jobInfo.triggers.includes('push;') ? "" : " hidden")}>
+                <label htmlFor={"ignoreComitters-" + id}>Ignore Committers</label>
+                <textarea id={"ignoreComitters-" + id} className={"textarea full-width-field"} name={"ignoreComitters-" + id}
+                          value={jobInfo.ignoreComitters} rows={3} onChange={e => {updateText(id, 'ignoreComitters', e.target.value)}}/>
+                <div className={"description"}>
+                    {"List of bitbucket user names separated by new line, Commits from these users do not trigger the builds. " +
+                     "(example: notifier) Supported triggers: PUSH EVENT"}
+                </div>
+            </div>
+
+            <OptionalTextField requiredTriggers={['push;']}
+                               fieldLabel={"Ignore Commits With String"} fieldName={"ignoreCommitMsg"}
+                               description={"Regex string to ignore commits if it matches in a commit message. (example: \".*SkipCI.*\") " +
+                               "Supported triggers: PUSH EVENT"}
+                               id={id} jobInfo={jobInfo} errors={errors} updateText={updateText}/>
+
             <div className={"field-group" + (jobInfo.active && jobInfo.triggers.includes('manual;') ? "" : " hidden")}>
                 <label htmlFor={"requirePermission-" + id}>Required Build Permission</label>
                 <select id={"requirePermission-" + id} className={"select"} name={"requirePermission-" + id}

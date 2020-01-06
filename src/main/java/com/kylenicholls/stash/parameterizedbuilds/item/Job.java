@@ -32,6 +32,8 @@ public class Job {
     private final String permissions;
     private final String prDestRegex;
     private final boolean isPipeline;
+    private final String ignoreCommitMsg;
+    private final String ignoreComitters;
 
     private Job(JobBuilder builder) {
         this.jobId = builder.jobId;
@@ -46,6 +48,8 @@ public class Job {
         this.permissions = builder.permissions;
         this.prDestRegex = builder.prDestRegex;
         this.isPipeline = builder.isPipeline;
+        this.ignoreComitters = builder.ignoreComitters;
+        this.ignoreCommitMsg = builder.ignoreCommitMsg;
     }
 
     public int getJobId() {
@@ -94,6 +98,10 @@ public class Job {
 
     public boolean getIsPipeline() { return isPipeline; }
 
+    public String getIgnoreCommitMsg() { return ignoreCommitMsg; }
+
+    public String getIgnoreComitters() { return ignoreComitters; }
+
     public Map<String, Object> asMap(BitbucketVariables bitbucketVariables) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("id", jobId);
@@ -128,6 +136,8 @@ public class Job {
         private String permissions;
         private String prDestRegex;
         private boolean isPipeline;
+        private String ignoreCommitMsg;
+        private String ignoreComitters;
 
         public JobBuilder(int jobId) {
             this.jobId = jobId;
@@ -233,6 +243,16 @@ public class Job {
             return this;
         }
 
+        public JobBuilder ignoreComitters(String ignoreComitters){
+            this.ignoreComitters = ignoreComitters;
+            return this;
+        }
+
+        public JobBuilder ignoreCommitMsg(String ignoreCommitMsg){
+            this.ignoreCommitMsg = ignoreCommitMsg;
+            return this;
+        }
+
         public Job build() {
             return new Job(this);
         }
@@ -242,7 +262,8 @@ public class Job {
         return new JobBuilder(jobId).jobName(jobName).jenkinsServer(jenkinsServer).isTag(isTag)
                 .triggers(triggers).token(token).buildParameters(buildParameters)
                 .branchRegex(branchRegex).pathRegex(pathRegex).permissions(permissions)
-                .prDestRegex(prDestRegex).isPipeline(isPipeline);
+                .prDestRegex(prDestRegex).isPipeline(isPipeline)
+                .ignoreCommitMsg(ignoreCommitMsg).ignoreComitters(ignoreComitters);
     }
 
     public String buildUrl(Server jenkinsServer, BitbucketVariables bitbucketVariables,

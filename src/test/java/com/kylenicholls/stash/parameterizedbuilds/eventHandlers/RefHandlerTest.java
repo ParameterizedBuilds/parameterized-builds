@@ -65,7 +65,7 @@ public class RefHandlerTest {
 
         when(minimalRef.getId()).thenReturn(BRANCH_REF);
         jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
-                .pathRegex("");
+                .pathRegex("").ignoreComitters("").ignoreCommitMsg("");
         jobs = new ArrayList<>();
         when(settingsService.getJobs(any())).thenReturn(jobs);
     }

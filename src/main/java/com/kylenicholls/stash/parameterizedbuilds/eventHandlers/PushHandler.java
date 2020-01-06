@@ -1,5 +1,6 @@
 package com.kylenicholls.stash.parameterizedbuilds.eventHandlers;
 
+import com.atlassian.bitbucket.commit.CommitRequest;
 import com.atlassian.bitbucket.commit.CommitService;
 import com.atlassian.bitbucket.content.AbstractChangeCallback;
 import com.atlassian.bitbucket.content.Change;
@@ -14,8 +15,8 @@ import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
-
 import java.io.IOException;
+import java.util.Arrays;
 
 public class PushHandler extends RefHandler {
 
@@ -28,7 +29,8 @@ public class PushHandler extends RefHandler {
 
     @Override
     boolean validateJob(Job job, BitbucketVariables bitbucketVariables) {
-        return super.validateJob(job, bitbucketVariables) && validatePath(job, bitbucketVariables);
+        return super.validateJob(job, bitbucketVariables) && validatePath(job, bitbucketVariables)
+                && validateCommitMsg(job) && validateComitter(job);
     }
 
     boolean validatePath(Job job, BitbucketVariables bitbucketVariables) {
@@ -64,6 +66,37 @@ public class PushHandler extends RefHandler {
                 }
             });
             return false;
+        }
+    }
+
+    boolean validateCommitMsg(Job job) {
+        String ignoreCommitMsg = job.getIgnoreCommitMsg();
+        if(ignoreCommitMsg.isEmpty()){
+            return true;
+        }
+        else{
+            CommitRequest commitRequest = new CommitRequest.Builder(
+                    repository, refChange.getToHash()).build();
+            String actualCommitMsg = commitService.getCommit(commitRequest).getMessage();
+            boolean hasIgnoreMsg = actualCommitMsg != null &&
+                    actualCommitMsg.matches(ignoreCommitMsg);
+            return !hasIgnoreMsg;
+        }
+    }
+
+    boolean validateComitter(Job job){
+        String ignoreComitters = job.getIgnoreComitters();
+        if(ignoreComitters.isEmpty()){
+            return true;
+        }
+        else{
+            String[] ignoreComitterList = job.getIgnoreComitters().toLowerCase().split("\\r?\\n");
+            CommitRequest commitRequest = new CommitRequest.Builder(
+                    repository, refChange.getToHash()).build();
+            String author = commitService.getCommit(commitRequest).getAuthor().getName();
+            boolean authorIgnored = Arrays.stream(ignoreComitterList).anyMatch(t ->
+                    t.equals(author.toLowerCase()));
+            return !authorIgnored;
         }
     }
 }
