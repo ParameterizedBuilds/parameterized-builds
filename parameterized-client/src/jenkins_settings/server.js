@@ -99,6 +99,7 @@ const ServerContainer = ({
                        onChange={(e) => updateServer(serverData.id, "url", e.target.value)}/>
             <TextInput labelText="Server Nickname" id="jenkinsAlias" 
                        required={true} value={serverData.alias}
+                       errorMessage={serverData.alias.includes("/") ? "Nickname cannot contain \"/\"" : "" }
                        onChange={(e) => updateServer(serverData.id, "alias", e.target.value)}/>
             <TextInput labelText="Default User" id="jenkinsUser" 
                        value={serverData.default_user}
@@ -113,6 +114,7 @@ const ServerContainer = ({
             <ButtonGroup>
                 <Button id="saveButton" name="submit" buttonText="Save"
                         extraClasses={["aui-button-primary"]}
+                        disabled={serverData.alias.includes("/")}
                         onClick={saveServer} />
                 <Button id="testButton" name="button" buttonText="Test Jenkins Settings"
                         onClick={testServer}/>

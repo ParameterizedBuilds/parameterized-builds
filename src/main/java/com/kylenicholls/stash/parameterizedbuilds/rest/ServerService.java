@@ -101,6 +101,8 @@ public interface ServerService {
 
         if (server.getAlias() == null || server.getAlias().isEmpty()){
             errors.add("Alias required.");
+        } else if (server.getAlias().contains("/")) {
+            errors.add("Alias cannot include \"/\"");
         }
 
         return errors;
