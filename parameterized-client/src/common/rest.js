@@ -20,6 +20,9 @@ export const getJenkinsServers = (context, projectKey) => {
 
 export const saveJenkinsServer = (context, projectKey, serverData) => {
     const baseUrl = getRestUrl(context);
+    if (serverData.alias.includes("/")) {
+        throw "Server nickname cannot include \"/\""
+    }
     const alias = serverData.old_alias !== "" ? serverData.old_alias : serverData.alias;
     let fullUrl = projectKey === "" ?
         `${baseUrl}/global/servers/${alias}` :
