@@ -1,6 +1,6 @@
 {
   "name": "parameterized-builds",
-  "version": "3.2.6",
+  "version": "4.0.10",
   "description": "",
   "main": "index.js",
   "scripts": {
