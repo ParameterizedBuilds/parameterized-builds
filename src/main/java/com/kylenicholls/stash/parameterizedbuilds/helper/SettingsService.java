@@ -117,11 +117,12 @@ public class SettingsService {
                         .isPipeline(fetchValue(entry.getKey()
                                         .replace(JOB_PREFIX, ISPIPELINE_PREFIX),
                                 parameterMap, false))
-                        .ignoreComitters(parameterMap.get(entry.getKey()
-                                .replace(JOB_PREFIX, IGNORE_COMMITTERS_PREFIX)).toString())
-                        .ignoreCommitMsg(parameterMap.get(entry.getKey()
-                                .replace(JOB_PREFIX, IGNORE_COMMIT_MSG_PREFIX))
-                                .toString())
+                        .ignoreComitters(fetchValue(entry.getKey()
+                                        .replace(JOB_PREFIX, IGNORE_COMMITTERS_PREFIX),
+                                parameterMap, ""))
+                        .ignoreCommitMsg(fetchValue(entry.getKey()
+                                        .replace(JOB_PREFIX, IGNORE_COMMIT_MSG_PREFIX),
+                                parameterMap, ""))
                         .build();
 
                 jobsList.add(job);
