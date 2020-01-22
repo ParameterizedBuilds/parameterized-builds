@@ -279,13 +279,15 @@ public class Jenkins {
 
     public JenkinsResponse triggerJob(String projectKey, ApplicationUser user, Job job, 
                                       BitbucketVariables bitbucketVariables) {
-        Server jenkinsServer;
-        String joinedUserToken;
-        if (job.getJenkinsServer() != null){
+        Server jenkinsServer = null;
+        String joinedUserToken = null;
+        if (job.getJenkinsServer() != null && !job.getJenkinsServer().isEmpty()){
             jenkinsServer = getJenkinsServer(job.getJenkinsServer());
             joinedUserToken = getJoinedUserToken(user, job.getJenkinsServer());
-        } else {
-            // legacy behaviour
+        }
+
+        //legacy behaviour or the server definition was deleted/changed
+        if (jenkinsServer != null) {
             Server projectServer = getJenkinsServer(projectKey);
             if (projectServer != null){
                 jenkinsServer = projectServer;
