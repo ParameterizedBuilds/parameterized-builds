@@ -19,7 +19,8 @@ public class PRDeletedHandlerTest extends PRTestBase {
         Job job = jobBuilder.triggers(new String[] { "PRDELETED" }).build();
         jobs.add(job);
         PullRequestDeletedEvent deletedEvent = eventFactory.getMockedDeletedEvent(repository);
-        PRDeletedHandler handler = new PRDeletedHandler(settingsService, pullRequestService, jenkins, deletedEvent, PR_URL);
+        PRDeletedHandler handler = new PRDeletedHandler(settingsService, pullRequestService,
+                jenkins, deletedEvent, PR_URL);
         PRDeletedHandler spyHandler = spy(handler);
         spyHandler.run();
 

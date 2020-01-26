@@ -19,7 +19,8 @@ public class PRReopenedHandlerTest extends PRTestBase {
         Job job = jobBuilder.triggers(new String[] { "PRREOPENED" }).build();
         jobs.add(job);
         PullRequestReopenedEvent reopenedEvent = eventFactory.getMockedReopenedEvent(repository);
-        PRReopenedHandler handler = new PRReopenedHandler(settingsService, pullRequestService, jenkins, reopenedEvent, PR_URL);
+        PRReopenedHandler handler = new PRReopenedHandler(settingsService, pullRequestService,
+                jenkins, reopenedEvent, PR_URL);
         handler.run();
         PRReopenedHandler spyHandler = spy(handler);
         spyHandler.run();

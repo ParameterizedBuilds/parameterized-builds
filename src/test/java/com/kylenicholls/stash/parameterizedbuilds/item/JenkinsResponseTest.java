@@ -10,27 +10,27 @@ import java.util.Map;
 import org.junit.Test;
 
 public class JenkinsResponseTest {
-	@Test
-	public void testCreateDefaultResponse() {
-		JenkinsResponse actual = new JenkinsResponse.JenkinsMessage().build();
+    @Test
+    public void testCreateDefaultResponse() {
+        JenkinsResponse actual = new JenkinsResponse.JenkinsMessage().build();
 
-		assertFalse(actual.getError());
-		assertFalse(actual.getPrompt());
-		assertEquals("", actual.getMessageText());
-		Map<String, Object> expected = new HashMap<>();
-		expected.put("error", false);
-		expected.put("prompt", false);
-		expected.put("messageText", "");
-		assertEquals(expected, actual.getMessage());
-	}
+        assertFalse(actual.getError());
+        assertFalse(actual.getPrompt());
+        assertEquals("", actual.getMessageText());
+        Map<String, Object> expected = new HashMap<>();
+        expected.put("error", false);
+        expected.put("prompt", false);
+        expected.put("messageText", "");
+        assertEquals(expected, actual.getMessage());
+    }
 
-	@Test
-	public void testCreateResponse() {
-		JenkinsResponse actual = new JenkinsResponse.JenkinsMessage().error(true).prompt(true)
-				.messageText("message").build();
+    @Test
+    public void testCreateResponse() {
+        JenkinsResponse actual = new JenkinsResponse.JenkinsMessage().error(true).prompt(true)
+                .messageText("message").build();
 
-		assertTrue(actual.getError());
-		assertTrue(actual.getPrompt());
-		assertEquals("message", actual.getMessageText());
-	}
+        assertTrue(actual.getError());
+        assertTrue(actual.getPrompt());
+        assertEquals("message", actual.getMessageText());
+    }
 }

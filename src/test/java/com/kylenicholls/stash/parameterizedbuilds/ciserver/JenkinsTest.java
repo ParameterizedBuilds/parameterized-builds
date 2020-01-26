@@ -181,7 +181,8 @@ public class JenkinsTest {
 
     @Test
     public void testGetAllUserTokensWithGlobalServer() {
-        Server globalServer = new Server("http://globalUrl", null, "globaluser", "globaltoken", false, false);
+        Server globalServer = new Server("http://globalUrl", null, "globaluser", "globaltoken",
+                false, false);
         String token = "token";
         List<String> projectKeys = new ArrayList<>();
         when(pluginSettings.get(".jenkinsSettings")).thenReturn(globalServer.asMap());
@@ -207,7 +208,8 @@ public class JenkinsTest {
 
     @Test
     public void testGetAllUserTokensProjectServerNull() {
-        Server globalServer = new Server("http://globalUrl", null, "globaluser", "globaltoken", false, false);
+        Server globalServer = new Server("http://globalUrl", null, "globaluser", "globaltoken",
+                false, false);
         String newProjectKey = "newkey";
         List<String> projectKeys = new ArrayList<>();
         projectKeys.add(newProjectKey);
@@ -220,7 +222,8 @@ public class JenkinsTest {
 
     @Test
     public void testGetAllUserTokensProjectServerTokenNull() {
-        Server globalServer = new Server("http://globalUrl", null, "globaluser", "globaltoken", false, false);
+        Server globalServer = new Server("http://globalUrl", null, "globaluser", "globaltoken",
+                false, false);
         String newProjectKey = "newkey";
         String newProjectName = "newName";
         List<String> projectKeys = new ArrayList<>();
@@ -228,7 +231,8 @@ public class JenkinsTest {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn(globalServer.asMap());
         when(projectService.getByKey(newProjectKey)).thenReturn(project);
         when(project.getName()).thenReturn(newProjectName);
-        Server projectServer = new Server("http://newbaseurl", null, "newuser", "newtoken", false, false);
+        Server projectServer = new Server("http://newbaseurl", null, "newuser", "newtoken", false,
+                false);
         when(pluginSettings.get(".jenkinsSettings." + newProjectKey))
                 .thenReturn(projectServer.asMap());
         List<UserToken> actual = jenkins.getAllUserTokens(user, projectKeys, projectService);
@@ -243,7 +247,8 @@ public class JenkinsTest {
 
     @Test
     public void testGetAllUserTokensProjectServer() {
-        Server globalServer = new Server("http://globalUrl", null, "globaluser", "globaltoken", false, false);
+        Server globalServer = new Server("http://globalUrl", null, "globaluser", "globaltoken",
+                false, false);
         String newProjectKey = "newkey";
         String newProjectName = "newName";
         String token = "token";
@@ -254,7 +259,8 @@ public class JenkinsTest {
         when(project.getName()).thenReturn(newProjectName);
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + newProjectKey))
                 .thenReturn(token);
-        Server projectServer = new Server("http://newbaseurl", null, "newuser", "newtoken", false, false);
+        Server projectServer = new Server("http://newbaseurl", null, "newuser", "newtoken", false,
+                false);
         when(pluginSettings.get(".jenkinsSettings." + newProjectKey))
                 .thenReturn(projectServer.asMap());
         List<UserToken> actual = jenkins.getAllUserTokens(user, projectKeys, projectService);
@@ -267,7 +273,8 @@ public class JenkinsTest {
     public void testTriggerJobUseJobServer(){
         String userToken = USER_SLUG + ":token";
         String userCSRF = null;
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token", false, false);
+        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
+                false, false);
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
                 .thenReturn("token");
@@ -280,14 +287,16 @@ public class JenkinsTest {
         Jenkins jenkinsSpy = spy(jenkins);
         jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build", userToken, userCSRF, false);
+        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
+                userToken, userCSRF, false);
     }
 
     @Test
     public void testTriggerJobWithServerContext(){
         String userToken = USER_SLUG + ":token";
         String userCSRF = null;
-        Server expected = new Server("http://globalurl/jenkins", null, user.getDisplayName(), "token", false, false);
+        Server expected = new Server("http://globalurl/jenkins", null, user.getDisplayName(),
+                "token", false, false);
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
                 .thenReturn("token");
@@ -300,14 +309,16 @@ public class JenkinsTest {
         Jenkins jenkinsSpy = spy(jenkins);
         jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/jenkins/job/testJob/build", userToken, userCSRF, false);
+        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/jenkins/job/testJob/build",
+                userToken, userCSRF, false);
     }
 
     @Test
     public void testTriggerJobUseJobServerGlobal(){
         String userToken = USER_SLUG + ":token";
         String userCSRF = null;
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token", false, false);
+        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
+                false, false);
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
                 .thenReturn("token");
@@ -320,14 +331,16 @@ public class JenkinsTest {
         Jenkins jenkinsSpy = spy(jenkins);
         jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build", userToken, userCSRF, false);
+        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
+                userToken, userCSRF, false);
     }
 
     @Test
     public void testTriggerJobUseProjectServerAndUserToken(){
         String userToken = USER_SLUG + ":token";
         String userCSRF = null;
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token", false, false);
+        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
+                false, false);
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
                 .thenReturn("token");
@@ -340,14 +353,16 @@ public class JenkinsTest {
         Jenkins jenkinsSpy = spy(jenkins);
         jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build", userToken, userCSRF, false);
+        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
+                userToken, userCSRF, false);
     }
 
     @Test
     public void testTriggerJobUseGlobalJenkinsAndUserToken(){
         String userToken = USER_SLUG + ":token";
         String userCSRF = null;
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token", false, false);
+        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
+                false, false);
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(null);
         when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn("token");
@@ -360,7 +375,8 @@ public class JenkinsTest {
         Jenkins jenkinsSpy = spy(jenkins);
         jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build", userToken, userCSRF, false);
+        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
+                userToken, userCSRF, false);
     }
 
     @Test
@@ -368,7 +384,8 @@ public class JenkinsTest {
         String userToken = USER_SLUG + ":token";
         String userCSRF = null;
         when(user.getDisplayName()).thenReturn(USER_SLUG);
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token", false, false);
+        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
+                false, false);
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
 
         Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
@@ -379,7 +396,8 @@ public class JenkinsTest {
         Jenkins jenkinsSpy = spy(jenkins);
         jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build", userToken, userCSRF, true);
+        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
+                userToken, userCSRF, true);
     }
 
     @Test
@@ -396,7 +414,8 @@ public class JenkinsTest {
         Jenkins jenkinsSpy = spy(jenkins);
         jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
 
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build", null, null, true);
+        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build", null,
+                null, true);
     }
 
     @Test

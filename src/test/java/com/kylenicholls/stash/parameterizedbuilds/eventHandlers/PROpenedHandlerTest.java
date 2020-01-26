@@ -19,7 +19,8 @@ public class PROpenedHandlerTest extends PRTestBase {
         Job job = jobBuilder.triggers(new String[] { "PROPENED" }).build();
         jobs.add(job);
         PullRequestOpenedEvent openedEvent = eventFactory.getMockedOpenedEvent(repository);
-        PROpenedHandler handler = new PROpenedHandler(settingsService, pullRequestService, jenkins, openedEvent, PR_URL);
+        PROpenedHandler handler = new PROpenedHandler(settingsService, pullRequestService, jenkins,
+                openedEvent, PR_URL);
         handler.run();
         PROpenedHandler spyHandler = spy(handler);
         spyHandler.run();

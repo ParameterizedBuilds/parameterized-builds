@@ -19,7 +19,8 @@ public class PRMergedHandlerTest extends PRTestBase {
         Job job = jobBuilder.triggers(new String[] { "PRMERGED" }).build();
         jobs.add(job);
         PullRequestMergedEvent mergedEvent = eventFactory.getMockedMergeEvent(repository);
-        PRMergedHandler handler = new PRMergedHandler(settingsService, pullRequestService, jenkins, mergedEvent, PR_URL);
+        PRMergedHandler handler = new PRMergedHandler(settingsService, pullRequestService, jenkins,
+                mergedEvent, PR_URL);
         PRMergedHandler spyHandler = spy(handler);
         spyHandler.run();
 
@@ -31,7 +32,8 @@ public class PRMergedHandlerTest extends PRTestBase {
         Job job = jobBuilder.triggers(new String[] { "PRMERGED" }).build();
         jobs.add(job);
         PullRequestMergedEvent mergedEvent = eventFactory.getMockedMergeEvent(repository);
-        PRMergedHandler handler = new PRMergedHandler(settingsService, pullRequestService, jenkins, mergedEvent, PR_URL);
+        PRMergedHandler handler = new PRMergedHandler(settingsService, pullRequestService, jenkins,
+                mergedEvent, PR_URL);
         PRMergedHandler spyHandler = spy(handler);
         spyHandler.run();
 

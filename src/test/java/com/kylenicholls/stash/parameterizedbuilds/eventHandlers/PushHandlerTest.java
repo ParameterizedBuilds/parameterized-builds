@@ -36,8 +36,8 @@ public class PushHandlerTest {
     private final String url = "http://url";
     private final String commitMsg = "changes to modify conf skipCI";
     private final String committer = "admin";
-    private final Server projectServer = new Server("projecturl", null, "projectuser", "projecttoken",
-            false, false);
+    private final Server projectServer = new Server("projecturl", null, "projectuser",
+            "projecttoken", false, false);
     private Settings settings;
     private RefChange refChange;
     private MinimalRef minimalRef;
@@ -88,7 +88,8 @@ public class PushHandlerTest {
     public void testBranchUpdatedAndTriggerIsPush() {
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
 
@@ -101,7 +102,8 @@ public class PushHandlerTest {
                 .pathRegex("").ignoreCommitMsg(".*skipCI.*").ignoreComitters("");
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
         verify(spyHandler, times(0)).triggerJenkins(eq(job), any());
@@ -113,7 +115,8 @@ public class PushHandlerTest {
                 .pathRegex("").ignoreCommitMsg(".*kuku.*").ignoreComitters("");
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
@@ -125,7 +128,8 @@ public class PushHandlerTest {
                 .pathRegex("").ignoreCommitMsg("").ignoreComitters("ci_user\ntest_user");
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
@@ -137,7 +141,8 @@ public class PushHandlerTest {
                 .pathRegex("").ignoreCommitMsg("").ignoreComitters("ci_user\nadmin");
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
         verify(spyHandler, times(0)).triggerJenkins(eq(job), any());

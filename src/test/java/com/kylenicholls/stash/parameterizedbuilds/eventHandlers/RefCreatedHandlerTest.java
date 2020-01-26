@@ -32,8 +32,8 @@ public class RefCreatedHandlerTest {
     private final String PROJECT_KEY = "projectkey";
     private final String COMMIT = "commithash";
     private final String url = "http://url";
-    private final Server projectServer = new Server("projecturl", null, "projectuser", "projecttoken",
-            false, false);
+    private final Server projectServer = new Server("projecturl", null, "projectuser",
+            "projecttoken", false, false);
     private Settings settings;
     private RefChange refChange;
     private MinimalRef minimalRef;
@@ -78,7 +78,8 @@ public class RefCreatedHandlerTest {
     public void testBranchAddedAndTriggerIsAdd() {
         Job job = jobBuilder.triggers(new String[] { "add" }).build();
         jobs.add(job);
-        RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService,
+                repository, refChange, url, user);
         RefCreatedHandler spyHandler = spy(handler);
         spyHandler.run();
 

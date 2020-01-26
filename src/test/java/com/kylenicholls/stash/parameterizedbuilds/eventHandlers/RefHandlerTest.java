@@ -74,7 +74,8 @@ public class RefHandlerTest {
     public void testBranchRegexDoesNotMatch() {
         Job job = jobBuilder.triggers(new String[] { "push" }).branchRegex("foobar").build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
 
@@ -85,7 +86,8 @@ public class RefHandlerTest {
     public void testBranchRegexEmpty() {
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
 
@@ -96,7 +98,8 @@ public class RefHandlerTest {
     public void testBranchRegexMatches() {
         Job job = jobBuilder.triggers(new String[] { "push" }).branchRegex("bran.*").build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
 
@@ -107,7 +110,8 @@ public class RefHandlerTest {
     public void testBranchUpdatedAndPathRegexEmtpy() {
         Job job = jobBuilder.triggers(new String[] { "push" }).build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
 
@@ -118,7 +122,8 @@ public class RefHandlerTest {
     public void testBranchUpdatedAndTriggerIsNotPush() {
         Job job = jobBuilder.triggers(new String[] { "add" }).build();
         jobs.add(job);
-        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
+                refChange, url, user);
         PushHandler spyHandler = spy(handler);
         spyHandler.run();
 
@@ -131,7 +136,8 @@ public class RefHandlerTest {
         when(refChange.getType()).thenReturn(RefChangeType.ADD);
         Job job = jobBuilder.isTag(true).triggers(new String[] { "add" }).build();
         jobs.add(job);
-        RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService,
+                repository, refChange, url, user);
         RefCreatedHandler spyHandler = spy(handler);
         spyHandler.run();
 
@@ -144,7 +150,8 @@ public class RefHandlerTest {
         when(refChange.getType()).thenReturn(RefChangeType.ADD);
         Job job = jobBuilder.isTag(false).triggers(new String[] { "add" }).build();
         jobs.add(job);
-        RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService, repository, refChange, url, user);
+        RefCreatedHandler handler = new RefCreatedHandler(settingsService, jenkins, commitService,
+                repository, refChange, url, user);
         RefCreatedHandler spyHandler = spy(handler);
         spyHandler.run();
 

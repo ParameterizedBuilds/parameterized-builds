@@ -41,7 +41,8 @@ public class ProjectResourceTest {
 
     @Before
     public void setup() throws Exception {
-        projectServer = new Server("http://projecturl", "project server", "projectuser", "projecttoken", false, false);
+        projectServer = new Server("http://projecturl", "project server", "projectuser",
+                "projecttoken", false, false);
         projectKey = "TEST";
         I18nService i18nService = mock(I18nService.class);
         jenkins = mock(Jenkins.class);

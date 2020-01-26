@@ -39,7 +39,8 @@ public class GlobalResourceTest {
 
     @Before
     public void setup() throws Exception {
-        globalServer = new Server("http://globalurl", "global server", "globaluser", "globaltoken", false, false);
+        globalServer = new Server("http://globalurl", "global server", "globaluser", "globaltoken",
+                false, false);
         I18nService i18nService = mock(I18nService.class);
         jenkins = mock(Jenkins.class);
         authContext = mock(AuthenticationContext.class);
