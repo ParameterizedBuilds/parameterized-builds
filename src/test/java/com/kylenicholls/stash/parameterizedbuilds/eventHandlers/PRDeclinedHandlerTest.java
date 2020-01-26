@@ -18,7 +18,8 @@ public class PRDeclinedHandlerTest extends PRTestBase {
         Job job = jobBuilder.triggers(new String[] { "PRDECLINED" }).build();
         jobs.add(job);
         PullRequestDeclinedEvent declinedEvent = eventFactory.getMockedDeclinedEvent(repository);
-        PRDeclinedHandler handler = new PRDeclinedHandler(settingsService, pullRequestService, jenkins, declinedEvent, PR_URL);
+        PRDeclinedHandler handler = new PRDeclinedHandler(settingsService, pullRequestService,
+                jenkins, declinedEvent, PR_URL);
         PRDeclinedHandler spyHandler = spy(handler);
         spyHandler.run();
 

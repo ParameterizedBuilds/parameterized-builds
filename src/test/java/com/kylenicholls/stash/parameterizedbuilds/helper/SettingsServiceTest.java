@@ -23,148 +23,148 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 
 public class SettingsServiceTest {
-	private SettingsService settingsService;
+    private SettingsService settingsService;
 
-	@Before
-	public void setup() throws Exception {
-		RepositoryHookService hookService = mock(RepositoryHookService.class);
-		SecurityService securityService = mock(SecurityService.class);
-		settingsService = new SettingsService(hookService, securityService);
-	}
+    @Before
+    public void setup() throws Exception {
+        RepositoryHookService hookService = mock(RepositoryHookService.class);
+        SecurityService securityService = mock(SecurityService.class);
+        settingsService = new SettingsService(hookService, securityService);
+    }
 
-	@Test
-	public void testGetJobs() {
-		String jobName = "jobName";
-		String jobName2 = "jobName2";
-		String triggers = "add;push";
-		String params = "param1=value1";
-		String token = "token";
-		String branchRegex = "branchRegex";
-		String pathRegex = "pathRegex";
-		String permissions = "permissions";
-		String prDestRegex = "prDestinationRegex";
-		String ignoreComitters = "ignoreComitters";
-		String ignoreCommitMsg = "ignoreCommitMsg";
-		Map<String, Object> jobConfig = new LinkedHashMap<>();
-		jobConfig.put(SettingsService.JOB_PREFIX + "0", jobName);
-		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", triggers);
-		jobConfig.put(SettingsService.PARAM_PREFIX + "0", params);
-		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", token);
-		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", branchRegex);
-		jobConfig.put(SettingsService.PATH_PREFIX + "0", pathRegex);
-		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", permissions);
-		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", prDestRegex);
-		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", ignoreCommitMsg);
-		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", ignoreComitters);
-		jobConfig.put(SettingsService.JOB_PREFIX + "1", jobName2);
-		jobConfig.put(SettingsService.TRIGGER_PREFIX + "1", "add");
-		jobConfig.put(SettingsService.PARAM_PREFIX + "1", "");
-		jobConfig.put(SettingsService.TOKEN_PREFIX + "1", "");
-		jobConfig.put(SettingsService.BRANCH_PREFIX + "1", "");
-		jobConfig.put(SettingsService.PATH_PREFIX + "1", "");
-		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "1", "");
-		jobConfig.put(SettingsService.PRDEST_PREFIX + "1", "");
-		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "1", "");
-		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "1", "");
-		List<Job> jobs = settingsService.getJobs(jobConfig);
+    @Test
+    public void testGetJobs() {
+        String jobName = "jobName";
+        String jobName2 = "jobName2";
+        String triggers = "add;push";
+        String params = "param1=value1";
+        String token = "token";
+        String branchRegex = "branchRegex";
+        String pathRegex = "pathRegex";
+        String permissions = "permissions";
+        String prDestRegex = "prDestinationRegex";
+        String ignoreComitters = "ignoreComitters";
+        String ignoreCommitMsg = "ignoreCommitMsg";
+        Map<String, Object> jobConfig = new LinkedHashMap<>();
+        jobConfig.put(SettingsService.JOB_PREFIX + "0", jobName);
+        jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", triggers);
+        jobConfig.put(SettingsService.PARAM_PREFIX + "0", params);
+        jobConfig.put(SettingsService.TOKEN_PREFIX + "0", token);
+        jobConfig.put(SettingsService.BRANCH_PREFIX + "0", branchRegex);
+        jobConfig.put(SettingsService.PATH_PREFIX + "0", pathRegex);
+        jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", permissions);
+        jobConfig.put(SettingsService.PRDEST_PREFIX + "0", prDestRegex);
+        jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", ignoreCommitMsg);
+        jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", ignoreComitters);
+        jobConfig.put(SettingsService.JOB_PREFIX + "1", jobName2);
+        jobConfig.put(SettingsService.TRIGGER_PREFIX + "1", "add");
+        jobConfig.put(SettingsService.PARAM_PREFIX + "1", "");
+        jobConfig.put(SettingsService.TOKEN_PREFIX + "1", "");
+        jobConfig.put(SettingsService.BRANCH_PREFIX + "1", "");
+        jobConfig.put(SettingsService.PATH_PREFIX + "1", "");
+        jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "1", "");
+        jobConfig.put(SettingsService.PRDEST_PREFIX + "1", "");
+        jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "1", "");
+        jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "1", "");
+        List<Job> jobs = settingsService.getJobs(jobConfig);
 
-		List<Trigger> triggerList = Arrays.asList(Trigger.ADD, Trigger.PUSH);
-		Entry<String, String> paramMap = new SimpleEntry<>("param1", "value1");
-		assertEquals(2, jobs.size());
-		assertEquals(0, jobs.get(0).getJobId());
-		assertEquals(jobName, jobs.get(0).getJobName());
-		assertEquals(triggerList, jobs.get(0).getTriggers());
-		assertEquals(paramMap, jobs.get(0).getBuildParameters().get(0));
-		assertEquals(token, jobs.get(0).getToken());
-		assertEquals(branchRegex, jobs.get(0).getBranchRegex());
-		assertEquals(pathRegex, jobs.get(0).getPathRegex());
-		assertEquals(1, jobs.get(1).getJobId());
-		assertEquals(prDestRegex, jobs.get(0).getPrDestRegex());
-		assertEquals(jobName2, jobs.get(1).getJobName());
-	}
+        List<Trigger> triggerList = Arrays.asList(Trigger.ADD, Trigger.PUSH);
+        Entry<String, String> paramMap = new SimpleEntry<>("param1", "value1");
+        assertEquals(2, jobs.size());
+        assertEquals(0, jobs.get(0).getJobId());
+        assertEquals(jobName, jobs.get(0).getJobName());
+        assertEquals(triggerList, jobs.get(0).getTriggers());
+        assertEquals(paramMap, jobs.get(0).getBuildParameters().get(0));
+        assertEquals(token, jobs.get(0).getToken());
+        assertEquals(branchRegex, jobs.get(0).getBranchRegex());
+        assertEquals(pathRegex, jobs.get(0).getPathRegex());
+        assertEquals(1, jobs.get(1).getJobId());
+        assertEquals(prDestRegex, jobs.get(0).getPrDestRegex());
+        assertEquals(jobName2, jobs.get(1).getJobName());
+    }
 
-	@Test
-	public void testNoJobsDefined() {
-		Map<String, Object> jobConfig = new HashMap<>();
-		List<Job> jobs = settingsService.getJobs(jobConfig);
+    @Test
+    public void testNoJobsDefined() {
+        Map<String, Object> jobConfig = new HashMap<>();
+        List<Job> jobs = settingsService.getJobs(jobConfig);
 
-		assertEquals(Collections.emptyList(), jobs);
-	}
+        assertEquals(Collections.emptyList(), jobs);
+    }
 
-	@Test
-	public void testGetJobWithUndefinedRefType() {
-		Map<String, Object> jobConfig = new HashMap<>();
-		jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
-		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "add");
-		jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
-		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
-		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
-		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
-		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
-		List<Job> jobs = settingsService.getJobs(jobConfig);
+    @Test
+    public void testGetJobWithUndefinedRefType() {
+        Map<String, Object> jobConfig = new HashMap<>();
+        jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
+        jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "add");
+        jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
+        jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
+        jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+        jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
+        jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
+        List<Job> jobs = settingsService.getJobs(jobConfig);
 
-		assertFalse(jobs.get(0).getIsTag());
-	}
+        assertFalse(jobs.get(0).getIsTag());
+    }
 
-	@Test
-	public void testGetJobWithTagDefined() {
-		Map<String, Object> jobConfig = new HashMap<>();
-		jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
-		jobConfig.put(SettingsService.ISTAG_PREFIX + "0", "true");
-		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "add");
-		jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
-		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
-		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
-		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
-		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
-		List<Job> jobs = settingsService.getJobs(jobConfig);
+    @Test
+    public void testGetJobWithTagDefined() {
+        Map<String, Object> jobConfig = new HashMap<>();
+        jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
+        jobConfig.put(SettingsService.ISTAG_PREFIX + "0", "true");
+        jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "add");
+        jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
+        jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
+        jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+        jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
+        jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
+        List<Job> jobs = settingsService.getJobs(jobConfig);
 
-		assertTrue(jobs.get(0).getIsTag());
-	}
+        assertTrue(jobs.get(0).getIsTag());
+    }
 
-	@Test
-	public void testGetPipelineJob() {
-		Map<String, Object> jobConfig = new HashMap<>();
-		jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
-		jobConfig.put(SettingsService.ISPIPELINE_PREFIX + "0", "true");
-		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "add");
-		jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
-		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
-		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
-		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
-		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
-		List<Job> jobs = settingsService.getJobs(jobConfig);
+    @Test
+    public void testGetPipelineJob() {
+        Map<String, Object> jobConfig = new HashMap<>();
+        jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
+        jobConfig.put(SettingsService.ISPIPELINE_PREFIX + "0", "true");
+        jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "add");
+        jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
+        jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
+        jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+        jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
+        jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
+        List<Job> jobs = settingsService.getJobs(jobConfig);
 
-		assertTrue(jobs.get(0).getIsPipeline());
-	}
+        assertTrue(jobs.get(0).getIsPipeline());
+    }
 
-	@Test
-	public void testGetJobWithOldPullrequestOpenTrigger() {
-		Map<String, Object> jobConfig = new HashMap<>();
-		jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
-		jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "pullrequest;");
-		jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
-		jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
-		jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
-		jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
-		jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
-		jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
-		List<Job> jobs = settingsService.getJobs(jobConfig);
+    @Test
+    public void testGetJobWithOldPullrequestOpenTrigger() {
+        Map<String, Object> jobConfig = new HashMap<>();
+        jobConfig.put(SettingsService.JOB_PREFIX + "0", "jobname");
+        jobConfig.put(SettingsService.TRIGGER_PREFIX + "0", "pullrequest;");
+        jobConfig.put(SettingsService.PARAM_PREFIX + "0", "");
+        jobConfig.put(SettingsService.TOKEN_PREFIX + "0", "");
+        jobConfig.put(SettingsService.BRANCH_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PATH_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PERMISSIONS_PREFIX + "0", "");
+        jobConfig.put(SettingsService.PRDEST_PREFIX + "0", "");
+        jobConfig.put(SettingsService.IGNORE_COMMIT_MSG_PREFIX + "0", "");
+        jobConfig.put(SettingsService.IGNORE_COMMITTERS_PREFIX + "0", "");
+        List<Job> jobs = settingsService.getJobs(jobConfig);
 
-		assertTrue(jobs.get(0).getTriggers().contains(Trigger.PROPENED));
-		assertTrue(jobs.get(0).getTriggers().contains(Trigger.PRREOPENED));
-		assertTrue(jobs.get(0).getTriggers().contains(Trigger.PRSOURCERESCOPED));
-	}
+        assertTrue(jobs.get(0).getTriggers().contains(Trigger.PROPENED));
+        assertTrue(jobs.get(0).getTriggers().contains(Trigger.PRREOPENED));
+        assertTrue(jobs.get(0).getTriggers().contains(Trigger.PRSOURCERESCOPED));
+    }
 
 }

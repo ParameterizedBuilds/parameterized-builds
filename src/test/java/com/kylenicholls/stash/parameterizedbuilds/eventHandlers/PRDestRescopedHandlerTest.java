@@ -19,7 +19,8 @@ public class PRDestRescopedHandlerTest extends PRTestBase {
         Job job = jobBuilder.triggers(new String[] { "PRDESTRESCOPED" }).build();
         jobs.add(job);
         PullRequestRescopedEvent rescopedEvent = eventFactory.getMockedRescopedEvent(repository);
-        PRDestRescopedHandler handler = new PRDestRescopedHandler(settingsService, pullRequestService, jenkins, rescopedEvent, PR_URL);
+        PRDestRescopedHandler handler = new PRDestRescopedHandler(settingsService,
+                pullRequestService, jenkins, rescopedEvent, PR_URL);
         PRDestRescopedHandler spyHandler = spy(handler);
         spyHandler.run();
 

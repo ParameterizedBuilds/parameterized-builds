@@ -18,8 +18,10 @@ public class PRApprovedHandlerTest extends PRTestBase {
     public void testPRDeclinedAndTriggerIsPRDECLINED() throws IOException{
         Job job = jobBuilder.triggers(new String[] { "PRAPPROVED" }).build();
         jobs.add(job);
-        PullRequestParticipantApprovedEvent approvedEvent = eventFactory.getMockedApprovedEvent(repository);
-        PRApprovedHandler handler = new PRApprovedHandler(settingsService, pullRequestService, jenkins, approvedEvent, PR_URL);
+        PullRequestParticipantApprovedEvent approvedEvent =
+                eventFactory.getMockedApprovedEvent(repository);
+        PRApprovedHandler handler = new PRApprovedHandler(settingsService, pullRequestService,
+                jenkins, approvedEvent, PR_URL);
         PRApprovedHandler spyHandler = spy(handler);
         spyHandler.run();
 

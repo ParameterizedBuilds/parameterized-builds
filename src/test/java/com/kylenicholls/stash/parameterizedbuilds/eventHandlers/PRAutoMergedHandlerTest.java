@@ -22,7 +22,8 @@ public class PRAutoMergedHandlerTest extends PRTestBase {
         jobs.add(job);
         AutomaticMergeEvent automaticMergeEvent = eventFactory.getMockedAutoMergeEvent(repository);
         Branch branch = mock(Branch.class);
-        PRAutoMergedHandler handler = new PRAutoMergedHandler(settingsService, jenkins, automaticMergeEvent, PR_URL, branch);
+        PRAutoMergedHandler handler = new PRAutoMergedHandler(settingsService, jenkins,
+                automaticMergeEvent, PR_URL, branch);
         PRAutoMergedHandler spyHandler = spy(handler);
         spyHandler.run();
 

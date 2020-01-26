@@ -45,10 +45,13 @@ public class BuildPermissionsConditionTest {
 
         PermissionService permissionService = mock(PermissionService.class);
         AuthenticationContext authContext = mock(AuthenticationContext.class);
-        condition = new BuildPermissionsCondition(repositoryService, permissionService, settingsService, authContext);
+        condition = new BuildPermissionsCondition(repositoryService, permissionService,
+                settingsService, authContext);
 
-        when(permissionService.hasRepositoryPermission(any(), any(), eq(Permission.REPO_WRITE))).thenReturn(true);
-        when(permissionService.hasRepositoryPermission(any(), any(), eq(Permission.REPO_READ))).thenReturn(true);
+        when(permissionService.hasRepositoryPermission(any(), any(), eq(Permission.REPO_WRITE)))
+                .thenReturn(true);
+        when(permissionService.hasRepositoryPermission(any(), any(), eq(Permission.REPO_READ)))
+                .thenReturn(true);
     }
 
     @Test
