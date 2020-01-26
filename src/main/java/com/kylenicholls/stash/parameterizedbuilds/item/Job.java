@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -336,7 +337,7 @@ public class Job {
         hasParameters = !isPipeline || !trigger.isRefChange() ? hasParameters : false;
 
         //start building the url path. Make sure to use the current context.
-        StringBuilder path = new StringBuilder(builder.getPath());
+        StringBuilder path = new StringBuilder(Optional.ofNullable(builder.getPath()).orElse(""));
 
         if (useUserToken || !jenkinsServer.getAltUrl()) {
             path.append("/job");
