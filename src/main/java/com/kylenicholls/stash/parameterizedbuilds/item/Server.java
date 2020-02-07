@@ -26,7 +26,7 @@ public class Server {
 
     public Server(Map<String, Object> map) {
         this.baseUrl = (String) map.get("baseUrl");
-        this.alias = (String) map.get("alias");
+        this.alias = (String) map.getOrDefault("alias", "");
         this.user = (String) map.get("user");
         this.token = (String) map.get("token");
         this.altUrl = Boolean.parseBoolean(map.get("altUrl").toString());
