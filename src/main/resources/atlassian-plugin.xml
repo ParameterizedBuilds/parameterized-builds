@@ -49,22 +49,6 @@
     <context>pr-trigger-js</context>
   </web-resource>
 
-  <web-item key="button-plugin-js" section="bitbucket.ui.pullrequest.action">
-      <label key="My Button" />
-  </web-item>
-  <!-- <web-resource key="entrypoint-pr-trigger-js">
-    <transformation extension="js">
-      <transformer key="jsI18n"/>
-    </transformation>
-    <context>pr-trigger-js</context>
-    <context>bitbucket.ui.pullrequest.action</context>
-    <dependency>com.atlassian.plugins.atlassian-plugins-webresource-plugin:context-path</dependency>
-    <resource type="download" name="pr-trigger-js.pack.js" location="pr-trigger-js.pack.js"/>
-  </web-resource>
-  <web-resource key="assets-f867f2db-3562-42c6-a53b-6f3e16793101">
-    <resource type="download" name="wr-generated-clientside-extensions.xml" location="wr-generated-clientside-extensions.xml"/>
-  </web-resource> -->
-
   <!-- Layout trigger button resource -->
   <web-resource key="pb-blayout-trigger-resource" name="Jenkins branch build layout resource">
     <resource name="pb-blayout-trigger.js" type="download" location="/scripts/jenkins/pb-blayout-trigger.js"/>
@@ -122,18 +106,18 @@
   </rest>
   
   <!-- web items -->
-  <client-web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="50" section="bitbucket.pullrequest.action">
+  <web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="50" section="bitbucket.ui.pullrequest.action">
     <label>Build in Jenkins</label>
     <tooltip>Build branch in Jenkins</tooltip>
-    <styleClass>parameterized-build-pullrequest</styleClass>
+  </web-item>
+  <!-- <client-web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="50" section="bitbucket.pullrequest.action">
     <client-condition>function(ctx) { return ctx.pullRequest.state === 'OPEN'}</client-condition>
-    <dependency>${project.groupId}-${project.artifactId}:pb-pr-trigger-resource</dependency>
     <conditions type="AND">
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.HookIsEnabledCondition"/>
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.ManualButtonCondition"/>
       <condition class="com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition"/>
     </conditions>
-  </client-web-item>
+  </client-web-item> -->
   <client-web-item key="blayout-trigger-jenkins" name="Trigger Jenkins Builds From Branch Layout" section="bitbucket.branch.layout.actions.dropdown" weight="1000">
     <label>Build in Jenkins</label>
     <tooltip>Build branch in Jenkins</tooltip>
