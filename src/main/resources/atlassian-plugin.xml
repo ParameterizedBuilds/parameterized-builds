@@ -44,8 +44,26 @@
   <web-resource key="pb-pr-trigger-resource">
     <resource type="download" name="pb-pr-trigger.js" location="/scripts/jenkins/pb-pr-trigger.js"/>
     <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
-    <context>bitbucket.page.pullRequest.view</context>
+    <dependency>com.atlassian.plugins.atlassian-plugins-webresource-plugin:context-path</dependency>
+    <context>bitbucket.ui.pullrequest.action</context>
+    <context>pr-trigger-js</context>
   </web-resource>
+
+  <web-item key="button-plugin-js" section="bitbucket.ui.pullrequest.action">
+      <label key="My Button" />
+  </web-item>
+  <!-- <web-resource key="entrypoint-pr-trigger-js">
+    <transformation extension="js">
+      <transformer key="jsI18n"/>
+    </transformation>
+    <context>pr-trigger-js</context>
+    <context>bitbucket.ui.pullrequest.action</context>
+    <dependency>com.atlassian.plugins.atlassian-plugins-webresource-plugin:context-path</dependency>
+    <resource type="download" name="pr-trigger-js.pack.js" location="pr-trigger-js.pack.js"/>
+  </web-resource>
+  <web-resource key="assets-f867f2db-3562-42c6-a53b-6f3e16793101">
+    <resource type="download" name="wr-generated-clientside-extensions.xml" location="wr-generated-clientside-extensions.xml"/>
+  </web-resource> -->
 
   <!-- Layout trigger button resource -->
   <web-resource key="pb-blayout-trigger-resource" name="Jenkins branch build layout resource">
