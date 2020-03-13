@@ -1,7 +1,6 @@
 define('jenkins/parameterized-build-pullrequest', [
     'aui/dialog2',
     'jquery',
-    'bitbucket/util/state',
     'bitbucket/util/server',
     'lodash',
     'aui/flag',
@@ -9,7 +8,6 @@ define('jenkins/parameterized-build-pullrequest', [
 ], function(
     dialog2,
     $,
-    pageState,
     server_util,
     _,
     flag,
@@ -19,35 +17,36 @@ define('jenkins/parameterized-build-pullrequest', [
     var urlRegex = /(.+?)\/projects\/[\w_ -]+?\/repos\/[\w_ -]+?\/.*/
     var urlParts = window.location.href.match(urlRegex);
 
-    $(".parameterized-build-pullrequest").click(function() {
-        var prJSON = require('bitbucket/internal/model/page-state').getPullRequest().toJSON();
-        var branch = prJSON.fromRef.id;
-        var commit = prJSON.fromRef.latestCommit;
-        var prDest = prJSON.toRef.displayId;
+    function displayManualModal(context) {
+        var pullRequest = context.pullRequest;
+        var branch = pullRequest.fromRef.id;
+        var commit = pullRequest.fromRef.latestCommit;
+        var prDest = pullRequest.toRef.displayId;
 
-        var resourceUrl = getResourceUrl("getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + prJSON.id;
+        var resourceUrl = getResourceUrl(context, "getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + pullRequest.id;
 
         return $.when(getJobs(resourceUrl)).then(function( jobs ) {
             allJobs = jobs
+            console.log("Jobs list discovered")
             if (jobs.length == 1){
                 if (jobs[0].buildParameters.length == 0){
                     var splitBranch = branch.split("/")
                     splitBranch.splice(0, 2) //remove ref/heads or ref/tags
                     var branchName = splitBranch.join("%2F")
-                    var buildUrl = getResourceUrl("triggerBuild/0/" + encodeURIComponent(branchName));
+                    var buildUrl = getResourceUrl(context, "triggerBuild/0/" + encodeURIComponent(branchName));
                     triggerBuild(buildUrl);
                     return false;
                 }
             }
-            var buildUrl = getResourceUrl("triggerBuild");
+            var buildUrl = getResourceUrl(context, "triggerBuild");
             showManualBuildDialog(buildUrl, branch, jobs);
             return false;
         });
-    });
+    }
 
-    function getResourceUrl(resourceType){
-        return urlParts[1] + '/rest/parameterized-builds/latest/projects/' + pageState.getProject().key + '/repos/'
-            + pageState.getRepository().slug + '/' + resourceType;
+    function getResourceUrl(context, resourceType){
+        return urlParts[1] + '/rest/parameterized-builds/latest/projects/' + context.project.key + '/repos/'
+            + context.repository.slug + '/' + resourceType;
     }
 
     function getJobs(resourceUrl){
@@ -199,26 +198,21 @@ define('jenkins/parameterized-build-pullrequest', [
         return "";
     }
 
-    function buttonPluginFactory(pluginAPI) {
-        var timesClicked = 0;
-
-        function getLabel() {
-            return 'Button clicked ' + timesClicked + ' times';
-        }
-
+    function buttonPluginFactory(pluginAPI, context) {
         return {
             type: 'button',
             onAction: function onAction() {
-                timesClicked++;
-                pluginAPI.updateAttributes({
-                    label: getLabel(),
-                });
+                console.log(context);
+                displayManualModal(context);
+                // pluginAPI.updateAttributes({
+                //     label: getLabel(),
+                // });
             },
-            label: getLabel(),
+            label: 'Build in Jenkins',
         };
     }
 
-    registry.registerPlugin('com.kylenicholls.stash.parameterized-builds:pr-trigger-jenkins', buttonPluginFactory);
+    registry.registerExtension('com.kylenicholls.stash.parameterized-builds:pr-trigger-jenkins', buttonPluginFactory);
 });
 
 $(document).ready(function() {
