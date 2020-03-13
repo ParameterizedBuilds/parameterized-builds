@@ -333,8 +333,8 @@
         </plugins>
     </build>
     <properties>
-        <bitbucket.server.version>7.0.0-eap1</bitbucket.server.version>
-        <bitbucket.data.version>7.0.0-eap1</bitbucket.data.version>
+        <bitbucket.server.version>7.0.0</bitbucket.server.version>
+        <bitbucket.data.version>7.0.0</bitbucket.data.version>
         <atlassian.spring.scanner.version>2.2.0</atlassian.spring.scanner.version>
         <amps.version>8.0.2</amps.version>
         <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
