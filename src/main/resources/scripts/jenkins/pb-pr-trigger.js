@@ -17,39 +17,12 @@ define('jenkins/parameterized-build-pullrequest', [
     var urlRegex = /(.+?)\/projects\/[\w_ -]+?\/repos\/[\w_ -]+?\/.*/
     var urlParts = window.location.href.match(urlRegex);
 
-    function displayManualModal(context) {
-        var pullRequest = context.pullRequest;
-        var branch = pullRequest.fromRef.id;
-        var commit = pullRequest.fromRef.latestCommit;
-        var prDest = pullRequest.toRef.displayId;
-
-        var resourceUrl = getResourceUrl(context, "getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + pullRequest.id;
-
-        return $.when(getJobs(resourceUrl)).then(function( jobs ) {
-            allJobs = jobs
-            console.log("Jobs list discovered")
-            if (jobs.length == 1){
-                if (jobs[0].buildParameters.length == 0){
-                    var splitBranch = branch.split("/")
-                    splitBranch.splice(0, 2) //remove ref/heads or ref/tags
-                    var branchName = splitBranch.join("%2F")
-                    var buildUrl = getResourceUrl(context, "triggerBuild/0/" + encodeURIComponent(branchName));
-                    triggerBuild(buildUrl);
-                    return false;
-                }
-            }
-            var buildUrl = getResourceUrl(context, "triggerBuild");
-            showManualBuildDialog(buildUrl, branch, jobs);
-            return false;
-        });
-    }
-
     function getResourceUrl(context, resourceType){
         return urlParts[1] + '/rest/parameterized-builds/latest/projects/' + context.project.key + '/repos/'
             + context.repository.slug + '/' + resourceType;
     }
 
-    function getJobs(resourceUrl){
+    function getData(resourceUrl){
         return server_util.ajax({
             type: "GET",
             url: resourceUrl,
@@ -199,16 +172,48 @@ define('jenkins/parameterized-build-pullrequest', [
     }
 
     function buttonPluginFactory(pluginAPI, context) {
+        var pullRequest = context.pullRequest;
+        var branch = pullRequest.fromRef.id;
+        var commit = pullRequest.fromRef.latestCommit;
+        var prDest = pullRequest.toRef.displayId;
+
+        var jobsUrl = getResourceUrl(context, "getJobs") + "?branch=" + encodeURIComponent(branch) + "&commit=" + commit + "&prdestination=" + encodeURIComponent(prDest) + "&prid=" + pullRequest.id;
+        var hookUrl = getResourceUrl(context, "getHookEnabled");
+
+        function displayManualModal() {
+            if (allJobs.length == 1){
+                if (allJobs[0].buildParameters.length == 0){
+                    var splitBranch = branch.split("/")
+                    splitBranch.splice(0, 2) //remove ref/heads or ref/tags
+                    var branchName = splitBranch.join("%2F")
+                    var buildUrl = getResourceUrl(context, "triggerBuild/0/" + encodeURIComponent(branchName));
+                    triggerBuild(buildUrl);
+                    return false;
+                }
+            }
+            var buildUrl = getResourceUrl(context, "triggerBuild");
+            showManualBuildDialog(buildUrl, branch, allJobs);
+            return false;
+        }
+
+        $.when(getData(jobsUrl), getData(hookUrl)).then(function( jobs, hookEnabled ) {
+            // if the hook is enabled and the user can manually trigger jobs
+            if (hookEnabled[0] && jobs[0].length > 0) {
+                allJobs = jobs[0];
+                // show the button
+                pluginAPI.updateAttributes({
+                    hidden: false,
+                });
+            }
+        });
+
         return {
             type: 'button',
             onAction: function onAction() {
-                console.log(context);
-                displayManualModal(context);
-                // pluginAPI.updateAttributes({
-                //     label: getLabel(),
-                // });
+                displayManualModal();
             },
             label: 'Build in Jenkins',
+            hidden: true
         };
     }
 
