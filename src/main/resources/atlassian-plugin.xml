@@ -106,7 +106,7 @@
   </rest>
   
   <!-- web items -->
-  <web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="50" section="bitbucket.ui.pullrequest.action">
+  <web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="1000" section="bitbucket.ui.pullrequest.action">
     <label>Build in Jenkins</label>
     <tooltip>Build branch in Jenkins</tooltip>
   </web-item>
