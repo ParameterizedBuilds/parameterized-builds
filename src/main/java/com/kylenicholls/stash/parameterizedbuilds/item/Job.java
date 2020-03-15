@@ -283,35 +283,30 @@ public class Job {
 
             //URIBuilder automatically encodes query params so we need to use the encoded version 
             //for substitutions
-            String encodedVar;
-            try {
-                encodedVar = URLEncoder.encode(variable, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                encodedVar = variable;
-            }
+            String encodedVar = safeEncode(variable);
 
             // only try to replace a variable if it is in the params. This allows optimal use of 
             //java 8 lazy initialization
             if (buildUrl.contains(encodedVar) && bitbucketVariables.fetch(variable) != null) {
-                try {
-                    buildUrl = buildUrl.replace(encodedVar, 
-                                    URLEncoder.encode(bitbucketVariables.fetch(variable), "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    buildUrl = buildUrl.replace(encodedVar, bitbucketVariables.fetch(variable));
-                }
+                buildUrl = buildUrl.replace(encodedVar,
+                        safeEncode(bitbucketVariables.fetch(variable)));
             }
             // also try to replace unencoded variables just in case
             if (buildUrl.contains(variable) && bitbucketVariables.fetch(variable) != null) {
-                try {
-                    buildUrl = buildUrl.replace(variable, 
-                                    URLEncoder.encode(bitbucketVariables.fetch(variable), "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    buildUrl = buildUrl.replace(variable, bitbucketVariables.fetch(variable));
-                }
+                buildUrl = buildUrl.replace(variable,
+                        safeEncode(bitbucketVariables.fetch(variable)));
             }
         }
 
         return buildUrl;
+    }
+
+    private String safeEncode(String var){
+        try {
+            return URLEncoder.encode(var, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return var;
+        }
     }
 
     private List<String> createPipelineJobPath(String delim, Trigger trigger, 
@@ -321,7 +316,12 @@ public class Job {
             if (delim != null){
                 jobSegments.add(delim);
             }
-            jobSegments.add(variables.fetch("$BRANCH"));
+            if(trigger == Trigger.MANUAL){
+                // manual trigger is already encoded
+                jobSegments.add(variables.fetch("$BRANCH"));
+            } else {
+                jobSegments.add(safeEncode(variables.fetch("$BRANCH")));
+            }
         }
         return jobSegments;
     }
@@ -398,6 +398,7 @@ public class Job {
                 case PRSOURCERESCOPED: return "PR SOURCE RESCOPED";
                 case PRDESTRESCOPED: return "PR DEST RESCOPED";
                 case PRREOPENED: return "PR REOPENED";
+                case MANUAL: return "MANUAL";
                 default: return super.toString();
             }
         }
@@ -420,6 +421,7 @@ public class Job {
                 case "PR DEST RESCOPED": return PRDESTRESCOPED;
                 case "PR SOURCE RESCOPED": return PRSOURCERESCOPED;
                 case "PR REOPENED": return PRREOPENED;
+                case "MANUAL": return MANUAL;
                 default: return NULL;
             }
         }
