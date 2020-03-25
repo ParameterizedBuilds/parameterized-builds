@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.atlassian.bitbucket.hook.repository.GetRepositoryHookSettingsRequest;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookSettings;
 import com.atlassian.bitbucket.permission.Permission;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.scope.RepositoryScope;
@@ -56,7 +58,9 @@ public class SettingsService {
                             GetRepositoryHookSettingsRequest settingsRequest =
                                     new GetRepositoryHookSettingsRequest.Builder(scope, KEY)
                                             .build();
-                            return hookService.getSettings(settingsRequest).getSettings();
+                            return Optional.ofNullable(hookService.getSettings(settingsRequest))
+                                    .map(RepositoryHookSettings::getSettings)
+                                    .orElse(null);
                         }
                     });
         } catch (Exception e) {

@@ -46,6 +46,8 @@ import com.kylenicholls.stash.parameterizedbuilds.item.Job.Trigger;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
 
+import org.apache.commons.compress.utils.Lists;
+
 @Path(ResourcePatterns.REPOSITORY_URI)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
@@ -150,7 +152,8 @@ public class BuildResource extends RestResource {
         if (authContext.isAuthenticated()) {
             Settings settings = settingsService.getSettings(repository);
             if (settings == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
+                return Response.ok(Lists.newArrayList()).build();
+                // return Response.status(Response.Status.NOT_FOUND).build();
             }
 
             String projectKey = repository.getProject().getKey();
