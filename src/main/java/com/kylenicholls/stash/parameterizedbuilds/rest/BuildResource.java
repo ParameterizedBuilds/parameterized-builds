@@ -153,7 +153,6 @@ public class BuildResource extends RestResource {
             Settings settings = settingsService.getSettings(repository);
             if (settings == null) {
                 return Response.ok(Lists.newArrayList()).build();
-                // return Response.status(Response.Status.NOT_FOUND).build();
             }
 
             String projectKey = repository.getProject().getKey();
