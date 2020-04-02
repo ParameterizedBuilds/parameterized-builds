@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -124,6 +125,35 @@ public class Job {
         return map;
     }
 
+    public Map<String, Object> asRestMap() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", jobId);
+        map.put("job_name", jobName);
+        map.put("jenkins_server", jenkinsServer);
+        map.put("is_tag", isTag);
+        map.put("is_pipeline", isPipeline);
+        map.put("triggers", triggers.stream().map(Trigger::toString).collect(Collectors.toList()));
+        map.put("token", token);
+
+        // this looks funky but what's happening is we convert the buildParameters (list of map 
+        // entries) to a list of maps
+        map.put("build_parameters", buildParameters.stream()
+            .map(parameter -> Stream.of(new String[][] {
+                    {"name", parameter.getKey()},
+                    {"value", parameter.getValue().toString()},
+                }).collect(Collectors.toMap(data -> data[0], data -> data[1]))
+            )
+            .collect(Collectors.toList()));
+
+        map.put("branch_regex", branchRegex);
+        map.put("path_regex", pathRegex);
+        map.put("require_permissions", permissions);
+        map.put("pr_destination_regex", prDestRegex);
+        map.put("ignore_commit_message", ignoreCommitMsg);
+        map.put("ignore_committers", ignoreComitters);
+        return map;
+    }
+
     public static class JobBuilder {
         private final int jobId;
         private String jobName;
@@ -142,6 +172,8 @@ public class Job {
 
         public JobBuilder(int jobId) {
             this.jobId = jobId;
+            this.triggers = Collections.emptyList();
+            this.buildParameters = Collections.emptyList();
         }
 
         public JobBuilder jobName(String jobName) {
