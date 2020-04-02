@@ -7,7 +7,6 @@ import com.atlassian.bitbucket.repository.MinimalRef;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.bitbucket.user.Person;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
@@ -38,7 +37,6 @@ public class PushHandlerTest {
     private final String committer = "admin";
     private final Server projectServer = new Server("projecturl", null, "projectuser",
             "projecttoken", false, false);
-    private Settings settings;
     private RefChange refChange;
     private MinimalRef minimalRef;
     private SettingsService settingsService;
@@ -57,7 +55,6 @@ public class PushHandlerTest {
         Commit commit = mock(Commit.class);
         jenkins = mock(Jenkins.class);
         Person person = mock(Person.class);
-        settings = mock(Settings.class);
         refChange = mock(RefChange.class);
         minimalRef = mock(MinimalRef.class);
         repository = mock(Repository.class);
@@ -66,7 +63,6 @@ public class PushHandlerTest {
 
         when(refChange.getRef()).thenReturn(minimalRef);
         when(refChange.getToHash()).thenReturn(COMMIT);
-        when(settingsService.getSettings(any())).thenReturn(settings);
         when(repository.getProject()).thenReturn(project);
         when(project.getKey()).thenReturn(PROJECT_KEY);
         when(jenkins.getJenkinsServer(project.getKey())).thenReturn(projectServer);
@@ -76,7 +72,7 @@ public class PushHandlerTest {
         jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
                 .pathRegex("").ignoreCommitMsg("").ignoreComitters("");
         jobs = new ArrayList<>();
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
         when(commitService.getCommit(any())).thenReturn(commit);
         when(commit.getMessage()).thenReturn(commitMsg);
         when(commit.getAuthor()).thenReturn(person);

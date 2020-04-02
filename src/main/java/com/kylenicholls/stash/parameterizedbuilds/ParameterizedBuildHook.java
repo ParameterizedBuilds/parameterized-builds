@@ -95,21 +95,21 @@ public class ParameterizedBuildHook
             errors.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
             return;
         }
-        List<Job> jobList = settingsService.getJobs(settings.asMap());
-        for (int i = 0; i < jobList.size(); i++) {
-            Job job = jobList.get(i);
+        List<Job> jobList = settingsService.getJobs(settings);
+        for (Job job : jobList) {
             if (job.getJobName().isEmpty()) {
-                errors.addFieldError(SettingsService.JOB_PREFIX + i, "Field is required");
+                errors.addFieldError(SettingsService.JOB_PREFIX + job.getJobId(),
+                        "Field is required");
             }
 
             if (job.getJenkinsServer().isEmpty()) {
-                errors.addFieldError(SettingsService.SERVER_PREFIX + i,
+                errors.addFieldError(SettingsService.SERVER_PREFIX + job.getJobId(),
                         "You must choose a jenkins server");
             }
 
             if (job.getTriggers().contains(Trigger.NULL)) {
-                errors.addFieldError(SettingsService.TRIGGER_PREFIX
-                        + i, "You must choose at least one trigger");
+                errors.addFieldError(SettingsService.TRIGGER_PREFIX + job.getJobId(),
+                        "You must choose at least one trigger");
             }
 
             PatternSyntaxException branchException = null;
@@ -119,7 +119,7 @@ public class ParameterizedBuildHook
                 branchException = e;
             }
             if (branchException != null) {
-                errors.addFieldError(SettingsService.BRANCH_PREFIX + i, branchException
+                errors.addFieldError(SettingsService.BRANCH_PREFIX + job.getJobId(), branchException
                         .getDescription());
             }
 
@@ -130,7 +130,7 @@ public class ParameterizedBuildHook
                 pathException = e;
             }
             if (pathException != null) {
-                errors.addFieldError(SettingsService.PATH_PREFIX + i, pathException
+                errors.addFieldError(SettingsService.PATH_PREFIX + job.getJobId(), pathException
                         .getDescription());
             }
 
@@ -141,7 +141,7 @@ public class ParameterizedBuildHook
                 ignoreCommitMsgException = e;
             }
             if(ignoreCommitMsgException != null) {
-                errors.addFieldError(SettingsService.IGNORE_COMMITTERS_PREFIX + i,
+                errors.addFieldError(SettingsService.IGNORE_COMMITTERS_PREFIX + job.getJobId(),
                         ignoreCommitMsgException.getDescription());
             }
         }

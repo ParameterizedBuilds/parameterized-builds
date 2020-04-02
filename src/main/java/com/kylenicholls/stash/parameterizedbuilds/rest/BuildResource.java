@@ -87,7 +87,7 @@ public class BuildResource extends RestResource {
                 data.put("message", "No build settings were found for this repository");
                 return Response.status(Response.Status.NOT_FOUND).entity(data).build();
             }
-            List<Job> jobs = settingsService.getJobs(settings.asMap());
+            List<Job> jobs = settingsService.getJobs(settings);
             Job jobToBuild = getJobById(Integer.parseInt(id), jobs);
 
             if (jobToBuild == null) {
@@ -169,7 +169,7 @@ public class BuildResource extends RestResource {
             }
 
             List<Map<String, Object>> data = new ArrayList<>();
-            for (Job job : settingsService.getJobs(settings.asMap())) {
+            for (Job job : settingsService.getJobs(settings)) {
                 if (job.getTriggers().contains(Trigger.MANUAL) &&
                         permissionsCheck.checkPermissions(job, repository,
                                 authContext.getCurrentUser())) {

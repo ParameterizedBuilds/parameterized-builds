@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.RepositoryService;
-import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
@@ -28,9 +27,8 @@ public class ManualButtonCondition extends BaseCondition {
         if (repository == null) {
             return false;
         }
-        Settings settings = settingsService.getSettings(repository);
 
-        for (Job job : settingsService.getJobs(settings.asMap())) {
+        for (Job job : settingsService.getJobs(repository)) {
             if (job.getTriggers().contains(Trigger.MANUAL)) {
                 return true;
             }

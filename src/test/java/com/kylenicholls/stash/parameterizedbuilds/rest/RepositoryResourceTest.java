@@ -1,7 +1,6 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 import javax.ws.rs.core.Response;
@@ -61,7 +60,7 @@ public class RepositoryResourceTest {
 
     @Test
     public void testGetJobsEmptySettings(){
-        when(settingsService.getJobs(any())).thenReturn(Lists.newArrayList());
+        when(settingsService.getJobs(repo)).thenReturn(Lists.newArrayList());
         Response actual = rest.getJobs(repo);
 
         assertEquals(Lists.newArrayList(), actual.getEntity());
@@ -69,7 +68,7 @@ public class RepositoryResourceTest {
 
     @Test
     public void testGetServersOkStatus(){
-        when(settingsService.getJobs(any())).thenReturn(Lists.newArrayList());
+        when(settingsService.getJobs(repo)).thenReturn(Lists.newArrayList());
         Response actual = rest.getJobs(repo);
 
         assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
@@ -78,7 +77,7 @@ public class RepositoryResourceTest {
     @Test
     public void testGetJobsSingleJob(){
         Job job = createDummyJob(0);
-        when(settingsService.getJobs(any())).thenReturn(Lists.newArrayList(job));
+        when(settingsService.getJobs(repo)).thenReturn(Lists.newArrayList(job));
         Response actual = rest.getJobs(repo);
 
         assertEquals(Lists.newArrayList(job.asRestMap()), actual.getEntity());
@@ -87,7 +86,7 @@ public class RepositoryResourceTest {
     @Test
     public void testGetJobExists(){
         Job job = createDummyJob(0);
-        when(settingsService.getJobs(any())).thenReturn(Lists.newArrayList(job));
+        when(settingsService.getJobs(repo)).thenReturn(Lists.newArrayList(job));
         Response actual = rest.getJob(repo, 0);
 
         assertEquals(job.asRestMap(), actual.getEntity());
@@ -96,7 +95,7 @@ public class RepositoryResourceTest {
     @Test
     public void testGetJobOkStatus(){
         Job job = createDummyJob(0);
-        when(settingsService.getJobs(any())).thenReturn(Lists.newArrayList(job));
+        when(settingsService.getJobs(repo)).thenReturn(Lists.newArrayList(job));
         Response actual = rest.getJob(repo, 0);
 
         assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
@@ -106,7 +105,7 @@ public class RepositoryResourceTest {
     public void testGetJobBadId(){
         String expected = "Job not found";
         Job job = createDummyJob(0);
-        when(settingsService.getJobs(any())).thenReturn(Lists.newArrayList(job));
+        when(settingsService.getJobs(repo)).thenReturn(Lists.newArrayList(job));
         Response actual = rest.getJob(repo, 1);
 
         assertEquals(expected, actual.getEntity());
@@ -115,7 +114,7 @@ public class RepositoryResourceTest {
     @Test
     public void testGetJobBadIdStatus(){
         Job job = createDummyJob(0);
-        when(settingsService.getJobs(any())).thenReturn(Lists.newArrayList(job));
+        when(settingsService.getJobs(repo)).thenReturn(Lists.newArrayList(job));
         Response actual = rest.getJob(repo, 1);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), actual.getStatus());

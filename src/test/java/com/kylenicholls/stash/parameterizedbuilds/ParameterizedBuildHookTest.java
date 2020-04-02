@@ -105,7 +105,7 @@ public class ParameterizedBuildHookTest {
 
         when(minimalRef.getId()).thenReturn(BRANCH_REF);
         jobs = new ArrayList<>();
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(settings)).thenReturn(jobs);
 
         buildHook = new ParameterizedBuildHook(settingsService, commitService, jenkins,
                 propertiesService, authContext, executorService);
@@ -204,7 +204,7 @@ public class ParameterizedBuildHookTest {
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
-                .addFieldError(SettingsService.JOB_PREFIX + "0", "Field is required");
+                .addFieldError(SettingsService.JOB_PREFIX + "1", "Field is required");
     }
 
     @Test
@@ -216,7 +216,7 @@ public class ParameterizedBuildHookTest {
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
-                .addFieldError(SettingsService.SERVER_PREFIX + "0", 
+                .addFieldError(SettingsService.SERVER_PREFIX + "1", 
                         "You must choose a jenkins server");
     }
 
@@ -229,7 +229,7 @@ public class ParameterizedBuildHookTest {
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1)).addFieldError(SettingsService.TRIGGER_PREFIX
-                + "0", "You must choose at least one trigger");
+                + "1", "You must choose at least one trigger");
     }
 
     @Test
@@ -241,7 +241,7 @@ public class ParameterizedBuildHookTest {
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
-                .addFieldError(SettingsService.BRANCH_PREFIX + "0", "Unclosed group");
+                .addFieldError(SettingsService.BRANCH_PREFIX + "1", "Unclosed group");
     }
 
     @Test
@@ -253,6 +253,6 @@ public class ParameterizedBuildHookTest {
         buildHook.validate(settings, validationErrors, repositoryScope);
 
         verify(validationErrors, times(1))
-                .addFieldError(SettingsService.PATH_PREFIX + "0", "Unclosed group");
+                .addFieldError(SettingsService.PATH_PREFIX + "1", "Unclosed group");
     }
 }

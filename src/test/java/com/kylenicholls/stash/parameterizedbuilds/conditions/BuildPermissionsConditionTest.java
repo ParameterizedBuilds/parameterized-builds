@@ -5,7 +5,6 @@ import com.atlassian.bitbucket.permission.Permission;
 import com.atlassian.bitbucket.permission.PermissionService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.RepositoryService;
-import com.atlassian.bitbucket.setting.Settings;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import org.junit.Before;
@@ -31,14 +30,12 @@ public class BuildPermissionsConditionTest {
     private Map<String, Object> context;
     private SettingsService settingsService;
     private RepositoryService repositoryService;
-    private Settings settings;
 
     @Before
     public void setup() {
         repository = mock(Repository.class);
         settingsService = mock(SettingsService.class);
         repositoryService = mock(RepositoryService.class);
-        settings = mock(Settings.class);
 
         context = new HashMap<>();
         context.put("repository", repository);
@@ -72,42 +69,38 @@ public class BuildPermissionsConditionTest {
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         when(mockRequest.getRequestURI()).thenReturn("/projects/PROJ1/repos/REP1/");
         when(repositoryService.getBySlug("PROJ1", "REP1")).thenReturn(repository);
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         Job job = new Job.JobBuilder(1).permissions("REPO_WRITE").build();
         List<Job> jobs = new ArrayList<>();
         jobs.add(job);
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
         context.put("request", mockRequest);
         assertTrue(condition.shouldDisplay(context));
     }
 
     @Test
     public void testShouldNotDisplayIfInsufficientPermissions() {
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         Job job = new Job.JobBuilder(1).permissions("REPO_ADMIN").build();
         List<Job> jobs = new ArrayList<>();
         jobs.add(job);
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
         assertFalse(condition.shouldDisplay(context));
     }
 
     @Test
     public void testShouldDisplayExplicitPermissionPresent() {
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         Job job = new Job.JobBuilder(1).permissions("REPO_WRITE").build();
         List<Job> jobs = new ArrayList<>();
         jobs.add(job);
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
         assertTrue(condition.shouldDisplay(context));
     }
 
     @Test
     public void testShouldDisplayImplicitPermissionPresent() {
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         Job job = new Job.JobBuilder(1).permissions("REPO_READ").build();
         List<Job> jobs = new ArrayList<>();
         jobs.add(job);
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
         assertTrue(condition.shouldDisplay(context));
     }
 

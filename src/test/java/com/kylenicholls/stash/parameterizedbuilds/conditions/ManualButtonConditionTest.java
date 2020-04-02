@@ -2,7 +2,6 @@ package com.kylenicholls.stash.parameterizedbuilds.conditions;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,14 +27,12 @@ public class ManualButtonConditionTest {
     private RepositoryService repositoryService;
     private ManualButtonCondition condition;
     private Repository repository;
-    private Settings settings;
 
     @Before
     public void setup() {
         settingsService = mock(SettingsService.class);
         repositoryService = mock(RepositoryService.class);
         repository = mock(Repository.class);
-        settings = mock(Settings.class);
 
         context = new HashMap<>();
         context.put("repository", repository);
@@ -61,35 +58,32 @@ public class ManualButtonConditionTest {
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         when(mockRequest.getRequestURI()).thenReturn("/projects/PROJ1/repos/REP1/");
         when(repositoryService.getBySlug("PROJ1", "REP1")).thenReturn(repository);
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         Job job = new Job.JobBuilder(1).jobName("").triggers("manual".split(";"))
                 .buildParameters("").branchRegex("").pathRegex("").build();
         List<Job> jobs = new ArrayList<>();
         jobs.add(job);
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
         context.put("request", mockRequest);
         assertTrue(condition.shouldDisplay(context));
     }
 
     @Test
     public void testShouldDisplayWhenManualTrigger() {
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         Job job = new Job.JobBuilder(1).jobName("").triggers("manual".split(";"))
                 .buildParameters("").branchRegex("").pathRegex("").build();
         List<Job> jobs = new ArrayList<>();
         jobs.add(job);
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
         assertTrue(condition.shouldDisplay(context));
     }
 
     @Test
     public void testShouldNotDisplayWhenNotManualTrigger() {
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         Job job = new Job.JobBuilder(1).jobName("").triggers("add".split(";")).buildParameters("")
                 .branchRegex("").pathRegex("").build();
         List<Job> jobs = new ArrayList<>();
         jobs.add(job);
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
         assertFalse(condition.shouldDisplay(context));
     }
 }

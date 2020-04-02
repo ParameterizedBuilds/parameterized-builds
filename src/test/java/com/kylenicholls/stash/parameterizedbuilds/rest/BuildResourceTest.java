@@ -91,7 +91,7 @@ public class BuildResourceTest {
         when(permissionsCheck.checkPermissions(any(), any(), any())).thenReturn(true);
 
         jobs = new ArrayList<>();
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(settings)).thenReturn(jobs);
         hook = mock(RepositoryHook.class);
         when(settingsService.getHook(any())).thenReturn(hook);
     }

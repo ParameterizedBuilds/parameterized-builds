@@ -1,7 +1,6 @@
 package com.kylenicholls.stash.parameterizedbuilds.eventHandlers;
 
 import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -25,12 +24,8 @@ public abstract class BaseHandler {
 
     public void run(){
         BitbucketVariables bitbucketVariables = createBitbucketVariables();
-        Settings settings = settingsService.getSettings(repository);
-        if (settings == null) {
-            return;
-        }
 
-        for (final Job job : settingsService.getJobs(settings.asMap())) {
+        for (final Job job : settingsService.getJobs(repository)) {
             if (validateJob(job, bitbucketVariables)) {
                 triggerJenkins(job, bitbucketVariables);
             }

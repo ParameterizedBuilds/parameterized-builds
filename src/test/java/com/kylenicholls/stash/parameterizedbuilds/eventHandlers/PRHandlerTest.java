@@ -52,14 +52,12 @@ public class PRHandlerTest {
         eventFactory = new TestEventFactory();
 
         Project project = mock(Project.class);
-        Settings settings = mock(Settings.class);
         repository = mock(Repository.class);
         repoHook = mock(RepositoryHook.class);
 
         when(repository.getProject()).thenReturn(project);
         when(project.getName()).thenReturn(PROJECT_NAME);
         when(project.getKey()).thenReturn(PROJECT_KEY);
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
         when(settingsService.getHook(any())).thenReturn(repoHook);
         when(repoHook.isEnabled()).thenReturn(true);
@@ -67,7 +65,7 @@ public class PRHandlerTest {
         jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
                 .pathRegex("").prDestRegex("");
         jobs = new ArrayList<>();
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
     }
 
     @Test

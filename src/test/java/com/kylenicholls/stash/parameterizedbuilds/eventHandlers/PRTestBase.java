@@ -4,7 +4,6 @@ import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.project.Project;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.setting.Settings;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.Job;
@@ -40,12 +39,10 @@ public class PRTestBase {
         eventFactory = new TestEventFactory();
 
         Project project = mock(Project.class);
-        Settings settings = mock(Settings.class);
         repository = mock(Repository.class);
         repoHook = mock(RepositoryHook.class);
 
         when(repository.getProject()).thenReturn(project);
-        when(settingsService.getSettings(repository)).thenReturn(settings);
         when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
         when(settingsService.getHook(any())).thenReturn(repoHook);
         when(repoHook.isEnabled()).thenReturn(true);
@@ -53,6 +50,6 @@ public class PRTestBase {
         jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
                 .pathRegex("").prDestRegex("");
         jobs = new ArrayList<>();
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
     }
 }

@@ -6,7 +6,6 @@ import com.atlassian.bitbucket.repository.MinimalRef;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -31,7 +30,6 @@ public class RefHandlerTest {
     private final String PROJECT_KEY = "projectkey";
     private final String COMMIT = "commithash";
     private final String url = "http://url";
-    private Settings settings;
     private RefChange refChange;
     private MinimalRef minimalRef;
     private SettingsService settingsService;
@@ -49,7 +47,6 @@ public class RefHandlerTest {
         commitService = mock(CommitService.class);
         jenkins = mock(Jenkins.class);
 
-        settings = mock(Settings.class);
         refChange = mock(RefChange.class);
         minimalRef = mock(MinimalRef.class);
         repository = mock(Repository.class);
@@ -58,7 +55,6 @@ public class RefHandlerTest {
 
         when(refChange.getRef()).thenReturn(minimalRef);
         when(refChange.getToHash()).thenReturn(COMMIT);
-        when(settingsService.getSettings(any())).thenReturn(settings);
         when(repository.getProject()).thenReturn(project);
         when(project.getKey()).thenReturn(PROJECT_KEY);
         when(refChange.getType()).thenReturn(RefChangeType.UPDATE);
@@ -67,7 +63,7 @@ public class RefHandlerTest {
         jobBuilder = new Job.JobBuilder(1).jobName("").buildParameters("").branchRegex("")
                 .pathRegex("").ignoreComitters("").ignoreCommitMsg("");
         jobs = new ArrayList<>();
-        when(settingsService.getJobs(any())).thenReturn(jobs);
+        when(settingsService.getJobs(repository)).thenReturn(jobs);
     }
 
     @Test

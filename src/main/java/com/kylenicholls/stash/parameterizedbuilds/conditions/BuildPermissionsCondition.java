@@ -5,7 +5,6 @@ import com.atlassian.bitbucket.permission.Permission;
 import com.atlassian.bitbucket.permission.PermissionService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.RepositoryService;
-import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
@@ -39,10 +38,9 @@ public class BuildPermissionsCondition extends BaseCondition{
         if (repository == null) {
             return false;
         }
-        Settings settings = settingsService.getSettings(repository);
         ApplicationUser user = authContext.getCurrentUser();
 
-        for (Job job : settingsService.getJobs(settings.asMap())) {
+        for (Job job : settingsService.getJobs(repository)) {
             if (checkPermissions(job, repository, user)) {
                 return true;
             }
