@@ -10,7 +10,14 @@ window.parameterizedbuilds = window.parameterizedbuilds || {};
 const getJenkinsServers = () => {
     const urlRegex = /(.+?)(\/projects\/.+?\/repos\/.+?\/)settings.*/
     let urlParts = window.location.href.match(urlRegex);
-    let restUrl = urlParts[1] + "/rest/parameterized-builds/latest" + urlParts[2] + "getJenkinsServers";
+    let restUrl = ''
+    if (urlParts !== null) {
+        restUrl = urlParts[1] + "/rest/parameterized-builds/latest" + urlParts[2] + "getJenkinsServers";
+    } else {
+        const urlRegex = /(.+?)(\/projects\/.+?\/)settings.*/
+        urlParts = window.location.href.match(urlRegex);
+        restUrl = urlParts[1] + "/rest/parameterized-builds/latest" + urlParts[2] + "servers";
+    }
     return axios.get(restUrl, {
         timeout: 1000 * 60
     });
