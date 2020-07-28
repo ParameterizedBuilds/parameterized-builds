@@ -84,8 +84,8 @@
     <div id="jenkins-form-{$count}" class="field-group jenkins-form">
         <div class="checkbox">
             <input class="checkbox" type="checkbox" id="build-param-value-{$count}" name="build-param-value-{$count}"
-                {$value == 'true' ? 'checked="checked"' : ''}>
-            <label for="build-param-value-2">{$key}</label>
+                {$value == true ? 'checked="checked"' : ''}>
+            <label for="build-param-value-{$count}">{$key}</label>
         </div>
     </div>
 {/template}
