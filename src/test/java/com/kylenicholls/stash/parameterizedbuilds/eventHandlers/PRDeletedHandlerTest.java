@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,6 +23,7 @@ public class PRDeletedHandlerTest extends PRTestBase {
         PRDeletedHandler handler = new PRDeletedHandler(settingsService, pullRequestService,
                 jenkins, deletedEvent, PR_URL);
         PRDeletedHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
 
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());

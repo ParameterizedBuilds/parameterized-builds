@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,6 +23,7 @@ public class PRMergedHandlerTest extends PRTestBase {
         PRMergedHandler handler = new PRMergedHandler(settingsService, pullRequestService, jenkins,
                 mergedEvent, PR_URL);
         PRMergedHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
 
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
@@ -35,6 +37,7 @@ public class PRMergedHandlerTest extends PRTestBase {
         PRMergedHandler handler = new PRMergedHandler(settingsService, pullRequestService, jenkins,
                 mergedEvent, PR_URL);
         PRMergedHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
 
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());

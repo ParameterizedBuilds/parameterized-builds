@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,8 +22,8 @@ public class PRReopenedHandlerTest extends PRTestBase {
         PullRequestReopenedEvent reopenedEvent = eventFactory.getMockedReopenedEvent(repository);
         PRReopenedHandler handler = new PRReopenedHandler(settingsService, pullRequestService,
                 jenkins, reopenedEvent, PR_URL);
-        handler.run();
         PRReopenedHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
 
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());

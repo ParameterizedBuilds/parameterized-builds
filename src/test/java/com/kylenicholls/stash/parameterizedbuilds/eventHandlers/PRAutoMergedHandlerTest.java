@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -25,6 +26,7 @@ public class PRAutoMergedHandlerTest extends PRTestBase {
         PRAutoMergedHandler handler = new PRAutoMergedHandler(settingsService, jenkins,
                 automaticMergeEvent, PR_URL, branch);
         PRAutoMergedHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
 
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());

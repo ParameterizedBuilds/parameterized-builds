@@ -52,13 +52,9 @@ public class GlobalResourceTest {
 
     @Before
     public void setup() throws Exception {
-<<<<<<< HEAD
         globalServer = new Server("http://globalurl", "global server", "globaluser", "globaltoken",
                 false, false);
-=======
-        globalServer = new Server("http://globalurl", "global server", "globaluser", "globaltoken", false, false);
         globalServers = Lists.newArrayList(globalServer);
->>>>>>> Update get server api
         I18nService i18nService = mock(I18nService.class);
         jenkins = mock(Jenkins.class);
         authContext = mock(AuthenticationContext.class);

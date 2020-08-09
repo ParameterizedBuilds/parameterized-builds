@@ -22,6 +22,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -91,6 +92,7 @@ public class PushHandlerTest {
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
                 refChange, url, user);
         PushHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
 
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
@@ -118,6 +120,7 @@ public class PushHandlerTest {
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
                 refChange, url, user);
         PushHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
@@ -131,6 +134,7 @@ public class PushHandlerTest {
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
                 refChange, url, user);
         PushHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());
     }
@@ -144,6 +148,7 @@ public class PushHandlerTest {
         PushHandler handler = new PushHandler(settingsService, jenkins, commitService, repository,
                 refChange, url, user);
         PushHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
         verify(spyHandler, times(0)).triggerJenkins(eq(job), any());
     }

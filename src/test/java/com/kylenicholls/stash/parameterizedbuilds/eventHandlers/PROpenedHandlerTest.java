@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,8 +22,8 @@ public class PROpenedHandlerTest extends PRTestBase {
         PullRequestOpenedEvent openedEvent = eventFactory.getMockedOpenedEvent(repository);
         PROpenedHandler handler = new PROpenedHandler(settingsService, pullRequestService, jenkins,
                 openedEvent, PR_URL);
-        handler.run();
         PROpenedHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
 
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());

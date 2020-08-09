@@ -247,7 +247,7 @@ public class BuildResourceTest {
         when(settingsService.getSettings(repository)).thenReturn(null);
         Response actual = rest.getJobs(repository, "branch", "commit", null, 0);
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), actual.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
     }
 
     @SuppressWarnings("unchecked")

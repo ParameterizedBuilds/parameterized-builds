@@ -2,6 +2,7 @@ package com.kylenicholls.stash.parameterizedbuilds.item;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Server {
     private String baseUrl;
@@ -96,6 +97,9 @@ public class Server {
     }
 
     public String getJoinedToken() {
-        return user + ":" + token;
+        return Optional.ofNullable(user)
+                .filter(u -> !u.isEmpty())
+                .map(u -> u + ":" + token)
+                .orElse(null);
     }
 }
