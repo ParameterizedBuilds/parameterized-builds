@@ -87,7 +87,7 @@ public class PRHandler extends BaseHandler{
 
                 private boolean triggerJob(Change change) {
                     if (change.getPath().toString().matches(pathRegex)) {
-                        jenkins.triggerJob(projectKey, user, job, bitbucketVariables);
+                        jenkinsConn.triggerJob(projectKey, user, job, bitbucketVariables);
                         return false;
                     }
                     return true;

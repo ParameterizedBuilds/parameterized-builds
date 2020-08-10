@@ -87,11 +87,12 @@ public class ParameterizedBuildHook
     @Override
     public void validate(Settings settings, SettingsValidationErrors errors, Scope scope) {
         String projectKey = scope.accept(new ScopeProjectVisitor()).getKey();
-        Server projectServer = jenkins.getJenkinsServer(projectKey);
-        Server server = jenkins.getJenkinsServer(null);
+        List<Server> servers = jenkins.getJenkinsServers(projectKey);
+        servers.addAll(jenkins.getJenkinsServers(null));
+        boolean serverExists = servers.stream()
+                .anyMatch(server -> !server.getBaseUrl().isEmpty());
 
-        if ((server == null || server.getBaseUrl().isEmpty())
-                && (projectServer == null || projectServer.getBaseUrl().isEmpty())) {
+        if (!serverExists) {
             errors.addFieldError("jenkins-admin-error", "Jenkins is not setup in Bitbucket Server");
             return;
         }

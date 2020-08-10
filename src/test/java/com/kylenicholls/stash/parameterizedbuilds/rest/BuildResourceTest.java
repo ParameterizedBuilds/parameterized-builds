@@ -13,6 +13,11 @@ import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.i18n.I18nService;
@@ -25,6 +30,7 @@ import com.atlassian.bitbucket.server.ApplicationPropertiesService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.ciserver.JenkinsConnection;
 import com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
@@ -41,12 +47,16 @@ import java.util.Map;
 
 import static org.mockito.Mockito.when;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(BuildResource.class)
+@PowerMockIgnore("javax.security.*")
 public class BuildResourceTest {
     private final String REPO_SLUG = "reposlug";
     private final String PROJECT_KEY = "projkey";
     private final String URI = "http://uri";
     private BuildResource rest;
     private Jenkins jenkins;
+    private JenkinsConnection jenkinsConn;
     private Repository repository;
     private AuthenticationContext authContext;
     private SettingsService settingsService;
@@ -60,8 +70,10 @@ public class BuildResourceTest {
     private RepositoryHook hook;
     private final Server globalServer = new Server("globalurl", "global server", "globaluser",
             "globaltoken", false, false);
+    private final List<Server> globalServers = Lists.newArrayList(globalServer);
     private final Server projectServer = new Server("projecturl", "project server", "projectuser",
             "projecttoken", false, false);
+    private final List<Server> projectServers = Lists.newArrayList(projectServer);
 
     @Before
     public void setup() throws Exception {
@@ -84,7 +96,7 @@ public class BuildResourceTest {
         when(authContext.getCurrentUser()).thenReturn(user);
         when(settingsService.getSettings(repository)).thenReturn(settings);
         when(repository.getProject()).thenReturn(project);
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServers(null)).thenReturn(globalServers);
         when(repository.getSlug()).thenReturn(REPO_SLUG);
         when(project.getKey()).thenReturn(PROJECT_KEY);
         when(propertiesService.getBaseUrl()).thenReturn(new URI(URI));
@@ -94,6 +106,11 @@ public class BuildResourceTest {
         when(settingsService.getJobs(any())).thenReturn(jobs);
         hook = mock(RepositoryHook.class);
         when(settingsService.getHook(any())).thenReturn(hook);
+        
+        jenkinsConn = mock(JenkinsConnection.class);
+        PowerMockito.whenNew(JenkinsConnection.class)
+            .withArguments(jenkins)
+            .thenReturn(jenkinsConn);
     }
 
     @Test
@@ -133,7 +150,7 @@ public class BuildResourceTest {
         query.add("param1", "value1");
         query.add("param2", "value2");
         when(uriInfo.getQueryParameters()).thenReturn(query);
-        when(jenkins.triggerJob(any(), any(), any(), any())).thenReturn(message);
+        when(jenkinsConn.triggerJob(any(), any(), any(), any())).thenReturn(message);
         Response results = rest.triggerBuild(repository, "0", "test", uriInfo);
 
         assertEquals(Response.Status.OK.getStatusCode(), results.getStatus());
@@ -150,8 +167,8 @@ public class BuildResourceTest {
 
     @Test
     public void testGetJenkinsServersOnlyProjectDefined() {
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
-        when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
+        when(jenkins.getJenkinsServers(PROJECT_KEY)).thenReturn(projectServers);
         Response actual = rest.getJenkinsServers(repository);
 
         @SuppressWarnings("serial")
@@ -184,7 +201,7 @@ public class BuildResourceTest {
 
     @Test
     public void testGetJenkinsServersProjectAndGlobalDefined() {
-        when(jenkins.getJenkinsServer(PROJECT_KEY)).thenReturn(projectServer);
+        when(jenkins.getJenkinsServers(PROJECT_KEY)).thenReturn(projectServers);
         Response actual = rest.getJenkinsServers(repository);
 
         @SuppressWarnings("serial")
@@ -206,12 +223,12 @@ public class BuildResourceTest {
             put("default_user", globalServer.getUser());
         }};
 
-        assertEquals(Lists.newArrayList(expectedProject, expectedGlobal), actual.getEntity());
+        assertEquals(Lists.newArrayList(expectedGlobal, expectedProject), actual.getEntity());
     }
 
     @Test
     public void testGetJenkinsServersNoServersDefined() {
-        when(jenkins.getJenkinsServer(null)).thenReturn(null);
+        when(jenkins.getJenkinsServers(null)).thenReturn(Lists.newArrayList());
         Response actual = rest.getJenkinsServers(repository);
 
         assertEquals(Lists.newArrayList(), actual.getEntity());
@@ -257,8 +274,9 @@ public class BuildResourceTest {
         String prDest = "prbranch";
         Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
                 .buildParameters("param1=$BRANCH\r\nparam2=$PRDESTINATION\r\nparam3=$PRURL\r\n" +
-                "param4=$PRAUTHOR\r\nparam5=$PREMAIL\r\nparam6=$PRTITLE\r\n" +
-                "param7=$PRDESCRIPTION\r\nparam8=$PRID").permissions("REPO_ADMIN").build();
+                                 "param4=$PRAUTHOR\r\nparam5=$PREMAIL\r\nparam6=$PRTITLE\r\n" +
+                                 "param7=$PRDESCRIPTION\r\nparam8=$PRID")
+                .permissions("REPO_ADMIN").build();
         jobs.add(job);
         PullRequest pr = mock(PullRequest.class);
         PullRequestParticipant author = mock(PullRequestParticipant.class);

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +47,7 @@ public class PRTestBase {
 
         when(repository.getProject()).thenReturn(project);
         when(settingsService.getSettings(repository)).thenReturn(settings);
-        when(jenkins.getJenkinsServer(null)).thenReturn(globalServer);
+        when(jenkins.getJenkinsServer(isNull(), any())).thenReturn(globalServer);
         when(settingsService.getHook(any())).thenReturn(repoHook);
         when(repoHook.isEnabled()).thenReturn(true);
 

@@ -1,9 +1,8 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -11,6 +10,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -25,6 +25,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.ciserver.JenkinsConnection;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.sun.jersey.spi.resource.Singleton;
 
@@ -49,11 +50,9 @@ public class ProjectResource extends RestResource implements ServerService {
         if (authContext.isAuthenticated()) {
             String projectKey = ui.getPathParameters().getFirst("projectKey");
 
-            List<Map<String, Object>> servers = new ArrayList<>();
-
-            Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
-                .map(x -> createServerMap(x, projectKey))
-                .ifPresent(servers::add);
+            List<Map<String, Object>> servers = jenkins.getJenkinsServers(projectKey).stream()
+                    .map(x -> createServerMap(x, projectKey))
+                    .collect(Collectors.toList());
 
             return Response.ok(servers).build();
         } else {
@@ -68,10 +67,11 @@ public class ProjectResource extends RestResource implements ServerService {
     public Response validate(@Context UriInfo ui, Server server){
         if (authContext.isAuthenticated()) {
             String projectKey = ui.getPathParameters().getFirst("projectKey");
-            Server oldServer = jenkins.getJenkinsServer(projectKey);
+            Server oldServer = jenkins.getJenkinsServer(projectKey, server.getAlias());
             server.setToken(getCurrentDefaultToken(oldServer, server));
 
-            String message = jenkins.testConnection(server);
+            JenkinsConnection jenkinsConn = new JenkinsConnection(jenkins);
+            String message = jenkinsConn.testConnection(server);
 
             if(message.equals("Connection successful")){
                 return Response.ok(message).build();
@@ -87,7 +87,8 @@ public class ProjectResource extends RestResource implements ServerService {
     @Path("/servers/{serverAlias}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
-    public Response addServer(@Context UriInfo ui, Server server){
+    public Response addServer(@Context UriInfo ui, Server server, 
+                              @PathParam("id") String serverAlias){
         if (authContext.isAuthenticated()){
             List<String> errors = sanitizeServerInput(server);
             if (!errors.isEmpty()) {
@@ -100,7 +101,7 @@ public class ProjectResource extends RestResource implements ServerService {
             }
 
             String projectKey = ui.getPathParameters().getFirst("projectKey");
-            Server oldServer = jenkins.getJenkinsServer(projectKey);
+            Server oldServer = jenkins.getJenkinsServer(projectKey, serverAlias);
             server.setToken(getCurrentDefaultToken(oldServer, server));
             int returnStatus = oldServer == null ? 201 : 200;
             jenkins.saveJenkinsServer(server, projectKey);

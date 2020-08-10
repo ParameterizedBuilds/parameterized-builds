@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -64,7 +65,7 @@ public class RefDeletedHandlerTest {
         when(settingsService.getSettings(any())).thenReturn(settings);
         when(repository.getProject()).thenReturn(project);
         when(project.getKey()).thenReturn(PROJECT_KEY);
-        when(jenkins.getJenkinsServer(project.getKey())).thenReturn(projectServer);
+        when(jenkins.getJenkinsServer(eq(project.getKey()), any())).thenReturn(projectServer);
         when(refChange.getType()).thenReturn(RefChangeType.DELETE);
 
         when(minimalRef.getId()).thenReturn(BRANCH_REF);
@@ -81,6 +82,7 @@ public class RefDeletedHandlerTest {
         RefDeletedHandler handler = new RefDeletedHandler(settingsService, jenkins, commitService,
                 repository, refChange, url, user);
         RefDeletedHandler spyHandler = spy(handler);
+        doNothing().when(spyHandler).triggerJenkins(any(), any());
         spyHandler.run();
 
         verify(spyHandler, times(1)).triggerJenkins(eq(job), any());

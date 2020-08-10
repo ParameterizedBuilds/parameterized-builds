@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,9 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
-import com.kylenicholls.stash.parameterizedbuilds.item.JenkinsResponse;
-import com.kylenicholls.stash.parameterizedbuilds.item.Job;
 import com.kylenicholls.stash.parameterizedbuilds.item.Server;
 import com.kylenicholls.stash.parameterizedbuilds.item.UserToken;
 import org.junit.Before;
@@ -115,7 +111,7 @@ public class JenkinsTest {
     @Test
     public void testGetJenkinsServerSettingsNull() {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn(null);
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals(null, actual);
     }
@@ -123,7 +119,7 @@ public class JenkinsTest {
     @Test
     public void testGetJenkinsServerSettingsLegacyNoAltUrl() {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token");
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals("url", actual.getBaseUrl());
         assertEquals("user", actual.getUser());
@@ -134,7 +130,7 @@ public class JenkinsTest {
     @Test
     public void testGetJenkinsServerSettingsLegacyAltUrlTrue() {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token;true");
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals("url", actual.getBaseUrl());
         assertEquals("user", actual.getUser());
@@ -145,7 +141,7 @@ public class JenkinsTest {
     @Test
     public void testGetJenkinsServerSettingsLegacyAltUrlFalse() {
         when(pluginSettings.get(".jenkinsSettings")).thenReturn("url;user;token;false");
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals("url", actual.getBaseUrl());
         assertEquals("user", actual.getUser());
@@ -157,7 +153,7 @@ public class JenkinsTest {
     public void testGetJenkinsServerSettings() {
         Server expected = new Server("url", null, "user", "token", false, false);
         when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
-        Server actual = jenkins.getJenkinsServer(null);
+        Server actual = jenkins.getJenkinsServer(null, null);
 
         assertEquals(expected.asMap(), actual.asMap());
     }
@@ -165,7 +161,7 @@ public class JenkinsTest {
     @Test
     public void testGetProjectServerSettingsNull() {
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(null);
-        Server actual = jenkins.getJenkinsServer(PROJECT_KEY);
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null);
 
         assertEquals(null, actual);
     }
@@ -174,7 +170,7 @@ public class JenkinsTest {
     public void testGetProjectServerSettings() {
         Server expected = new Server("url", null, "user", "token", false, false);
         when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
-        Server actual = jenkins.getJenkinsServer(PROJECT_KEY);
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null);
 
         assertEquals(expected.asMap(), actual.asMap());
     }
@@ -238,11 +234,11 @@ public class JenkinsTest {
         List<UserToken> actual = jenkins.getAllUserTokens(user, projectKeys, projectService);
 
         assertEquals(2, actual.size());
-        assertEquals(projectServer.getBaseUrl(), actual.get(1).getBaseUrl());
-        assertEquals(newProjectKey, actual.get(1).getProjectKey());
-        assertEquals(newProjectName, actual.get(1).getProjectName());
-        assertEquals(USER_SLUG, actual.get(1).getUserSlug());
-        assertEquals(null, actual.get(1).getToken());
+        assertEquals(projectServer.getBaseUrl(), actual.get(0).getBaseUrl());
+        assertEquals(newProjectKey, actual.get(0).getProjectKey());
+        assertEquals(newProjectName, actual.get(0).getProjectName());
+        assertEquals(USER_SLUG, actual.get(0).getUserSlug());
+        assertEquals(null, actual.get(0).getToken());
     }
 
     @Test
@@ -266,213 +262,81 @@ public class JenkinsTest {
         List<UserToken> actual = jenkins.getAllUserTokens(user, projectKeys, projectService);
 
         assertEquals(2, actual.size());
-        assertEquals(token, actual.get(1).getToken());
-    }
-
-    @Test
-    public void testTriggerJobUseJobServer(){
-        String userToken = USER_SLUG + ":token";
-        String userCSRF = null;
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
-                false, false);
-        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
-        when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
-                .thenReturn("token");
-
-        Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
-                .jenkinsServer(PROJECT_KEY).pathRegex("").prDestRegex("").build();
-        BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
-                .add("$TRIGGER", () -> Job.Trigger.ADD.toString())
-                .build();
-        Jenkins jenkinsSpy = spy(jenkins);
-        jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
-
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
-                userToken, userCSRF, false);
-    }
-
-    @Test
-    public void testTriggerJobWithServerContext(){
-        String userToken = USER_SLUG + ":token";
-        String userCSRF = null;
-        Server expected = new Server("http://globalurl/jenkins", null, user.getDisplayName(),
-                "token", false, false);
-        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
-        when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
-                .thenReturn("token");
-
-        Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
-                .jenkinsServer(PROJECT_KEY).pathRegex("").prDestRegex("").build();
-        BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
-                .add("$TRIGGER", () -> Job.Trigger.ADD.toString())
-                .build();
-        Jenkins jenkinsSpy = spy(jenkins);
-        jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
-
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/jenkins/job/testJob/build",
-                userToken, userCSRF, false);
-    }
-
-    @Test
-    public void testTriggerJobUseJobServerGlobal(){
-        String userToken = USER_SLUG + ":token";
-        String userCSRF = null;
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
-                false, false);
-        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
-        when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
-                .thenReturn("token");
-
-        Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
-                .jenkinsServer(PROJECT_KEY).pathRegex("").prDestRegex("").build();
-        BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
-                .add("$TRIGGER", () -> Job.Trigger.ADD.toString())
-                .build();
-        Jenkins jenkinsSpy = spy(jenkins);
-        jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
-
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
-                userToken, userCSRF, false);
-    }
-
-    @Test
-    public void testTriggerJobUseProjectServerAndUserToken(){
-        String userToken = USER_SLUG + ":token";
-        String userCSRF = null;
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
-                false, false);
-        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
-        when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
-                .thenReturn("token");
-
-        Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
-                .pathRegex("").prDestRegex("").build();
-        BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
-                .add("$TRIGGER", () -> Job.Trigger.ADD.toString())
-                .build();
-        Jenkins jenkinsSpy = spy(jenkins);
-        jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
-
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
-                userToken, userCSRF, false);
-    }
-
-    @Test
-    public void testTriggerJobUseGlobalJenkinsAndUserToken(){
-        String userToken = USER_SLUG + ":token";
-        String userCSRF = null;
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
-                false, false);
-        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(null);
-        when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
-        when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn("token");
-
-        Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
-                .pathRegex("").prDestRegex("").build();
-        BitbucketVariables bitbucketVariables =  new BitbucketVariables.Builder()
-                .add("$TRIGGER", () -> Job.Trigger.ADD.toString())
-                .build();;
-        Jenkins jenkinsSpy = spy(jenkins);
-        jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
-
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
-                userToken, userCSRF, false);
-    }
-
-    @Test
-    public void testTriggerJobNoProjectUserSet(){
-        String userToken = USER_SLUG + ":token";
-        String userCSRF = null;
-        when(user.getDisplayName()).thenReturn(USER_SLUG);
-        Server expected = new Server("http://globalurl", null, user.getDisplayName(), "token",
-                false, false);
-        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
-
-        Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
-                .pathRegex("").prDestRegex("").build();
-        BitbucketVariables bitbucketVariables =  new BitbucketVariables.Builder()
-                .add("$TRIGGER", () -> Job.Trigger.ADD.toString())
-                .build();;
-        Jenkins jenkinsSpy = spy(jenkins);
-        jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
-
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build",
-                userToken, userCSRF, true);
-    }
-
-    @Test
-    public void testTriggerJobNoDefaultUserSet(){
-        when(user.getDisplayName()).thenReturn("user");
-        Server expected = new Server("http://globalurl", "", "", "", false, false);
-        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
-
-        Job job = new Job.JobBuilder(1).jobName("testJob").buildParameters("").branchRegex("")
-                .pathRegex("").prDestRegex("").build();
-        BitbucketVariables bitbucketVariables = new BitbucketVariables.Builder()
-                .add("$TRIGGER", () -> Job.Trigger.ADD.toString())
-                .build();
-        Jenkins jenkinsSpy = spy(jenkins);
-        jenkinsSpy.triggerJob(PROJECT_KEY, user, job, bitbucketVariables);
-
-        verify(jenkinsSpy, times(1)).sanitizeTrigger("http://globalurl/job/testJob/build", null,
-                null, true);
-    }
-
-    @Test
-    public void testTriggerJobNoBuildUrl() {
-        JenkinsResponse actual = jenkins.sanitizeTrigger(null, null, null, false);
-
-        assertEquals(true, actual.getError());
-        assertEquals(false, actual.getPrompt());
-        assertEquals("Jenkins settings are not setup", actual.getMessageText());
+        assertEquals(token, actual.get(0).getToken());
     }
 
     @Test
     public void testGetJoinedGlobalToken() {
         String token = "token";
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn("token");
-        String actual = jenkins.getJoinedUserToken(user, null);
 
-        assertEquals(USER_SLUG + ":" + token, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(null, null, user);
+        assertEquals(user.getSlug(), actual.getUser());
+        assertEquals(token, actual.getToken());
     }
 
     @Test
-    public void testGetJoinedGlobalTokenNullToken() {
+    public void testGetServerWithoutUserGlobalToken() {
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
-        String actual = jenkins.getJoinedUserToken(user, null);
 
-        assertEquals(null, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(null, null, user);
+        assertEquals("default_user", actual.getUser());
+        assertEquals("default_token", actual.getToken());
     }
 
     @Test
-    public void testGetJoinedGlobalTokenNullUser() {
-        String actual = jenkins.getJoinedUserToken(null, null);
+    public void testGetServerGlobalTokenNullUser() {
+        when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
 
-        assertEquals(null, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings")).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(null, null, null);
+        assertEquals("default_user", actual.getUser());
+        assertEquals("default_token", actual.getToken());
     }
 
     @Test
-    public void testGetJoinedProjectToken() {
+    public void testGetServerWithUserProjectToken() {
         String token = "token";
         when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY))
                 .thenReturn("token");
-        String actual = jenkins.getJoinedUserToken(user, PROJECT_KEY);
 
-        assertEquals(USER_SLUG + ":" + token, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null, user);
+        assertEquals(user.getSlug(), actual.getUser());
+        assertEquals(token, actual.getToken());
     }
 
     @Test
-    public void testGetJoinedProjectTokenNullToken() {
-        when(pluginSettings.get(".jenkinsUser." + USER_SLUG + "." + PROJECT_KEY)).thenReturn(null);
-        String actual = jenkins.getJoinedUserToken(user, PROJECT_KEY);
+    public void testGetServerWithoutUserProjectToken() {
+        when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
 
-        assertEquals(null, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null, user);
+        assertEquals("default_user", actual.getUser());
+        assertEquals("default_token", actual.getToken());
     }
 
     @Test
-    public void testGetJoinedProjectTokenNullUser() {
-        String actual = jenkins.getJoinedUserToken(null, PROJECT_KEY);
+    public void testGetServerProjectTokenNullUser() {
+        when(pluginSettings.get(".jenkinsUser." + USER_SLUG)).thenReturn(null);
 
-        assertEquals(null, actual);
+        Server expected = new Server("url", null, "default_user", "default_token", false, false);
+        when(pluginSettings.get(".jenkinsSettings." + PROJECT_KEY)).thenReturn(expected.asMap());
+
+        Server actual = jenkins.getJenkinsServer(PROJECT_KEY, null, null);
+        assertEquals("default_user", actual.getUser());
+        assertEquals("default_token", actual.getToken());
     }
 }

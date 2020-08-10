@@ -1,12 +1,10 @@
 package com.kylenicholls.stash.parameterizedbuilds.rest;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -37,6 +35,7 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.kylenicholls.stash.parameterizedbuilds.ciserver.Jenkins;
+import com.kylenicholls.stash.parameterizedbuilds.ciserver.JenkinsConnection;
 import com.kylenicholls.stash.parameterizedbuilds.conditions.BuildPermissionsCondition;
 import com.kylenicholls.stash.parameterizedbuilds.helper.SettingsService;
 import com.kylenicholls.stash.parameterizedbuilds.item.BitbucketVariables;
@@ -108,7 +107,9 @@ public class BuildResource extends RestResource {
                         .add("$BRANCH", () -> branch)
                         .add("$TRIGGER", Trigger.MANUAL::toString).build();
 
-                Map<String, Object> message = jenkins.triggerJob(projectKey, user, job, variables)
+                JenkinsConnection jenkinsConn = new JenkinsConnection(jenkins);
+                Map<String, Object> message = jenkinsConn
+                        .triggerJob(projectKey, user, job, variables)
                         .getMessage();
                 return Response.ok(message).build();
             }
@@ -121,12 +122,16 @@ public class BuildResource extends RestResource {
     public Response getJenkinsServers(@Context final Repository repository){
         if (authContext.isAuthenticated()) {
             String projectKey = repository.getProject().getKey();
-            List<Map<String, String>> servers = new ArrayList<>();
+            List<Map<String, String>> servers = jenkins.getJenkinsServers(null).stream()
+                    .map(x -> createServerMap(x, null))
+                    .collect(Collectors.toList());
 
-            Optional.ofNullable(jenkins.getJenkinsServer(projectKey))
-                    .map(x -> createServerMap(x, projectKey)).ifPresent(servers::add);
-            Optional.ofNullable(jenkins.getJenkinsServer(null))
-                    .map(x -> createServerMap(x, null)).ifPresent(servers::add);
+            List<Map<String, String>> projectServers = jenkins.getJenkinsServers(projectKey)
+                    .stream()
+                    .map(x -> createServerMap(x, projectKey))
+                    .collect(Collectors.toList());
+
+            servers.addAll(projectServers);
 
             return Response.ok(servers).build();
         } else {
