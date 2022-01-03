@@ -268,6 +268,7 @@ public class BuildResourceTest {
         String jobName = "jobname";
         long prId = 101L;
         String authorName = "prauthorname";
+        String authorUserName = "prauthorusername";
         String authorEmail = "user@example.com";
         String title = "prtitle";
         String description = "prdescription";
@@ -275,7 +276,7 @@ public class BuildResourceTest {
         Job job = new Job.JobBuilder(1).jobName(jobName).triggers(new String[] { "manual" })
                 .buildParameters("param1=$BRANCH\r\nparam2=$PRDESTINATION\r\nparam3=$PRURL\r\n" +
                                  "param4=$PRAUTHOR\r\nparam5=$PREMAIL\r\nparam6=$PRTITLE\r\n" +
-                                 "param7=$PRDESCRIPTION\r\nparam8=$PRID")
+                                 "param7=$PRDESCRIPTION\r\nparam8=$PRID\r\nparam9=$PRUSERNAME")
                 .permissions("REPO_ADMIN").build();
         jobs.add(job);
         PullRequest pr = mock(PullRequest.class);
@@ -288,6 +289,7 @@ public class BuildResourceTest {
         when(pr.getToRef()).thenReturn(toRef);
         when(toRef.getDisplayId()).thenReturn(prDest);
         when(prUser.getDisplayName()).thenReturn(authorName);
+        when(prUser.getName()).thenReturn(authorUserName);
         when(prUser.getEmailAddress()).thenReturn(authorEmail);
         when(pr.getTitle()).thenReturn(title);
         when(pr.getDescription()).thenReturn(description);
@@ -314,6 +316,8 @@ public class BuildResourceTest {
         parameter7.put("param7", description);
         Map<String, Object> parameter8 = new HashMap<>();
         parameter8.put("param8", Long.toString(prId));
+        Map<String, Object> parameter9 = new HashMap<>();
+        parameter9.put("param9", authorUserName);
         parameters.add(parameter1);
         parameters.add(parameter2);
         parameters.add(parameter3);
@@ -322,6 +326,7 @@ public class BuildResourceTest {
         parameters.add(parameter6);
         parameters.add(parameter7);
         parameters.add(parameter8);
+        parameters.add(parameter9);
         assertEquals(Response.Status.OK.getStatusCode(), actual.getStatus());
         assertEquals(jobId, jobData.get(0).get("id"));
         assertEquals(jobName, jobData.get(0).get("jobName"));
