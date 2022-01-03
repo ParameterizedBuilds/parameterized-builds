@@ -83,9 +83,10 @@ export const testJenkinsServer = (context, projectKey, serverData) => {
 
 export const updateUserToken = (context, projectKey, serverData) => {
     const baseUrl = getRestUrl(context);
+    let alias = serverData.alias === "" ? "alias" : serverData.alias;
     let fullUrl = projectKey === "" ?
-        `${baseUrl}/global/servers/${serverData.alias}/userToken` :
-        `${baseUrl}/projects/${projectKey}/servers/${serverData.alias}/userToken`;
+        `${baseUrl}/global/servers/${alias}/userToken` :
+        `${baseUrl}/projects/${projectKey}/servers/${alias}/userToken`;
 
         const data = {
             token: serverData.default_token
@@ -101,9 +102,10 @@ export const updateUserToken = (context, projectKey, serverData) => {
 
 export const removeUserToken = (context, projectKey, alias) => {
     const baseUrl = getRestUrl(context);
+    let name = alias === "" ? "alias" : alias;
     let fullUrl = projectKey === "" ?
-        `${baseUrl}/global/servers/${alias}/userToken` :
-        `${baseUrl}/projects/${projectKey}/servers/${alias}/userToken`;
+        `${baseUrl}/global/servers/${name}/userToken` :
+        `${baseUrl}/projects/${projectKey}/servers/${name}/userToken`;
 
     return axios.delete(fullUrl, {
         timeout: 1000 * 60
