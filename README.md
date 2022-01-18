@@ -2,7 +2,6 @@
 
 ## Welcome to the Jenkins Parameterized Build Plug-in
 [![Build Status](https://travis-ci.org/ParameterizedBuilds/parameterized-builds.svg?branch=master)](https://travis-ci.org/ParameterizedBuilds/parameterized-builds)
-[![Join the chat at https://gitter.im/parameterized-builds/Lobby](https://badges.gitter.im/parameterized-builds/Lobby.svg)](https://gitter.im/parameterized-builds/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Setup
 1. [Define a server](#define-a-server)
