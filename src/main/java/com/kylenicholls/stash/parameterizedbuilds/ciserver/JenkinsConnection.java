@@ -70,7 +70,7 @@ public class JenkinsConnection {
         }
 
         String buildUrl = job.buildUrl(jenkinsServer, bitbucketVariables, false);
-        boolean prompt = !user.getSlug().equals(jenkinsServer.getUser());
+        boolean prompt = user == null || !user.getSlug().equals(jenkinsServer.getUser());
 
         String csrfHeader = null;
         if (jenkinsServer.getCsrfEnabled()) {
