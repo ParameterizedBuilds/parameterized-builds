@@ -28,6 +28,8 @@ public class JobTest {
         bitbucketVariables = new BitbucketVariables.Builder()
             .add("$TRIGGER", Job.Trigger.ADD::toString)
             .add("$BRANCH", () -> "test_branch")
+            .add("$REPOSITORY", () -> "test_repo")
+            .add("$PROJECT", () -> "test_project")
             .build();
     }
     @Test
@@ -158,12 +160,13 @@ public class JobTest {
 
     @Test
     public void testBuildUrlSubsVariablesInJobName() {
-        String jobName = "$BRANCH";
+        String jobName = "$PROJECT-$REPOSITORY-$BRANCH";
         Server server = new Server("http://baseurl", null, "", "", false, false);
         Job job = new Job.JobBuilder(0).jobName(jobName).buildParameters("").build();
         String actual = job.buildUrl(server, bitbucketVariables, false);
 
-        assertEquals(server.getBaseUrl() + "/job/" + bitbucketVariables.fetch(jobName) + 
+        assertEquals(server.getBaseUrl() + "/job/" + bitbucketVariables.fetch("$PROJECT") + "-" +
+                bitbucketVariables.fetch("$REPOSITORY") + "-" + bitbucketVariables.fetch("$BRANCH") +
                 "/build", actual);
     }
 
