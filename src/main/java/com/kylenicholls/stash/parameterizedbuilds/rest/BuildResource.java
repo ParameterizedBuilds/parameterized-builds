@@ -102,10 +102,13 @@ public class BuildResource extends RestResource {
                                 .collect(Collectors.toMap(Entry::getKey, e->e.getValue().get(0)));
                 Job job = jobToBuild.copy().buildParameters(paramList).build();
 
-                //create bitbucketVariables with only branch and trigger to resolve pipelines
+                // create bitbucketVariables with only branch and trigger to resolve pipelines
                 BitbucketVariables variables = new BitbucketVariables.Builder()
                         .add("$BRANCH", () -> branch)
-                        .add("$TRIGGER", Trigger.MANUAL::toString).build();
+                        .add("$TRIGGER", Trigger.MANUAL::toString)
+                        .add("$REPOSITORY", repository::getSlug)
+                        .add("$PROJECT", () -> repository.getProject().getKey())
+                        .build();
 
                 JenkinsConnection jenkinsConn = new JenkinsConnection(jenkins);
                 Map<String, Object> message = jenkinsConn
